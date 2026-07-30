@@ -22,13 +22,18 @@ env/
 *.key
 *.pem
 
-# get_url.py lleva el App Key y el App Secret de Hik-Connect ESCRITOS EN EL
-# CODIGO (lineas 11-12), en las 4 copias del script. Se excluye para que este
-# monorepo no nazca con el secreto en su historial. El archivo sigue en disco
-# y nadie lo importa (script suelto, ver 01_CODIGO_MUERTO.csv). Ver H-13:
-# las claves YA estan expuestas en los repos antiguos y hay que ROTARLAS;
-# quitarlas del codigo no las desexpone.
+# Estos 3 archivos llevan el App Key y el App Secret de Hik-Connect ESCRITOS
+# EN CLARO. Se excluyen para que este monorepo no nazca con el secreto en su
+# historial. Siguen en disco: no se ha borrado nada.
+#   - get_url.py           lineas 11-12, en las 4 copias del script
+#   - HIKCONNECT_INTEGRATION.md  documentacion con las claves de ejemplo reales
+#   - hik-connect/api hik.txt    notas de la API
+# Ver H-13: las claves YA estan expuestas en los repos antiguos de GitHub y
+# hay que ROTARLAS. Quitarlas del codigo no las desexpone.
+# Cuando esten rotadas, la documentacion puede volver al repositorio.
 get_url.py
+HIKCONNECT_INTEGRATION.md
+hik-connect/api hik.txt
 
 # ===== Modelos y pesos (50 GB; compartir por red o Git LFS) =====
 modelos NVIDIA/
