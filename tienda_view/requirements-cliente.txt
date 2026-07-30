@@ -1,0 +1,23 @@
+# Dependencias REALES del CLIENTE de tienda (app Qt).
+# NO incluye torch/torchvision/ultralytics: eso es del SERVIDOR; el cliente
+# solo captura, muestra y envia frames. Sin versiones fijadas a proposito:
+# el venv usa --system-site-packages, asi que pip OMITE lo que ya esta
+# instalado global y solo baja lo que falte (evita reinstalar el torch CUDA).
+PySide6
+opencv-contrib-python
+numpy
+pillow
+python-dotenv
+msgpack
+requests
+psutil
+appdirs
+cryptography
+pyautogui
+pywin32
+hikvisionapi
+xmltodict
+# 'supervision' se usa para el overlay pero NO se lista aqui a proposito:
+# su dependencia 'opencv-python' choca con el 'opencv-contrib-python' global
+# y mete un cv2 duplicado. Viene del entorno global compartido con el
+# servidor. Si instalas en una PC SIN ese global, agrega: supervision
