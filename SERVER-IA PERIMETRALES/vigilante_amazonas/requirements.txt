@@ -1,0 +1,49 @@
+# =============================================================================
+# VIGILANTE-AMAZONAS — dependencias fijadas (validadas en RTX 5060 Ti sm_120)
+#
+# INSTALACIÓN (orden importa por el índice de PyTorch):
+#   1) torch/torchvision DEBEN ser build cu128 (Blackwell sm_120):
+#      pip install torch==2.8.0+cu128 torchvision==0.23.0+cu128 --index-url https://download.pytorch.org/whl/cu128
+#   2) TensorRT: instalar la variante CUDA-12 EXPLÍCITA. El metapaquete
+#      "tensorrt" a secas jala dependencias CUDA-13 que FALLAN en Windows:
+#      pip install tensorrt-cu12==10.13.3.9
+#   3) El resto:
+#      pip install -r requirements.txt
+#
+# NOTA: numpy se fija en 2.2.6 (evita que pip lo reemplace y rompa DLLs en
+# Windows por archivos bloqueados).
+# =============================================================================
+
+# --- Núcleo GPU (instalar con --index-url https://download.pytorch.org/whl/cu128) ---
+torch==2.8.0+cu128
+torchvision==0.23.0+cu128
+
+# --- TensorRT (variante CUDA 12; sm_120 requiere >= 10.8) ---
+tensorrt-cu12==10.13.3.9
+
+# --- Detección y tracking ---
+ultralytics==8.4.75          # >=8.4 obligatorio para YOLO26 (8.3.x no lo soporta)
+supervision==0.28.0          # ByteTrack + anotadores
+lapx==0.9.4                  # asignación húngara para el tracker
+
+# --- Visión / numérico ---
+opencv-contrib-python==4.12.0.88
+numpy==2.2.6
+scipy==1.15.3
+pillow==12.0.0
+
+# --- Re-ID (embeddings por ONNX Runtime en GPU) ---
+onnxruntime-gpu==1.23.2      # ArcFace w600k_r50 + YuNet + OSNet
+torchreid==0.2.5             # export/reproceso de OSNet (opcional en runtime)
+
+# --- Clasificador seguridad (CLIP zero-shot) y VLM verificador ---
+transformers==4.57.1
+qwen-vl-utils==0.0.8
+accelerate==1.2.1
+
+# --- Backend web y alertas ---
+fastapi==0.121.1
+uvicorn==0.38.0
+python-socketio==5.11.4
+python-multipart==0.0.20     # subida de fotos en el dashboard
+aiofiles==24.1.0

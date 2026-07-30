@@ -1,0 +1,86 @@
+{
+  "_comentario": [
+    "PLANOGRAMA DE EJEMPLO. Copialo como <camera_id>.json (o default.json",
+    "para que valga para todas las camaras) y ajusta las coordenadas.",
+    "",
+    "Las coordenadas van NORMALIZADAS 0..1 (fraccion del ancho/alto del",
+    "frame). Asi el planograma sobrevive a un cambio de resolucion de la",
+    "camara. Tambien se aceptan pixeles absolutos si algun valor es > 1.",
+    "",
+    "El NOMBRE del anaquel ES el producto que se reporta en la analitica.",
+    "Un anaquel por producto/marca que quieras medir por separado: cuanto",
+    "mas fino lo dividas, mas fina es la analitica de ventas.",
+    "",
+    "Genera este archivo comodamente con el raton:",
+    "  python tools/definir_planograma.py --camera cam1 --fuente rtsp://..."
+  ],
+
+  "pasillos": [
+    {
+      "nombre": "Pasillo 1 - Lacteos",
+      "categoria": "Lacteos",
+      "poligono": [[0.02, 0.40], [0.32, 0.40], [0.32, 0.98], [0.02, 0.98]]
+    },
+    {
+      "nombre": "Pasillo 2 - Bebidas",
+      "categoria": "Bebidas",
+      "poligono": [[0.34, 0.40], [0.66, 0.40], [0.66, 0.98], [0.34, 0.98]]
+    },
+    {
+      "nombre": "Pasillo 3 - Limpieza",
+      "categoria": "Limpieza",
+      "poligono": [[0.68, 0.40], [0.98, 0.40], [0.98, 0.98], [0.68, 0.98]]
+    }
+  ],
+
+  "anaqueles": [
+    {
+      "nombre": "Leche Entera 1L",
+      "sku": "LEC-001",
+      "rect": [0.03, 0.08, 0.16, 0.34],
+      "pasillo": "Pasillo 1 - Lacteos",
+      "categoria": "Lacteos",
+      "precio": 2.5
+    },
+    {
+      "nombre": "Leche Deslactosada 1L",
+      "sku": "LEC-002",
+      "rect": [0.18, 0.08, 0.31, 0.34],
+      "pasillo": "Pasillo 1 - Lacteos",
+      "categoria": "Lacteos",
+      "precio": 3.2
+    },
+    {
+      "nombre": "Refresco Cola 2L",
+      "sku": "BEB-010",
+      "rect": [0.35, 0.08, 0.49, 0.34],
+      "pasillo": "Pasillo 2 - Bebidas",
+      "categoria": "Bebidas",
+      "precio": 1.8
+    },
+    {
+      "nombre": "Agua Mineral 1.5L",
+      "sku": "BEB-011",
+      "rect": [0.51, 0.08, 0.65, 0.34],
+      "pasillo": "Pasillo 2 - Bebidas",
+      "categoria": "Bebidas",
+      "precio": 0.9
+    },
+    {
+      "nombre": "Detergente 1kg",
+      "sku": "LIM-020",
+      "rect": [0.69, 0.08, 0.83, 0.34],
+      "pasillo": "Pasillo 3 - Limpieza",
+      "categoria": "Limpieza",
+      "precio": 4.5
+    }
+  ],
+
+  "mobiliario": [
+    {
+      "nombre": "Consultor de precios",
+      "tipo": "consulta_precio",
+      "rect": [0.85, 0.10, 0.97, 0.36]
+    }
+  ]
+}

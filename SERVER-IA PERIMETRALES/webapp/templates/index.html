@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELDE - Rostros Reconocidos</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <h1>ELDE · Rostros Reconocidos</h1>
+            <span class="status-indicator" id="statusDot"></span>
+            <span class="status-text" id="statusText">Conectando...</span>
+        </div>
+        <div class="topbar-right">
+            <span class="last-update">Última actualización: <span id="lastUpdate">-</span></span>
+            <label class="auto-refresh">
+                <input type="checkbox" id="autoRefresh" checked>
+                <span>Auto-refresh 3s</span>
+            </label>
+            <button class="btn btn-accent" id="btnAnalyzeUnknown"
+                    title="Re-analiza con heavy TTA todas las personas Desconocido">
+                <span class="btn-icon">🔬</span>
+                <span class="btn-label">Re-analizar Desconocidos</span>
+            </button>
+            <button class="btn btn-success" id="btnDownloadPdf"
+                    title="Descargar reporte PDF con estadísticas">
+                <span class="btn-icon">📄</span>
+                <span class="btn-label">Reporte PDF</span>
+            </button>
+            <button class="btn btn-accent" id="btnFindDuplicates"
+                    title="Encuentra pares con caras similares que el sistema registró por separado">
+                <span class="btn-icon">🔍</span>
+                <span class="btn-label">Buscar duplicados</span>
+            </button>
+            <button class="btn btn-toggle" id="btnSelectionMode">
+                <span class="btn-icon">☑</span>
+                <span class="btn-label">Selección</span>
+            </button>
+            <button class="btn btn-danger" id="btnDeleteAll">
+                <span class="btn-icon">🗑</span>
+                <span class="btn-label">Borrar todos</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Banner de notificación de duplicados -->
+    <div class="duplicates-banner" id="duplicatesBanner" style="display: none;">
+        <span class="banner-icon">⚠️</span>
+        <span class="banner-text">
+            Se detectaron <strong id="bannerCount">0</strong> posibles duplicados
+            (personas que parecen ser la misma).
+        </span>
+        <button class="btn btn-small btn-accent" id="bannerOpenBtn">
+            Revisar y combinar
+        </button>
+        <button class="btn-banner-close" id="bannerCloseBtn"
+                title="Ocultar hasta el próximo refresh">×</button>
+    </div>
+
+    <!-- Barra de selección (oculta por defecto, aparece en modo selección) -->
+    <div class="selection-bar" id="selectionBar">
+        <span class="selection-info">
+            <span id="selectedCount">0</span> seleccionado(s)
+        </span>
+        <button class="btn btn-small" id="btnSelectAll">Seleccionar todos</button>
+        <button class="btn btn-small" id="btnSelectNone">Deseleccionar</button>
+        <button class="btn btn-accent btn-small" id="btnMergeSelected" disabled
+                title="Marca varias fotos de la misma persona y combínalas en una">
+            <span class="btn-icon">🔗</span>
+            <span>Combinar (misma persona)</span>
+        </button>
+        <button class="btn btn-danger btn-small" id="btnDeleteSelected" disabled>
+            <span class="btn-icon">🗑</span>
+            <span>Borrar seleccionados</span>
+        </button>
+    </div>
+
+    <section class="stats">
+        <div class="stat-card stat-total">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+                <div class="stat-label">Personas únicas</div>
+                <div class="stat-value" id="statTotal">-</div>
+            </div>
+        </div>
+        <div class="stat-card stat-today">
+            <div class="stat-icon">📅</div>
+            <div class="stat-content">
+                <div class="stat-label">Nuevas hoy</div>
+                <div class="stat-value" id="statToday">-</div>
+            </div>
+        </div>
+        <div class="stat-card stat-visits">
+            <div class="stat-icon">🔄</div>
+            <div class="stat-content">
+                <div class="stat-label">Total visitas</div>
+                <div class="stat-value" id="statVisits">-</div>
+            </div>
+        </div>
+        <div class="stat-card stat-men">
+            <div class="stat-icon">👨</div>
+            <div class="stat-content">
+                <div class="stat-label">Hombres</div>
+                <div class="stat-value" id="statMen">-</div>
+            </div>
+        </div>
+        <div class="stat-card stat-women">
+            <div class="stat-icon">👩</div>
+            <div class="stat-content">
+                <div class="stat-label">Mujeres</div>
+                <div class="stat-value" id="statWomen">-</div>
+            </div>
+        </div>
+        <div class="stat-card stat-unknown">
+            <div class="stat-icon">❓</div>
+            <div class="stat-content">
+                <div class="stat-label">Sin clasificar</div>
+                <div class="stat-value" id="statUnknown">-</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Mapas de calor por cámara ─────────────────────────────── -->
+    <section class="heatmaps" id="heatmapSection" style="display:none; margin: 18px 24px;">
+        <h2 style="color:#eee; font-size:16px; margin: 0 0 10px 4px;">
+            🔥 Mapa de calor por cámara
+            <span id="heatmapCount" style="color:#888; font-weight:normal; font-size:13px;"></span>
+            <button onclick="window._hmDeleteAll()" style="float:right; background:#7d2e2e; color:#fff; border:none; border-radius:5px; padding:5px 12px; cursor:pointer; font-size:13px;">🗑 Borrar mapas de calor</button>
+        </h2>
+        <div id="heatmapGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:14px;"></div>
+    </section>
+    <script>
+    (function () {
+        const section = document.getElementById('heatmapSection');
+        const grid = document.getElementById('heatmapGrid');
+        const countEl = document.getElementById('heatmapCount');
+
+        // Color por puesto del ranking: rojo (1º) -> frio (último)
+        const RANK_COLORS = ['#ff3b30', '#ff7a00', '#ffcc00', '#a8d34a',
+                             '#4fc3f7', '#7e8ce0', '#b39ddb', '#9e9e9e'];
+        function rankColor(i) {
+            return RANK_COLORS[Math.min(i, RANK_COLORS.length - 1)];
+        }
+
+        // Marcadores numerados posicionados sobre la imagen (coords 0..1)
+        function zoneBadges(zones) {
+            return zones.map(function (z, i) {
+                return '<div style="position:absolute;' +
+                    'left:calc(' + (z.x * 100) + '% - 12px);' +
+                    'top:calc(' + (z.y * 100) + '% - 12px);' +
+                    'width:24px; height:24px; border-radius:50%;' +
+                    'background:rgba(0,0,0,0.70); border:2px solid ' + rankColor(i) + ';' +
+                    'color:#fff; font-size:12px; font-weight:bold;' +
+                    'display:flex; align-items:center; justify-content:center;' +
+                    'box-shadow:0 0 6px rgba(0,0,0,0.8);">' + (i + 1) + '</div>';
+            }).join('');
+        }
+
+        // Ranking: de MAYOR a MENOR concentracion, con barra de intensidad
+        function zoneRanking(zones) {
+            if (!zones.length) {
+                return '<div style="color:#777; font-size:12px;">Sin actividad registrada aún</div>';
+            }
+            return zones.map(function (z, i) {
+                const pct = Math.round((z.intensidad || 0) * 100);
+                return '<div style="display:flex; align-items:center; gap:8px; margin-top:5px;">' +
+                    '<span style="width:22px; height:18px; border-radius:4px; background:' + rankColor(i) + ';' +
+                    ' color:#000; font-size:11px; font-weight:bold; text-align:center; line-height:18px;">' + (i + 1) + '</span>' +
+                    '<span style="color:#bbb; font-size:12px; width:110px;">x ' +
+                    Math.round(z.x * 100) + '% · y ' + Math.round(z.y * 100) + '%</span>' +
+                    '<span style="flex:1; height:9px; background:#3a3a3a; border-radius:5px; overflow:hidden;">' +
+                    '<span style="display:block; height:100%; width:' + pct + '%;' +
+                    ' background:linear-gradient(90deg,' + rankColor(i) + ',' + rankColor(i) + 'cc);"></span></span>' +
+                    '<span style="color:#ddd; font-size:12px; width:38px; text-align:right;">' + pct + '%</span>' +
+                    '</div>';
+            }).join('');
+        }
+
+        // Estado de vista por cámara: 'live' o un stamp horario.
+        // Sobrevive al auto-refresh (no se pisa la selección del usuario).
+        const viewState = {};
+        const histCache = {};
+        let lastLive = [];
+
+        function sortZones(zs) {
+            return (zs || []).slice()
+                .sort(function (a, b) { return (b.intensidad || 0) - (a.intensidad || 0); });
+        }
+
+        function cardHtml(h) {
+            const sel = viewState[h.name] || 'live';
+            const hist = histCache[h.name] || [];
+            // Datos a mostrar: en vivo o la hora histórica elegida
+            let view = {
+                img: h.image_url, zones: h.zones, samples: h.samples,
+                sub: 'En vivo (sesión) · ' + h.updated_str
+            };
+            if (sel !== 'live') {
+                const it = hist.find(function (x) { return x.stamp === sel; });
+                if (it) view = { img: it.image_url, zones: it.zones,
+                                 samples: it.samples, sub: '🕐 ' + it.label };
+            }
+            const zones = sortZones(view.zones);
+            const options = ['<option value="live"' + (sel === 'live' ? ' selected' : '') +
+                             '>En vivo (sesión)</option>']
+                .concat(hist.map(function (it) {
+                    return '<option value="' + it.stamp + '"' +
+                        (sel === it.stamp ? ' selected' : '') + '>' +
+                        it.label + ' (' + it.samples + ')</option>';
+                })).join('');
+            const displayName = h.camera_name || h.name;
+            return '<div style="background:#222; border:1px solid #444; border-radius:8px; overflow:hidden;">' +
+                '<div style="position:relative;">' +
+                '<img src="' + view.img + '" style="width:100%; display:block;" ' +
+                'onerror="this.style.display=\'none\'">' +
+                zoneBadges(zones) +
+                '</div>' +
+                '<div style="padding:8px 12px 12px;">' +
+                '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">' +
+                '<span style="color:#fff; font-size:14px; font-weight:bold;">📷 ' + displayName + '</span>' +
+                '<button onclick="window._hmDel(\'' + h.name + '\')" title="Borrar este mapa de calor" style="background:#5a2a2a; color:#fdd; border:none; border-radius:4px; padding:2px 7px; cursor:pointer; font-size:12px;">🗑</button>' +
+                '<span style="color:#888; font-size:12px;">' + view.samples + ' muestras · ' + view.sub + '</span>' +
+                '</div>' +
+                '<div style="margin-top:6px;">' +
+                '<label style="color:#999; font-size:12px; margin-right:6px;">Periodo:</label>' +
+                '<select onchange="window._hmSel(\'' + h.name + '\', this.value)" ' +
+                'style="background:#333; color:#eee; border:1px solid #555; border-radius:4px; padding:3px 6px; font-size:12px;">' +
+                options + '</select>' +
+                (hist.length ? '<span style="color:#777; font-size:11px; margin-left:8px;">' +
+                    hist.length + ' hora(s) en histórico</span>' : '') +
+                '</div>' +
+                '<div style="color:#999; font-size:11px; margin-top:8px; text-transform:uppercase; letter-spacing:0.5px;">' +
+                'Zonas por concentración (mayor → menor)</div>' +
+                zoneRanking(zones) +
+                '</div></div>';
+        }
+
+        function renderAll() {
+            if (!lastLive.length) { section.style.display = 'none'; return; }
+            section.style.display = '';
+            countEl.textContent = '(' + lastLive.length + ' cámara' + (lastLive.length > 1 ? 's' : '') + ')';
+            grid.innerHTML = lastLive.map(cardHtml).join('');
+        }
+
+        window._hmSel = function (name, value) {
+            viewState[name] = value;
+            renderAll();
+        };
+        window._hmDeleteAll = async function () {
+            if (!confirm('¿Borrar TODOS los mapas de calor (en vivo e histórico)?\nLas áreas con nombre se conservan.')) return;
+            try { await fetch('/api/heatmaps', { method: 'DELETE' }); lastLive = []; renderAll(); refreshHeatmaps(); }
+            catch (e) { alert('Error borrando los mapas de calor.'); }
+        };
+        window._hmDel = async function (name) {
+            if (!confirm('¿Borrar el mapa de calor de esta cámara?')) return;
+            try { await fetch('/api/heatmaps/' + encodeURIComponent(name), { method: 'DELETE' }); delete histCache[name]; refreshHeatmaps(); }
+            catch (e) { alert('Error borrando.'); }
+        };
+
+        async function refreshHeatmaps() {
+            try {
+                const r = await fetch('/api/heatmaps');
+                if (!r.ok) return;
+                const data = await r.json();
+                lastLive = data.heatmaps || [];
+                // Histórico por cámara (en paralelo)
+                await Promise.all(lastLive.map(async function (h) {
+                    try {
+                        const hr = await fetch('/api/heatmaps/' + h.name + '/history');
+                        if (hr.ok) histCache[h.name] = (await hr.json()).history || [];
+                    } catch (e) { /* sin histórico aún */ }
+                }));
+                renderAll();
+            } catch (e) { /* servidor de inferencia apagado: silencioso */ }
+        }
+
+        refreshHeatmaps();
+        setInterval(refreshHeatmaps, 5000);
+    })();
+    </script>
+
+    <!-- ── Consulta histórica de concentración ───────────────────── -->
+    <section id="heatQuerySection" style="display:none; margin: 18px 24px;">
+        <h2 style="color:#eee; font-size:16px; margin: 0 0 10px 4px;">
+            📊 Consulta de concentración histórica
+            <span style="color:#888; font-weight:normal; font-size:12px;">— dónde hubo más gente, por área y período</span>
+        </h2>
+        <div style="background:#222; border:1px solid #444; border-radius:8px; padding:12px;">
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <label style="color:#999; font-size:13px;">Cámara:
+                    <select id="hqCam" style="background:#333; color:#eee; border:1px solid #555; border-radius:4px; padding:4px 8px; font-size:13px;"></select></label>
+                <span id="hqPresets"></span>
+                <label style="color:#999; font-size:13px;">Desde
+                    <input type="date" id="hqFrom" style="background:#333; color:#eee; border:1px solid #555; border-radius:4px; padding:3px 6px;"></label>
+                <label style="color:#999; font-size:13px;">Hasta
+                    <input type="date" id="hqTo" style="background:#333; color:#eee; border:1px solid #555; border-radius:4px; padding:3px 6px;"></label>
+                <button id="hqGo" style="background:#2d6cdf; color:#fff; border:none; border-radius:4px; padding:5px 14px; cursor:pointer; font-size:13px;">Consultar</button>
+                <button id="hqEdit" style="background:#444; color:#ddd; border:1px solid #666; border-radius:4px; padding:5px 12px; cursor:pointer; font-size:13px;">✏️ Definir áreas</button>
+            </div>
+            <div id="hqEditBar" style="display:none; margin-top:8px; color:#bbb; font-size:12px;">
+                Arrastra sobre el mapa para dibujar un área y ponle nombre.
+                <button id="hqSaveAreas" style="background:#2e7d32; color:#fff; border:none; border-radius:4px; padding:3px 10px; cursor:pointer; margin-left:6px;">💾 Guardar áreas</button>
+                <button id="hqClearAreas" style="background:#7d2e2e; color:#fff; border:none; border-radius:4px; padding:3px 10px; cursor:pointer; margin-left:4px;">🗑 Limpiar</button>
+            </div>
+            <div id="hqResult" style="margin-top:12px; color:#888; font-size:13px;">Elige una cámara y un período.</div>
+        </div>
+    </section>
+    <script>
+    (function () {
+        const RANK_COLORS = ['#ff3b30','#ff7a00','#ffcc00','#a8d34a','#4fc3f7','#7e8ce0','#b39ddb','#9e9e9e'];
+        const rc = i => RANK_COLORS[Math.min(i, RANK_COLORS.length - 1)];
+        const sec = document.getElementById('heatQuerySection');
+        const camSel = document.getElementById('hqCam');
+        const fromI = document.getElementById('hqFrom');
+        const toI = document.getElementById('hqTo');
+        const resEl = document.getElementById('hqResult');
+        const editBar = document.getElementById('hqEditBar');
+        let editing = false, areas = [];
+
+        const fmt = d => d.toISOString().slice(0, 10);
+        function setRange(daysBack) {
+            const t = new Date(), f = new Date(); f.setDate(f.getDate() - daysBack);
+            fromI.value = fmt(f); toI.value = fmt(t); runQuery();
+        }
+        const presets = document.getElementById('hqPresets');
+        [['Hoy', 0], ['Ayer', -1], ['7 días', 6], ['30 días', 29]].forEach(function (p) {
+            const b = document.createElement('button'); b.textContent = p[0];
+            b.style.cssText = 'background:#333;color:#ddd;border:1px solid #555;border-radius:4px;padding:4px 9px;margin-right:4px;cursor:pointer;font-size:12px;';
+            b.onclick = function () {
+                if (p[1] === -1) { const y = new Date(); y.setDate(y.getDate() - 1); fromI.value = fmt(y); toI.value = fmt(y); runQuery(); }
+                else setRange(p[1]);
+            };
+            presets.appendChild(b);
+        });
+
+        async function loadCams() {
+            try {
+                const r = await fetch('/api/heatmaps'); if (!r.ok) return;
+                const cams = (await r.json()).heatmaps || [];
+                if (!cams.length) { sec.style.display = 'none'; return; }
+                sec.style.display = '';
+                const cur = camSel.value;
+                camSel.innerHTML = '<option value="__all__">🌐 Todas las cámaras</option>' +
+                    cams.map(c => '<option value="' + c.name + '">' + (c.camera_name || c.name) + '</option>').join('');
+                if (cur) camSel.value = cur;
+            } catch (e) { }
+        }
+        async function loadAreas() {
+            areas = [];
+            try { const r = await fetch('/api/heatmaps/' + camSel.value + '/areas'); if (r.ok) areas = (await r.json()).areas || []; } catch (e) { }
+        }
+        function areaRects() {
+            return areas.map(function (a, i) {
+                return '<div data-ai="' + i + '" style="position:absolute;left:' + (a.x1 * 100) + '%;top:' + (a.y1 * 100) + '%;width:' + ((a.x2 - a.x1) * 100) + '%;height:' + ((a.y2 - a.y1) * 100) + '%;border:2px solid #00e5ff;background:rgba(0,229,255,0.10);box-sizing:border-box;">' +
+                    '<span style="position:absolute;top:-17px;left:0;background:#00e5ff;color:#000;font-size:11px;padding:0 4px;border-radius:3px;white-space:nowrap;">' + a.name + '</span></div>';
+            }).join('');
+        }
+        function zoneBadges(zones) {
+            return (zones || []).map((z, i) => '<div style="position:absolute;left:calc(' + (z.x * 100) + '% - 11px);top:calc(' + (z.y * 100) + '% - 11px);width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.7);border:2px solid ' + rc(i) + ';color:#fff;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center;">' + (i + 1) + '</div>').join('');
+        }
+        function zoneRank(zones) {
+            if (!zones || !zones.length) return '<div style="color:#777;font-size:12px;">Sin actividad en el período</div>';
+            return zones.map(function (z, i) {
+                const p = Math.round((z.intensidad || 0) * 100);
+                return '<div style="display:flex;align-items:center;gap:8px;margin-top:5px;"><span style="width:22px;height:18px;border-radius:4px;background:' + rc(i) + ';color:#000;font-size:11px;font-weight:bold;text-align:center;line-height:18px;">' + (i + 1) + '</span>' +
+                    '<span style="color:#bbb;font-size:12px;width:108px;">x ' + Math.round(z.x * 100) + '% · y ' + Math.round(z.y * 100) + '%</span>' +
+                    '<span style="flex:1;height:9px;background:#3a3a3a;border-radius:5px;overflow:hidden;"><span style="display:block;height:100%;width:' + p + '%;background:' + rc(i) + ';"></span></span>' +
+                    '<span style="color:#ddd;font-size:12px;width:36px;text-align:right;">' + p + '%</span></div>';
+            }).join('');
+        }
+        function areaTable(as) {
+            if (!as || !as.length) return '<div style="color:#777;font-size:12px;">Sin áreas con nombre. Usa “Definir áreas”.</div>';
+            return as.map(a => '<div style="display:flex;align-items:center;gap:8px;margin-top:5px;">' +
+                '<span style="color:#00e5ff;font-size:13px;width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📍 ' + a.name + '</span>' +
+                '<span style="flex:1;height:9px;background:#3a3a3a;border-radius:5px;overflow:hidden;"><span style="display:block;height:100%;width:' + a.pct + '%;background:#00e5ff;"></span></span>' +
+                '<span style="color:#ddd;font-size:12px;width:46px;text-align:right;">' + a.pct + '%</span></div>').join('');
+        }
+
+        function renderAllCams(j) {
+            const cards = (j.cameras || []).map(function (c) {
+                const tz = c.top_zone;
+                const badge = tz ? '<div style="position:absolute;left:calc(' + (tz.x * 100) + '% - 10px);top:calc(' + (tz.y * 100) + '% - 10px);width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.7);border:2px solid #ff3b30;color:#fff;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center;">1</div>' : '';
+                return '<div style="background:#222;border:1px solid #444;border-radius:8px;overflow:hidden;">' +
+                    '<div style="position:relative;">' + (c.image ? '<img src="' + c.image + '" style="width:100%;display:block;">' : '') + badge + '</div>' +
+                    '<div style="padding:8px 10px;"><span style="color:#fff;font-size:13px;font-weight:bold;">📷 ' + c.camera_name + '</span>' +
+                    '<span style="color:#888;font-size:12px;float:right;">' + c.samples + ' muestras</span></div></div>';
+            }).join('');
+            resEl.innerHTML =
+                '<div style="color:#ddd;font-size:14px;margin-bottom:10px;">🌐 General · ' + j.count + ' cámara(s) · <b>' + j.total_samples + '</b> muestras totales</div>' +
+                '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;">' + cards + '</div>';
+        }
+        async function runQueryAll() {
+            resEl.innerHTML = '<div style="color:#888;">Consultando todas las cámaras…</div>';
+            try {
+                const r = await fetch('/api/heatmaps/aggregate-all?from=' + fromI.value + '&to=' + toI.value);
+                const j = await r.json();
+                if (j.empty || !(j.cameras || []).length) { resEl.innerHTML = '<div style="color:#c88;">Sin data en ese período.</div>'; return; }
+                renderAllCams(j);
+            } catch (e) { resEl.innerHTML = '<div style="color:#c88;">Error consultando.</div>'; }
+        }
+
+        async function runQuery() {
+            if (!camSel.value) return;
+            if (camSel.value === '__all__') { return runQueryAll(); }
+            await loadAreas();
+            resEl.innerHTML = '<div style="color:#888;">Consultando…</div>';
+            try {
+                const r = await fetch('/api/heatmaps/' + camSel.value + '/aggregate?from=' + fromI.value + '&to=' + toI.value);
+                const j = await r.json();
+                if (j.empty) { resEl.innerHTML = '<div style="color:#c88;">Sin data en ese período para esta cámara.</div>'; return; }
+                render(j);
+            } catch (e) { resEl.innerHTML = '<div style="color:#c88;">Error consultando.</div>'; }
+        }
+        function render(j) {
+            resEl.innerHTML =
+                '<div style="display:grid;grid-template-columns:minmax(320px,1fr) 330px;gap:16px;align-items:start;">' +
+                '<div><div id="hqImgWrap" style="position:relative;user-select:none;">' +
+                (j.image ? '<img id="hqImg" src="' + j.image + '" style="width:100%;display:block;border-radius:6px;">' : '') +
+                zoneBadges(j.zones) + areaRects() + '</div>' +
+                '<div style="color:#888;font-size:12px;margin-top:6px;">' + j.samples + ' muestras · ' + j.hours + ' hora(s) · ' + (j.from || '') + ' → ' + (j.to || '') + '</div></div>' +
+                '<div><div style="color:#999;font-size:11px;text-transform:uppercase;letter-spacing:.5px;">Zonas por concentración</div>' +
+                zoneRank(j.zones) +
+                '<div style="color:#999;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-top:14px;">Áreas con nombre</div>' +
+                areaTable(j.areas) + '</div></div>';
+            if (editing) attachEditor();
+        }
+        function attachEditor() {
+            const wrap = document.getElementById('hqImgWrap'); if (!wrap) return;
+            let start = null, box = null;
+            wrap.style.cursor = 'crosshair';
+            wrap.onmousedown = function (e) {
+                const r = wrap.getBoundingClientRect();
+                start = { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
+                box = document.createElement('div'); box.style.cssText = 'position:absolute;border:2px dashed #00e5ff;background:rgba(0,229,255,0.15);';
+                wrap.appendChild(box);
+            };
+            wrap.onmousemove = function (e) {
+                if (!start || !box) return;
+                const r = wrap.getBoundingClientRect();
+                const cx = (e.clientX - r.left) / r.width, cy = (e.clientY - r.top) / r.height;
+                const x1 = Math.min(start.x, cx), y1 = Math.min(start.y, cy), x2 = Math.max(start.x, cx), y2 = Math.max(start.y, cy);
+                box.style.left = (x1 * 100) + '%'; box.style.top = (y1 * 100) + '%'; box.style.width = ((x2 - x1) * 100) + '%'; box.style.height = ((y2 - y1) * 100) + '%';
+            };
+            wrap.onmouseup = function (e) {
+                if (!start || !box) return;
+                const r = wrap.getBoundingClientRect();
+                const cx = (e.clientX - r.left) / r.width, cy = (e.clientY - r.top) / r.height;
+                const x1 = Math.min(start.x, cx), y1 = Math.min(start.y, cy), x2 = Math.max(start.x, cx), y2 = Math.max(start.y, cy);
+                start = null; box.remove(); box = null;
+                if (x2 - x1 < 0.03 || y2 - y1 < 0.03) return;
+                const nm = prompt('Nombre del área (ej. Entrada, Caja, Pasillo):'); if (!nm) return;
+                areas.push({ name: nm.slice(0, 40), x1: +x1.toFixed(4), y1: +y1.toFixed(4), x2: +x2.toFixed(4), y2: +y2.toFixed(4) });
+                wrap.querySelectorAll('[data-ai]').forEach(n => n.remove());
+                wrap.insertAdjacentHTML('beforeend', areaRects());
+            };
+        }
+
+        document.getElementById('hqGo').onclick = runQuery;
+        camSel.onchange = runQuery;
+        document.getElementById('hqEdit').onclick = function () {
+            editing = !editing; editBar.style.display = editing ? '' : 'none';
+            this.textContent = editing ? '✓ Editando áreas' : '✏️ Definir áreas';
+            if (editing) attachEditor();
+            else { const w = document.getElementById('hqImgWrap'); if (w) { w.onmousedown = w.onmousemove = w.onmouseup = null; w.style.cursor = ''; } }
+        };
+        document.getElementById('hqSaveAreas').onclick = async function () {
+            try {
+                const r = await fetch('/api/heatmaps/' + camSel.value + '/areas', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ areas: areas }) });
+                if (r.ok) { alert('Áreas guardadas (' + areas.length + ').'); runQuery(); }
+            } catch (e) { alert('Error guardando áreas.'); }
+        };
+        document.getElementById('hqClearAreas').onclick = function () {
+            if (confirm('¿Borrar todas las áreas de esta cámara?')) { areas = []; const w = document.getElementById('hqImgWrap'); if (w) w.querySelectorAll('[data-ai]').forEach(n => n.remove()); }
+        };
+
+        fromI.value = fmt(new Date()); toI.value = fmt(new Date());
+        loadCams().then(function () { if (camSel.value) runQuery(); });
+        setInterval(loadCams, 15000);
+    })();
+    </script>
+
+    <!-- ── Capturas (personas y rostros) ─────────────────────────── -->
+    <section id="capturesSection" style="display:none; margin: 18px 24px;">
+        <h2 style="color:#eee; font-size:16px; margin: 0 0 10px 4px;">
+            📸 Capturas (personas y rostros)
+            <span id="capturesCount" style="color:#888; font-weight:normal; font-size:13px;"></span>
+            <button onclick="window._capDeleteAll()" style="float:right; background:#7d2e2e; color:#fff; border:none; border-radius:5px; padding:5px 12px; cursor:pointer; font-size:13px;">🗑 Borrar capturas</button>
+        </h2>
+        <div id="capturesGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px;"></div>
+    </section>
+    <script>
+    (function () {
+        const sec = document.getElementById('capturesSection');
+        const grid = document.getElementById('capturesGrid');
+        const countEl = document.getElementById('capturesCount');
+        function card(c) {
+            const face = c.face_url
+                ? '<img src="' + c.face_url + '" title="rostro detectado" style="position:absolute;right:5px;bottom:5px;width:46px;height:46px;object-fit:cover;border-radius:6px;border:2px solid #00e5ff;box-shadow:0 0 6px rgba(0,0,0,0.7);">'
+                : '';
+            const g = c.gender;
+            let demo;
+            if (g && g !== 'Desconocido') {
+                const gcol = g[0] === 'H' ? '#4dabf7' : (g[0] === 'M' ? '#f783ac' : '#aaa');
+                demo = '<span style="color:' + gcol + ';font-weight:bold;">' + g + '</span> · ' + (c.age_range || '—');
+            } else {
+                demo = '<span style="color:#666;">demografía procesando…</span>';
+            }
+            return '<div style="background:#222;border:1px solid #444;border-radius:8px;overflow:hidden;">' +
+                '<div style="position:relative;">' +
+                '<img src="' + c.person_url + '" style="width:100%;height:185px;object-fit:cover;display:block;" onerror="this.style.opacity=0.2">' +
+                face + '</div>' +
+                '<div style="padding:5px 8px;color:#aaa;font-size:11px;line-height:1.5;">' +
+                demo + '<br>📷 ' + (c.camera || '-') +
+                '<br><span style="color:#777;">' + (c.timestamp || '') + '</span></div>' +
+                '</div>';
+        }
+        async function refresh() {
+            try {
+                const r = await fetch('/api/captures'); if (!r.ok) return;
+                const d = await r.json(); const caps = d.captures || [];
+                if (!caps.length) { sec.style.display = 'none'; return; }
+                sec.style.display = '';
+                countEl.textContent = '(' + caps.length + ' personas · ' + (d.faces_total || 0) + ' rostros)';
+                grid.innerHTML = caps.map(card).join('');
+            } catch (e) { }
+        }
+        window._capDeleteAll = async function () {
+            if (!confirm('¿Borrar TODAS las capturas (personas y rostros)?')) return;
+            try { await fetch('/api/captures', { method: 'DELETE' }); refresh(); }
+            catch (e) { alert('Error borrando las capturas.'); }
+        };
+        refresh();
+        setInterval(refresh, 5000);
+    })();
+    </script>
+
+    <section class="filters">
+        <div class="filter-group">
+            <label>Filtrar por género:</label>
+            <select id="filterGender">
+                <option value="">Todos</option>
+                <option value="Hombre">Hombre</option>
+                <option value="Mujer">Mujer</option>
+                <option value="Desconocido">Desconocido</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Ordenar por:</label>
+            <select id="filterSort">
+                <option value="last_seen">Última visita</option>
+                <option value="first_seen">Primera visita</option>
+                <option value="visit_count">Número de visitas</option>
+                <option value="demo_confidence">Confianza</option>
+                <option value="age_value">Edad</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Orden:</label>
+            <select id="filterOrder">
+                <option value="desc">Descendente</option>
+                <option value="asc">Ascendente</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Conf. mínima:</label>
+            <input type="range" id="filterMinConf" min="0" max="1" step="0.05" value="0">
+            <span id="filterMinConfValue">0.00</span>
+        </div>
+        <div class="result-count">
+            <span id="resultCount">0</span> personas
+        </div>
+    </section>
+
+    <main class="grid" id="personsGrid">
+        <div class="loading">Cargando...</div>
+    </main>
+
+    <!-- Modal de detalle -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <img class="modal-image" id="modalImage" alt="Rostro">
+            <div class="modal-info" id="modalInfo"></div>
+
+            <!-- Edicion de demograficos (corregir errores del clasificador) -->
+            <div class="modal-edit" id="modalEdit" style="display: none;">
+                <h3>Corregir clasificación</h3>
+                <div class="edit-row">
+                    <label>Género:</label>
+                    <select id="editGender">
+                        <option value="Hombre">Hombre</option>
+                        <option value="Mujer">Mujer</option>
+                        <option value="Desconocido">Desconocido</option>
+                    </select>
+                </div>
+                <div class="edit-row">
+                    <label>Rango edad:</label>
+                    <select id="editAgeRange">
+                        <option value="0-12">0-12</option>
+                        <option value="13-17">13-17</option>
+                        <option value="18-25">18-25</option>
+                        <option value="26-35">26-35</option>
+                        <option value="36-50">36-50</option>
+                        <option value="51-65">51-65</option>
+                        <option value="65+">65+</option>
+                        <option value="Desconocido">Desconocido</option>
+                    </select>
+                </div>
+                <div class="edit-actions">
+                    <button class="btn btn-secondary btn-small" id="editCancel">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-success btn-small" id="editSave">
+                        <span class="btn-icon">💾</span>
+                        <span>Guardar corrección</span>
+                    </button>
+                </div>
+                <p class="edit-hint">
+                    La corrección queda fijada (sticky): futuras detecciones
+                    automáticas <strong>no</strong> la sobrescribirán.
+                </p>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-accent" id="modalDeepAnalyze"
+                        title="Análisis profundo con heavy TTA (1-3s)">
+                    <span class="btn-icon">🔬</span>
+                    <span>Análisis profundo</span>
+                </button>
+                <button class="btn btn-accent" id="modalEditBtn">
+                    <span class="btn-icon">✏️</span>
+                    <span>Editar género/edad</span>
+                </button>
+                <button class="btn btn-danger" id="modalDelete">
+                    <span class="btn-icon">🗑</span>
+                    <span>Borrar esta persona</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmacion -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content modal-confirm">
+            <h2 id="confirmTitle">¿Confirmar?</h2>
+            <p id="confirmMessage">Esta acción no se puede deshacer.</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirmCancel">Cancelar</button>
+                <button class="btn btn-danger" id="confirmOk">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de duplicados -->
+    <div class="modal" id="dupModal">
+        <div class="modal-content modal-large">
+            <button class="modal-close" id="dupModalClose">✕</button>
+            <h2>Posibles duplicados</h2>
+            <p class="modal-subtitle">
+                Pares de personas con caras parecidas que el sistema registró
+                como distintas. Revisa cada par y combina si son la misma persona.
+            </p>
+            <div class="dup-controls">
+                <label>
+                    Similitud mínima:
+                    <input type="range" id="dupMinSim" min="0.15" max="0.45"
+                           step="0.01" value="0.30">
+                    <span id="dupMinSimVal">0.30</span>
+                </label>
+                <button class="btn btn-small" id="btnRescan">Re-escanear</button>
+                <button class="btn btn-success btn-small" id="btnAutoMerge"
+                        title="Combinar todos los pares automáticamente">
+                    <span>⚡</span> Auto-combinar todos
+                </button>
+                <span class="dup-count" id="dupCount">-</span>
+            </div>
+            <div class="dup-list" id="dupList">
+                <div class="loading">Escaneando...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de notificaciones -->
+    <div class="toast" id="toast"></div>
+
+    <footer>
+        DB: <code id="dbPath">-</code> ·
+        Última escritura: <span id="dbModified">-</span>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

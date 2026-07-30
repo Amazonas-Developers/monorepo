@@ -1,0 +1,29 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# ===== Entornos virtuales =====
+venv/
+env/
+.env
+
+# ===== Build / distribucion (PyInstaller) =====
+dist/
+build/
+src/native/build/
+compilate.bat
+
+# ===== SDK de camaras (binarios grandes: compartir aparte) =====
+src/sdk/
+
+# ===== Logs y temporales =====
+*.log
+tmp/
+
+# ===== IDE / SO =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

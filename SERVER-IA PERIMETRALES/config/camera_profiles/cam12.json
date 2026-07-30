@@ -1,0 +1,33 @@
+{
+  "_descripcion": "Camara 12 - pasillo interior estrecho. Camara en esquina alta mirando a lo largo del pasillo, lente gran angular (distorsion de barril visible) e iluminacion blanca sobreexpuesta (paredes lavadas, contraluz de la puerta del fondo).",
+  "_regla": "Solo se relajan filtros de CAPTACION de rostro (pose/calidad/tamano). Los umbrales de PRECISION del genero/edad (confianza, margen, brackets, ensemble, agree ratio) NO se tocan: los mantiene la config global en modo precision maxima.",
+
+  "_nota_pitch": "Montaje alto + pasillo estrecho: cuando la cara ya es grande (persona cerca), el picado supera los 48 grados globales. 52 aprovecha esos frames cercanos que son justo los de mas informacion.",
+  "DEMO_POSE_MAX_PITCH_DEG": 52.0,
+
+  "_nota_contraste": "Escena sobreexpuesta y lavada: el std de gris de una cara valida cae por debajo del 18 global.",
+  "DEMO_MIN_CONTRAST": 12.0,
+
+  "_nota_blur": "La varianza del Laplaciano cae junto con el contraste aunque la cara este nitida. 16 sigue descartando motion blur real.",
+  "DEMO_MIN_BLUR_VAR": 16.0,
+
+  "_nota_yunet_score": "Caras lavadas/contraluz puntuan mas bajo en YuNet. El detector corre a 0.55; este filtro por camara baja de 0.70 a 0.65.",
+  "DEMO_YUNET_MIN_SCORE": 0.65,
+
+  "_nota_upscale": "Caras chicas a media distancia del pasillo: mas resolucion de entrada a YuNet (va en GPU, el costo es asumible en esta camara).",
+  "DEMO_YUNET_UPSCALE_TARGET": 640,
+
+  "_nota_bbox": "En el pasillo la persona util (cara clasificable al acercarse) aparece con bbox mas chico que el minimo global; los brackets adaptativos siguen protegiendo la precision con caras pequenas.",
+  "DEMO_MIN_PERSON_BBOX_W": 45,
+  "DEMO_MIN_PERSON_BBOX_H": 110,
+
+  "_nota_aspecto": "La distorsion de barril del gran angular estira las caras cerca de los bordes del encuadre.",
+  "DEMO_FACE_ASPECT_MIN": 0.80,
+  "DEMO_FACE_ASPECT_MAX": 1.55,
+
+  "_nota_ojos": "El gran angular comprime la distancia interocular aparente en caras no centradas.",
+  "DEMO_MIN_EYE_FACE_RATIO": 0.20,
+
+  "_nota_asimetria": "Luz cenital de techo + contraluz del fondo del pasillo producen sombras laterales naturales mas fuertes.",
+  "DEMO_MAX_ASYMMETRY": 150.0
+}

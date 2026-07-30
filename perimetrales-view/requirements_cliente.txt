@@ -1,0 +1,41 @@
+# =============================================================================
+# Dependencias REALES del cliente PerimetralesView (para construir el .exe).
+#
+# El requirements.txt grande de la raíz es el volcado del entorno de
+# desarrollo del servidor: arrastra torch, torchvision, ultralytics, PyQt6,
+# matplotlib, roboflow, cx_Freeze, py2exe... (~4 GB) que el CLIENTE NO usa
+# —la IA corre en el servidor—. Usar ESTE archivo hace la construcción del
+# ejecutable mucho más rápida y ligera.
+#
+# Instalar:  venv_build\Scripts\python.exe -m pip install -r requirements_cliente.txt
+# =============================================================================
+
+# --- Interfaz gráfica ---
+PySide6==6.10.0
+
+# --- Captura de ventanas de Windows (worker) ---
+pywin32==311
+pillow==12.0.0
+PyAutoGUI==0.9.54
+
+# --- Protocolo con el servidor y utilidades ---
+msgpack==1.1.2
+python-dotenv==1.1.1
+requests==2.32.5
+numpy==2.2.6
+opencv-contrib-python==4.12.0.88
+psutil==7.1.3
+
+# --- Configuración persistente cifrada (SettingsModel) ---
+cryptography==46.0.3
+appdirs==1.4.4
+
+# --- Cámaras DVR ---
+hikvisionapi==0.3.2
+
+# --- Overlay de detecciones (elipses, estelas, zonas). Opcional: si falta,
+#     el cliente dibuja con QPainter, pero se pierden elipses y estelas. ---
+supervision==0.28.0
+
+# --- Empaquetado ---
+pyinstaller==6.16.0

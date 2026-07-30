@@ -1,0 +1,50 @@
+================================================================
+ PERIMETRALES VIEW — Cliente de videovigilancia inteligente
+ Instalación en la computadora del cliente
+================================================================
+
+REQUISITOS
+  - Windows 10/11 de 64 bits (NO necesita instalar Python).
+  - Red con acceso al servidor 72.68.60.141
+    (puertos 9000, 8090 y 8091).
+
+INSTALACIÓN
+  1. Copie la carpeta completa "PerimetralesView" a la PC del
+     cliente (por ejemplo a C:\PerimetralesView).
+     NO copie solo el .exe: necesita las carpetas que lo acompañan
+     (_internal, resource, src) y el archivo .env.
+  2. Cree un acceso directo de PerimetralesView.exe en el
+     escritorio (clic derecho > Enviar a > Escritorio).
+  3. Doble clic para abrir. La primera vez Windows puede pedir
+     permiso de red: acepte "Redes privadas".
+
+CONFIGURACIÓN (archivo .env junto al .exe, se edita sin recompilar)
+  server_ws_url          = ws://72.68.60.141:9000/ws
+                           servidor de IA al que se conecta.
+  jarvis_establecimiento = nombre del local que recibe las alertas
+                           (vacío = el primero de la lista).
+  jpeg_calidad           = 75   calidad del video que se envía
+                           (menor = menos ancho de banda; 70-80
+                           es lo recomendable).
+
+USO
+  - En la barra inferior:
+      * "Tipos de inferencias" -> elegir "VigilanteAmazonas".
+      * Botón de PERSONA -> abre la galería (http://72.68.60.141:8090)
+        para registrar personas de interés y subir sus fotos.
+      * "Enviar a Jarvis" -> activa/desactiva el envío de alertas.
+      * "Alertas a:" -> establecimiento que recibe las novedades.
+  - ÁREA (ROI): dibuje el área sobre el video y actívela. El sistema
+    SOLO detectará lo que esté dentro; lo de afuera se ignora.
+    Sin área activa se detecta todo el encuadre.
+  - Las fotos de las alertas se guardan en la carpeta "capture"
+    junto al programa; al hacer clic en una alerta del panel derecho
+    se abre esa foto en el Explorador.
+
+SI NO CONECTA
+  - Verifique que la PC tiene red hacia 72.68.60.141.
+  - En el SERVIDOR deben estar abiertos los puertos de entrada
+    9000, 8090 y 8091 (ejecutar ABRIR_PUERTOS_VIGILANTE.bat allí).
+  - Compruebe que el servidor está encendido y corriendo.
+
+================================================================

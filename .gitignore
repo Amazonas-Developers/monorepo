@@ -22,6 +22,14 @@ env/
 *.key
 *.pem
 
+# get_url.py lleva el App Key y el App Secret de Hik-Connect ESCRITOS EN EL
+# CODIGO (lineas 11-12), en las 4 copias del script. Se excluye para que este
+# monorepo no nazca con el secreto en su historial. El archivo sigue en disco
+# y nadie lo importa (script suelto, ver 01_CODIGO_MUERTO.csv). Ver H-13:
+# las claves YA estan expuestas en los repos antiguos y hay que ROTARLAS;
+# quitarlas del codigo no las desexpone.
+get_url.py
+
 # ===== Modelos y pesos (50 GB; compartir por red o Git LFS) =====
 modelos NVIDIA/
 *.pt

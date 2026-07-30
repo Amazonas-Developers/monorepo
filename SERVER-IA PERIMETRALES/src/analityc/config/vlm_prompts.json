@@ -1,0 +1,35 @@
+{
+  "_README": [
+    "Prompts para el verificador VLM (Etapa 2) de Hummus.",
+    "",
+    "Cada entrada tiene:",
+    "  - 'prompt': el texto que recibe el modelo junto con el crop de la persona.",
+    "  - 'accept_words' (opcional): si la respuesta empieza con alguno de estos, se considera SI.",
+    "    Si se omite, se usan ['SI', 'SÍ', 'YES', 'Y '].",
+    "",
+    "Reglas para escribir buenos prompts SI/NO:",
+    "  1. Decile QUÉ tiene que detectar (escenario positivo, concreto).",
+    "  2. Decile qué NO cuenta (escenarios falsos positivos típicos).",
+    "  3. Pedile explícitamente la palabra exacta ('Responde SI o NO').",
+    "  4. Evitá ambigüedades como 'parece', 'tal vez'.",
+    "",
+    "Tras editar este archivo, reinicia el servidor (o desde Python:",
+    "vlm_verifier.get_verifier().reload_prompts())."
+  ],
+  "TOMA_DE_ORDEN": {
+    "prompt": "Imagen de cámara de seguridad de un restaurante de comida rápida.\n\n¿Hay un cliente frente al mostrador o la caja siendo atendido por un\nempleado, haciendo su pedido, o esperando ser atendido en la caja?\n\nResponde SI si el cliente está en el mostrador o la caja con un empleado\ndel otro lado interactuando con él, aunque NO se vea el objeto exacto\n(comida, vaso, ticket, vuelto) pasando de una mano a la otra.\n\nResponde NO solo en estos casos:\n- el mostrador/caja está vacío, no hay nadie\n- la persona está claramente de espaldas alejándose del mostrador\n- solo se ve un empleado sin ningún cliente\n- la persona solo pasa caminando sin detenerse en la caja\n\nUna sola palabra: SI o NO.",
+    "accept_words": [
+      "SI",
+      "SÍ",
+      "YES"
+    ]
+  },
+  "RETIRO_BANDEJA": {
+    "prompt": "Imagen de cámara de seguridad de la zona de entrega de un restaurante.\n\n¿Hay una persona en el mostrador de entrega tomando, sosteniendo, o a\npunto de recibir su comida (bandeja, plato, vaso, empaque)?\n\nResponde SI si la persona está detenida junto al mostrador de entrega\ninteractuando con él para retirar su orden, aunque la comida no se vea\nperfectamente nítida.\n\nResponde NO solo en estos casos:\n- la zona de entrega está vacía, no hay nadie\n- la persona solo pasa caminando sin detenerse en el mostrador\n- la persona está claramente de espaldas alejándose con las manos vacías\n\nUna sola palabra: SI o NO.",
+    "accept_words": [
+      "SI",
+      "SÍ",
+      "YES"
+    ]
+  }
+}

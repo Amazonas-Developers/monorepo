@@ -1,0 +1,49 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# ===== Entornos virtuales =====
+venv/
+env/
+.env
+
+# ===== Modelos / pesos (compartir por red o Git LFS, NO por Git) =====
+*.pt
+*.pth
+*.onnx
+*.engine
+*.bin
+
+# ===== Salidas de entrenamiento / inferencia =====
+runs/
+output/
+debugger/
+train/datasets/
+models/
+tmp_buffalo_l/
+tmp_mivolo_v2/
+
+# ===== VIGILANTE: la fuente si se versiona; el material pesado no =====
+vigilante_amazonas/pruebas/
+vigilante_amazonas/logs/
+vigilante_amazonas/snapshots/
+
+# ===== Logs y temporales =====
+*.log
+_servidor_log.txt
+_servidor_err.txt
+detection_log.txt
+multicam_test_output.txt
+multicam_grid_results.csv
+tmp/
+
+# ===== IDE / SO =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ===== Otros del proyecto =====
+Car Exit/

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VIGILANTE-AMAZONAS — Panel de control</title>
+  <link rel="stylesheet" href="/estaticos/estilos.css">
+</head>
+<body>
+  <header>
+    <h1>🛡️ VIGILANTE-AMAZONAS</h1>
+    <nav>
+      <button class="pestana activa" data-vista="personas">Personas de interés</button>
+      <button class="pestana" data-vista="alertas">Historial de alertas</button>
+      <button class="pestana" data-vista="estado">Estado del sistema</button>
+    </nav>
+  </header>
+
+  <!-- ============================ PERSONAS ============================ -->
+  <main id="vista-personas" class="vista">
+    <section class="panel">
+      <h2>Registrar persona de interés</h2>
+      <form id="form-persona">
+        <input type="text" id="nombre" placeholder="Nombre completo" required>
+        <input type="text" id="descripcion" placeholder="Descripción (opcional)">
+        <select id="nivel">
+          <option value="informativo">Nivel: informativo</option>
+          <option value="medio" selected>Nivel: medio</option>
+          <option value="critico">Nivel: crítico</option>
+        </select>
+        <button type="submit" class="primario">Registrar</button>
+      </form>
+      <p id="msg-persona" class="mensaje"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Lista de vigilancia</h2>
+      <div id="lista-personas" class="tarjetas"></div>
+    </section>
+  </main>
+
+  <!-- ============================ ALERTAS ============================= -->
+  <main id="vista-alertas" class="vista oculta">
+    <section class="panel">
+      <h2>Historial de alertas</h2>
+      <div class="filtros">
+        <input type="text" id="f-camara" placeholder="Filtrar por cámara">
+        <input type="text" id="f-persona" placeholder="Filtrar por persona">
+        <input type="date" id="f-fecha">
+        <button id="btn-filtrar" class="primario">Filtrar</button>
+        <button id="btn-limpiar">Limpiar</button>
+      </div>
+      <div id="lista-alertas" class="tarjetas"></div>
+    </section>
+  </main>
+
+  <!-- ============================= ESTADO ============================= -->
+  <main id="vista-estado" class="vista oculta">
+    <section class="panel">
+      <h2>Estado del sistema</h2>
+      <div id="estado-contenido" class="estado-grid"></div>
+    </section>
+  </main>
+
+  <!-- ====================== DIÁLOGO DE FOTOS ========================== -->
+  <dialog id="dialogo-fotos">
+    <h3 id="titulo-fotos">Fotos</h3>
+    <div class="zona-subida" id="zona-rostro">
+      <p><strong>Fotos de ROSTRO</strong><br>Arrastra aquí o haz clic para elegir.<br>
+      <small>Se valida que el rostro sea detectable al subir.</small></p>
+      <input type="file" accept="image/*" multiple hidden>
+    </div>
+    <div class="zona-subida" id="zona-vestimenta">
+      <p><strong>Fotos de VESTIMENTA</strong> (cuerpo completo)<br>Arrastra aquí o haz clic para elegir.</p>
+      <input type="file" accept="image/*" multiple hidden>
+    </div>
+    <p id="msg-fotos" class="mensaje"></p>
+    <div id="miniaturas" class="miniaturas"></div>
+    <button id="cerrar-fotos">Cerrar</button>
+  </dialog>
+
+  <script src="/estaticos/app.js"></script>
+</body>
+</html>
