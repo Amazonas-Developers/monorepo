@@ -34,6 +34,10 @@ from core.dvr.hikconnect_channel_encoder import ChannelTypeDetector
 
 # DVR
 from workers.rtsp_worker import RTSPWorker
+
+# Identidad estable de la camara (H-11). La logica vive en el nucleo: los
+# cuatro clientes tenian el mismo fallo y ahora comparten el mismo arreglo.
+from elde_core.ui import identidad_camara as _identidad
 from workers.video_worker import (
     VideoFileWorker, EXTENSIONES_VIDEO, es_archivo_de_video,
 )
@@ -165,6 +169,11 @@ class Render_box(QFrame):
         self.image_h              = 0
         self.current_pixmap       = None
         self.component_key        = str(uuid.uuid4())
+        # Identidad ESTABLE de la camara fisica (H-11). `component_key` se
+        # queda como clave de enrutado del recuadro, pero ya NO viaja como
+        # `camera_id`: era un uuid4 por sesion y fragmentaba el historico.
+        self._dvr_device_serial   = ""
+        self._dvr_channel_id      = ""
         # Reenvio de alertas a WhatsApp: lo gobierna el interruptor
         # GLOBAL del pie (main.py lo propaga a todos los recuadros).
         # El envio lo hace el servidor.
@@ -376,6 +385,9 @@ class Render_box(QFrame):
                 "Dispositivos para renovar el acceso.", error=True)
             return
 
+        # Identidad estable de esta camara fisica (ver _device_id()).
+        self._dvr_device_serial = str(channel_data.get("device_serial", "") or "")
+        self._dvr_channel_id    = str(channel_data.get("channel_id", "") or "")
         alias   = channel_data.get("device_alias", "")
         ch_name = channel_data.get("channel_name", "")
         type_label = "🔐 HC" if channel_type == "hikconnect" else "📹"
@@ -536,7 +548,7 @@ class Render_box(QFrame):
                     "image": jpeg_bytes,
                     "roi_coordinates": self.imagen_label.get_coordinates(w, h),
                     "roi_activate": self.roi_boolean,
-                    "camera_id": self.component_key,
+                    "camera_id": self._device_id(),
                     "enviar_whatsapp": self.whatsapp_boolean,
                     "track_classes": self._selected_classes,
                 }
@@ -709,6 +721,22 @@ class Render_box(QFrame):
         for key, value in self.imagen_label.get_reset_lists().items():
             self._save_all(key, value)
         self._save_all("roi_boolean", True)
+
+    def _device_id(self) -> str:
+        """Identificador ESTABLE de la camara, para el `camera_id` del payload.
+
+        Antes se mandaba `component_key`, que es un `uuid.uuid4()` generado al
+        construir el panel: cada arranque inventaba camaras nuevas a ojos del
+        servidor y el historico por camara no se acumulaba nunca (H-11).
+
+        La logica esta en `elde_core.ui.identidad_camara`; aqui solo se leen
+        los atributos del recuadro.
+        """
+        return _identidad.device_id(
+            serie_dvr=self._dvr_device_serial,
+            canal_dvr=self._dvr_channel_id,
+            titulo_ventana=getattr(self, 'title', ''),
+            indice=getattr(self, 'index', 0))
 
     def init_loop(self):
         """Arranca (o reanuda) la captura de la ventana asignada."""
@@ -917,7 +945,7 @@ class Render_box(QFrame):
                 data = {
                     "header": header, "image": image_bytes,
                     "roi_coordinates": roi_c, "roi_activate": self.roi_boolean,
-                    "camera_id": self.component_key,
+                    "camera_id": self._device_id(),
                     "enviar_whatsapp": self.whatsapp_boolean,
                     "track_classes": self._selected_classes,
                 }
@@ -998,9 +1026,10 @@ class Render_box(QFrame):
     def on_text_message_received(self, message):
         try:
             msg_key = message.get("component_key") or message.get("camera_id") or ""
-            if msg_key and msg_key != self.component_key: return
+            if msg_key and msg_key not in (self.component_key, self._device_id()):
+                return
             data = message["data"]
-            if data["status"] == "success" and data["camera_id"] == self.component_key:
+            if data["status"] == "success" and data["camera_id"] == self._device_id():
                 self.update_streaming_frame(data["processed_image"], type_image="base64", tets=False)
             if data["status"] == "error":
                 raise Exception(data.get("message", "Error del servidor"))

@@ -6,135 +6,134 @@ dispositivo fisico produce el mismo `device_id` en ejecuciones distintas**.
 Antes de H-11 el valor era `uuid.uuid4()` por panel, asi que esta propiedad no
 se cumplia nunca y los heatmaps se fragmentaban en un UUID por sesion.
 
-No instancian el widget: `_device_id` y `_slug` solo leen atributos planos, asi
-que se invocan sobre un objeto simulado. Asi la prueba corre sin Qt, sin
-pantalla y sin servidor.
+Hasta el 30-jul-2026 estas pruebas extraian las funciones del `render_box.py`
+de tienda leyendo su codigo fuente, porque solo ese cliente tenia el arreglo.
+Ahora la logica esta en el nucleo y la comparten los cuatro, asi que se prueba
+donde vive. Las dos ultimas pruebas son las que vigilan que siga siendo asi.
 """
 
 from __future__ import annotations
 
-import importlib.util
+import re
 import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[3]
-RENDER_BOX = (RAIZ / "clients" / "tienda" / "src" / "gui" / "components" /
-              "render_box" / "render_box.py")
+CLIENTES = ('tienda', 'perimetrales', 'managers', 'amazonas')
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from elde_core.contracts import ClientType, Envelope, EventType  # noqa: E402
+from elde_core.ui.identidad_camara import (device_id, nombre_visible,  # noqa: E402
+                                           slug)
 
 
-class PanelSimulado:
-    """Lo minimo que `_device_id` necesita leer."""
-
-    def __init__(self, serial="", canal="", titulo="", indice=0):
-        self._dvr_device_serial = serial
-        self._dvr_channel_id = canal
-        self.title = titulo
-        self.index = indice
-
-
-def _cargar_funciones():
-    """Extrae `_slug` y `_device_id` del archivo sin importar PySide6.
-
-    Importar `render_box` de verdad arrastraria Qt, OpenCV y el resto del
-    cliente. Aqui solo interesan dos metodos que no dependen de nada de eso,
-    asi que se compila unicamente su codigo fuente."""
-    fuente = RENDER_BOX.read_text(encoding='utf-8')
-    trozos, dentro, indent = [], False, 0
-    for linea in fuente.splitlines():
-        despojada = linea.strip()
-        if despojada.startswith(('def _slug(', 'def _device_id(')):
-            dentro, indent = True, len(linea) - len(linea.lstrip())
-            trozos.append(linea[indent:])
-            continue
-        if dentro:
-            if despojada and (len(linea) - len(linea.lstrip())) <= indent:
-                dentro = False
-            else:
-                trozos.append(linea[indent:] if linea.strip() else '')
-    codigo = '\n'.join(trozos)
-    ambito: dict = {}
-    exec(compile(codigo, str(RENDER_BOX), 'exec'), ambito)
-    return ambito['_slug'], ambito['_device_id']
-
-
-_slug, _device_id = _cargar_funciones()
-
-# `_device_id` invoca `self._slug(...)`, asi que el panel simulado tiene que
-# ofrecerlo igual que la clase real (donde es un @staticmethod).
-PanelSimulado._slug = staticmethod(_slug)
+def _render_box(cliente: str) -> Path:
+    return (RAIZ / 'clients' / cliente / 'src' / 'gui' / 'components' /
+            'render_box' / 'render_box.py')
 
 
 def test_el_mismo_canal_dvr_da_el_mismo_id():
     """LA propiedad de H-11: estable entre 'reinicios' de la aplicacion."""
-    sesion1 = PanelSimulado(serial="J12345678", canal="2", indice=0)
-    sesion2 = PanelSimulado(serial="J12345678", canal="2", indice=3)
-    assert _device_id(sesion1) == _device_id(sesion2)
-    assert _device_id(sesion1) == "dvr-J12345678-2"
+    uno = device_id(serie_dvr='J12345678', canal_dvr='2', indice=0)
+    dos = device_id(serie_dvr='J12345678', canal_dvr='2', indice=3)
+    assert uno == dos
+    assert uno == 'dvr-J12345678-2'
 
 
 def test_canales_distintos_dan_ids_distintos():
-    a = PanelSimulado(serial="J12345678", canal="1")
-    b = PanelSimulado(serial="J12345678", canal="2")
-    c = PanelSimulado(serial="OTRO9999", canal="1")
-    assert len({_device_id(a), _device_id(b), _device_id(c)}) == 3
+    ids = {device_id(serie_dvr='J12345678', canal_dvr='1'),
+           device_id(serie_dvr='J12345678', canal_dvr='2'),
+           device_id(serie_dvr='OTRO9999', canal_dvr='1')}
+    assert len(ids) == 3
 
 
 def test_cae_al_titulo_de_la_ventana():
-    p = PanelSimulado(titulo="iVMS-4200")
-    assert _device_id(p) == "win-iVMS-4200"
+    assert device_id(titulo_ventana='iVMS-4200') == 'win-iVMS-4200'
 
 
 def test_ultimo_recurso_por_posicion():
-    assert _device_id(PanelSimulado(indice=0)) == "box-1"
-    assert _device_id(PanelSimulado(indice=4)) == "box-5"
+    assert device_id(indice=0) == 'box-1'
+    assert device_id(indice=4) == 'box-5'
 
 
 def test_el_dvr_manda_sobre_el_titulo():
     """Si hay canal DVR, es la identidad mas fiable y gana."""
-    p = PanelSimulado(serial="J1", canal="3", titulo="iVMS-4200", indice=7)
-    assert _device_id(p) == "dvr-J1-3"
+    assert device_id(serie_dvr='J1', canal_dvr='3',
+                     titulo_ventana='iVMS-4200', indice=7) == 'dvr-J1-3'
 
 
 def test_el_id_es_valido_como_nombre_de_archivo():
     """Los device_id acaban siendo `output/heatmap/<id>.png`."""
-    sucio = PanelSimulado(titulo="C:\\ruta\\../etc passwd?*<>")
-    ident = _device_id(sucio)
+    ident = device_id(titulo_ventana='C:\\ruta\\../etc passwd?*<>')
     for prohibido in '\\/:*?"<>| ':
         if prohibido == ':':
             continue          # los dos puntos si son validos en el contrato
-        assert prohibido not in ident, f"{prohibido!r} en {ident!r}"
+        assert prohibido not in ident, f'{prohibido!r} en {ident!r}'
     assert '..' not in ident
 
 
 def test_el_id_pasa_la_validacion_del_envelope():
     """Cierra el circulo: lo que genera el cliente lo acepta el contrato."""
-    for p in (PanelSimulado(serial="J12345678", canal="2"),
-              PanelSimulado(titulo="Camara del pasillo 3"),
-              PanelSimulado(indice=2),
-              PanelSimulado(titulo="C:\\ruta\\rara ../x")):
-        env = Envelope(client_type=ClientType.TIENDA, site_id="lacomarca",
-                       device_id=_device_id(p),
-                       event_type=EventType.FRAME_INFERENCE)
-        assert env.device_id == _device_id(p)
+    for ident in (device_id(serie_dvr='J12345678', canal_dvr='2'),
+                  device_id(titulo_ventana='Camara del pasillo 3'),
+                  device_id(indice=2),
+                  device_id(titulo_ventana='C:\\ruta\\rara ../x')):
+        env = Envelope(client_type=ClientType.TIENDA, site_id='lacomarca',
+                       device_id=ident, event_type=EventType.FRAME_INFERENCE)
+        assert env.device_id == ident
 
 
 def test_slug_no_devuelve_cadena_vacia():
-    assert _slug("") == "sin_nombre"
-    assert _slug("///") == "sin_nombre"
+    assert slug('') == 'sin_nombre'
+    assert slug('///') == 'sin_nombre'
 
 
-if __name__ == "__main__":
-    fallos = 0
-    for nombre, fn in sorted(globals().items()):
-        if nombre.startswith("test_") and callable(fn):
-            try:
-                fn()
-                print(f"  OK    {nombre}")
-            except Exception as exc:
-                fallos += 1
-                print(f"  FALLA {nombre}: {exc}")
-    print(f"\n{'TODO OK' if not fallos else f'{fallos} FALLOS'}")
-    raise SystemExit(1 if fallos else 0)
+def test_nombre_visible_sigue_el_mismo_orden_de_fuentes():
+    assert nombre_visible(nombre_dvr='Pasillo 3', titulo_ventana='x') == 'Pasillo 3'
+    assert nombre_visible(titulo_ventana='iVMS-4200') == 'iVMS-4200'
+    assert nombre_visible(indice=2) == 'Camara 3'
+
+
+# ---------------------------------------------------------------------------
+# Los dos guardias: que los CUATRO clientes usen esto y no una copia propia.
+# ---------------------------------------------------------------------------
+
+def test_ningun_cliente_manda_el_uuid_de_sesion_como_camera_id():
+    """La regresion concreta de H-11.
+
+    `component_key` es un `uuid.uuid4()` por panel. Si vuelve a viajar como
+    `camera_id`, el historico por camara deja de acumularse otra vez.
+    """
+    culpables = []
+    for cliente in CLIENTES:
+        archivo = _render_box(cliente)
+        if not archivo.is_file():
+            culpables.append(f'{cliente}: no existe {archivo}')
+            continue
+        texto = archivo.read_text(encoding='utf-8', errors='replace')
+        for n, linea in enumerate(texto.splitlines(), 1):
+            if re.search(r'["\']camera_id["\']\s*:\s*self\.component_key',
+                         linea):
+                culpables.append(f'{cliente}:{n}')
+    assert not culpables, ('vuelve a viajar el uuid de sesion como camera_id: '
+                           + ', '.join(culpables))
+
+
+def test_los_cuatro_clientes_delegan_en_el_nucleo():
+    """Que nadie se quede una copia propia de la logica de identidad.
+
+    Es como empezo H-11: el arreglo existia en un cliente y los otros tres
+    seguian con el fallo.
+    """
+    faltan = []
+    for cliente in CLIENTES:
+        archivo = _render_box(cliente)
+        if not archivo.is_file():
+            faltan.append(f'{cliente}: no existe el archivo')
+            continue
+        texto = archivo.read_text(encoding='utf-8', errors='replace')
+        if 'identidad_camara' not in texto:
+            faltan.append(f'{cliente}: no importa el nucleo')
+        elif '_identidad.device_id(' not in texto:
+            faltan.append(f'{cliente}: no llama a _identidad.device_id()')
+    assert not faltan, 'clientes con identidad propia: ' + ', '.join(faltan)

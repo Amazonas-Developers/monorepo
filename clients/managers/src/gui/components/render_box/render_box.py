@@ -49,6 +49,10 @@ from core.dvr.hikconnect_channel_encoder import ChannelTypeDetector
 
 # DVR
 from workers.rtsp_worker import RTSPWorker
+
+# Identidad estable de la camara (H-11). La logica vive en el nucleo: los
+# cuatro clientes tenian el mismo fallo y ahora comparten el mismo arreglo.
+from elde_core.ui import identidad_camara as _identidad
 _DVR_MIME = "application/x-dvr-channel"
 
 
@@ -175,6 +179,11 @@ class Render_box(QFrame):
         self.image_h              = 0
         self.current_pixmap       = None
         self.component_key        = str(uuid.uuid4())
+        # Identidad ESTABLE de la camara fisica (H-11). `component_key` se
+        # queda como clave de enrutado del recuadro, pero ya NO viaja como
+        # `camera_id`: era un uuid4 por sesion y fragmentaba el historico.
+        self._dvr_device_serial   = ""
+        self._dvr_channel_id      = ""
         self.can_send_next_frame  = True
         # MODO DIRECTO: el servidor devuelve solo detecciones (no la imagen) y
         # el cliente las dibuja sobre el frame que envio -> mucha menos
@@ -529,6 +538,9 @@ class Render_box(QFrame):
             self.text_fps.setText("⚠ Sin URL de stream disponible")
             return
 
+        # Identidad estable de esta camara fisica (ver _device_id()).
+        self._dvr_device_serial = str(channel_data.get("device_serial", "") or "")
+        self._dvr_channel_id    = str(channel_data.get("channel_id", "") or "")
         alias   = channel_data.get("device_alias", "")
         ch_name = channel_data.get("channel_name", "")
         type_label = "🔐 HC" if channel_type == "hikconnect" else "📹"
@@ -606,7 +618,7 @@ class Render_box(QFrame):
                     "delivery_zone_coordinates": delivery_c,
                     "delivery_zone_activate":    self.delivery_zone_boolean,
                     "enable_vlm":                self.vlm_enabled_boolean,
-                    "camera_id": self.component_key,
+                    "camera_id": self._device_id(),
                     "camera_angle": self.camera_angle,
                     "enviar_whatsapp": self.whatsapp_boolean,
                     "heatmap_activate": self.heatmap_boolean,
@@ -1047,6 +1059,22 @@ class Render_box(QFrame):
         # Guardar en configuración persistente
         self._save_all("track_classes", self._selected_classes[:])
 
+    def _device_id(self) -> str:
+        """Identificador ESTABLE de la camara, para el `camera_id` del payload.
+
+        Antes se mandaba `component_key`, que es un `uuid.uuid4()` generado al
+        construir el panel: cada arranque inventaba camaras nuevas a ojos del
+        servidor y el historico por camara no se acumulaba nunca (H-11).
+
+        La logica esta en `elde_core.ui.identidad_camara`; aqui solo se leen
+        los atributos del recuadro.
+        """
+        return _identidad.device_id(
+            serie_dvr=self._dvr_device_serial,
+            canal_dvr=self._dvr_channel_id,
+            titulo_ventana=getattr(self, 'title', ''),
+            indice=getattr(self, 'index', 0))
+
     def init_loop(self):
         try:
             if self.hwnd is None:
@@ -1179,7 +1207,7 @@ class Render_box(QFrame):
                     "delivery_zone_coordinates": delivery_c,
                     "delivery_zone_activate":    self.delivery_zone_boolean,
                     "enable_vlm":                self.vlm_enabled_boolean,
-                    "camera_id": self.component_key,
+                    "camera_id": self._device_id(),
                     "camera_angle": self.camera_angle,
                     "enviar_whatsapp": self.whatsapp_boolean,
                     "heatmap_activate": self.heatmap_boolean,
@@ -1373,7 +1401,8 @@ class Render_box(QFrame):
     def on_text_message_received(self, message):
         try:
             msg_key = message.get("component_key") or message.get("camera_id") or ""
-            if msg_key and msg_key != self.component_key: return
+            if msg_key and msg_key not in (self.component_key, self._device_id()):
+                return
             metadata  = message.get("data", {}).get("metadata", {})
             if metadata:
                 list_alert = metadata.get("alerts", []) or []
@@ -1392,11 +1421,11 @@ class Render_box(QFrame):
                         "timestamp":       iteration.get("timestamp", ""),
                         "image_base64":    img_b64,
                         "crop_image":      img_b64,
-                        "camera_id":       message.get("component_key", ""),
+                        "camera_id":       self._device_id(),
                         "screenshot_path": iteration.get("screenshot_path", ""),
                     })
             data = message["data"]
-            if data["status"] == "success" and data["camera_id"] == self.component_key:
+            if data["status"] == "success" and data["camera_id"] == self._device_id():
                 proc_img = data.get("processed_image")
                 detections = (data.get("metadata") or {}).get("detections")
                 if proc_img:

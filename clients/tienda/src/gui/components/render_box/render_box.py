@@ -49,6 +49,10 @@ from core.dvr.hikconnect_channel_encoder import ChannelTypeDetector
 
 # DVR
 from workers.rtsp_worker import RTSPWorker
+
+# Identidad estable de la camara (H-11). Primera rebanada del despiece de
+# render_box: la logica vive en el nucleo y la comparten los cuatro clientes.
+from elde_core.ui import identidad_camara as _identidad
 _DVR_MIME = "application/x-dvr-channel"
 
 
@@ -1200,69 +1204,27 @@ class Render_box(QFrame):
         self.heatmap_boolean = bool(checked)
         self._save_all("heatmap_boolean", self.heatmap_boolean)
 
-    @staticmethod
-    def _slug(texto: str, limite: int = 64) -> str:
-        """Deja el texto apto para identificador Y para nombre de archivo.
-
-        Importa porque el device_id acaba siendo el nombre de los heatmaps
-        (`output/heatmap/<device_id>.png`) y de las capturas.
-
-        Se admiten letras, digitos, `_`, `-` y puntos sueltos. Deliberadamente
-        MAS restrictivo que el contrato, que tambien permitiria `:`: los dos
-        puntos son validos en el envelope pero **ilegales en un nombre de
-        archivo de Windows**, y este valor termina siendo uno. Ademas se
-        colapsan los puntos seguidos, para que ningun `..` sobreviva."""
-        limpio = ''.join(
-            c if (c.isalnum() or c in '_-.') else '_' for c in (texto or ''))
-        while '..' in limpio:
-            limpio = limpio.replace('..', '.')
-        return limpio.strip('._-')[:limite].strip('._-') or 'sin_nombre'
+    _slug = staticmethod(_identidad.slug)
 
     def _device_id(self) -> str:
         """Identificador ESTABLE de la camara, para el `camera_id` del payload.
 
-        `component_key` NO sirve para esto: es un `uuid.uuid4()` que se genera
-        al construir el panel, asi que cada arranque de la aplicacion inventa
-        camaras nuevas a ojos del servidor. Resultado: los heatmaps, el conteo
-        y la demografia se fragmentan en un UUID por sesion y no hay historico
-        por zona (H-11).
-
-        Prioridad, de mas estable a menos:
-
-        1. **Canal DVR** — numero de serie del equipo + canal. Identifica una
-           camara fisica y no cambia nunca.
-        2. **Ventana capturada** — su titulo. Estable mientras la aplicacion
-           de origen se llame igual.
-        3. **Posicion del recuadro** — ultimo recurso; estable dentro de una
-           misma disposicion de la rejilla.
-
-        `component_key` sigue existiendo como clave de enrutado del widget (el
-        servidor no lo usa para nada), asi que dos recuadros que muestren la
-        misma camara comparten `device_id` sin pisarse las respuestas.
+        La logica vive en `elde_core.ui.identidad_camara`: los cuatro clientes
+        tenian el mismo fallo (H-11) y ahora comparten el mismo arreglo. Aqui
+        solo se leen los atributos del recuadro.
         """
-        if self._dvr_device_serial or self._dvr_channel_id:
-            serie = self._slug(self._dvr_device_serial, 40)
-            canal = self._slug(self._dvr_channel_id, 12)
-            return f"dvr-{serie}-{canal}" if canal else f"dvr-{serie}"
-
-        titulo = (getattr(self, 'title', '') or '').strip()
-        if titulo:
-            return f"win-{self._slug(titulo, 72)}"
-
-        return f"box-{int(getattr(self, 'index', 0)) + 1}"
+        return _identidad.device_id(
+            serie_dvr=self._dvr_device_serial,
+            canal_dvr=self._dvr_channel_id,
+            titulo_ventana=getattr(self, 'title', ''),
+            indice=getattr(self, 'index', 0))
 
     def _camera_display_name(self) -> str:
-        """Nombre legible de esta camara para el dashboard.
-
-        Prioridad: canal DVR (alias+canal) > titulo de la ventana
-        capturada > "Camara N" (por indice del recuadro).
-        """
-        if self.camera_name_dvr:
-            return self.camera_name_dvr
-        t = (getattr(self, 'title', '') or '').strip()
-        if t:
-            return t[:48]
-        return f"Camara {int(getattr(self, 'index', 0)) + 1}"
+        """Nombre legible de esta camara para el dashboard."""
+        return _identidad.nombre_visible(
+            nombre_dvr=self.camera_name_dvr,
+            titulo_ventana=getattr(self, 'title', ''),
+            indice=getattr(self, 'index', 0))
 
     def _on_class_toggled(self, class_id: int, checked: bool):
         """Actualiza las clases seleccionadas para tracking."""

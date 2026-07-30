@@ -190,13 +190,26 @@ entrar al historial. Anadidos a `.gitignore` en el commit de respaldo.
 
 ---
 
-## H-11 · El `camera_id` es aleatorio: la analitica por camara no se acumula · `CORREGIDO en tienda` · **critico**
+## H-11 · El `camera_id` es aleatorio: la analitica por camara no se acumula · `CORREGIDO` · **critico**
 
-> **Estado (30-jul-2026).** Corregido en `tienda_view`. Los otros **tres
-> clientes siguen igual** (`perimetrales-view`, `windows_managers_view`,
-> `Amazonas View`): tienen su propia copia del mismo `uuid.uuid4()`. No se
-> replica el arreglo cuatro veces a mano a proposito — el HITO 4 extrae
-> `render_box` al nucleo compartido y entonces la correccion es una sola.
+> **Estado (30-jul-2026, cerrado).** Corregido en los **cuatro** clientes.
+>
+> Se corrigio primero solo en tienda, aplazando los otros tres hasta que
+> `render_box` pasara al nucleo, para no replicar el arreglo cuatro veces. Ese
+> traslado se retraso y el aplazamiento se quedo sin motivo, asi que se hizo lo
+> que estaba previsto: **la identidad se extrajo al nucleo**
+> (`elde_core/ui/identidad_camara.py`) como funciones puras, y los cuatro
+> `render_box` delegan en ellas. Es la primera rebanada del despiece de
+> `render_box`, y la que llevaba el fallo dentro.
+>
+> Antes de recablear nada se comprobo la equivalencia contra la version de
+> tienda —la que ya tenia 8 pruebas encima— en **680 combinaciones de entrada:
+> cero diferencias**. El despiece mueve comportamiento, no lo cambia.
+>
+> Dos guardias nuevos en `test_device_id.py`: uno falla si algun
+> `render_box` vuelve a mandar `component_key` como `camera_id`; el otro, si
+> algun cliente deja de delegar en el nucleo y se guarda una copia propia. Es
+> como empezo este hallazgo.
 >
 > **La correccion:** `camera_id` pasa a ser un identificador estable
 > (`_device_id()`), con esta prioridad:
