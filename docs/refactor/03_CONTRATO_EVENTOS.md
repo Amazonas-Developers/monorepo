@@ -247,14 +247,34 @@ los payloads al cerrar el HITO 7.
 
 ---
 
-## 9. Lo que falta para cerrar el hito
+## 9. H-11 resuelto: el `device_id` ya es estable
 
-1. **H-11**: el `device_id` estable. El contrato ya lo exige; el cliente
-   todavia manda `uuid4()`. Es el paso 3 del plan de migracion y va en este
-   hito.
-2. **Conectar la validacion en el servidor**, detras de la capa de
+El contrato exige un `device_id` que sobreviva a los reinicios. El cliente de
+tienda ya lo cumple: `camera_id` pasa de `uuid.uuid4()` por panel a
+`_device_id()`, que deriva la identidad del **canal DVR** (serie del equipo +
+canal), del **titulo de la ventana** o, en ultimo recurso, de la **posicion del
+recuadro**.
+
+`component_key` se conserva como clave de enrutado del recuadro: el servidor no
+lo usa, y asi dos paneles con la misma camara comparten `device_id` sin
+pisarse las respuestas.
+
+Detalle completo, regresiones evitadas y alcance (solo tienda por ahora) en
+`HALLAZGOS.md` H-11. **8 pruebas** en `tests/test_device_id.py`.
+
+---
+
+## 10. Lo que falta para cerrar el hito
+
+1. **Conectar la validacion en el servidor**, detras de la capa de
    compatibilidad.
+2. **Capturar una sesion del pipeline de tienda.** La captura del 30-jul fue de
+   `VigilanteAmazonas`; el pipeline `Personal de Amazonas` sigue cubierto solo
+   por la reconstruccion del codigo. Visto que el codigo ya mintio una vez
+   sobre el valor por defecto de `camera_angle`, conviene contrastarlo con
+   datos reales antes de endurecer los payloads.
 
-La captura de payloads reales (paso 2) esta **hecha**. Conviene repetirla con
-el cliente de **tienda** —la sesion capturada fue de `VigilanteAmazonas`— para
-cubrir tambien las claves de ese pipeline antes de endurecer nada.
+   Para capturarla: el servidor ya escucha con `ELDE_CAPTURA_PAYLOADS=1`;
+   hace falta que el cliente seleccione el modo de inferencia **«Personal de
+   Amazonas»** (la sesion anterior entro como `VigilanteAmazonas`, que es lo
+   que reporta `GET /health`).

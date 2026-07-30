@@ -233,6 +233,11 @@ class Render_box(QFrame):
         # Nombre legible de la camara (DVR: alias+canal) para que el
         # dashboard no muestre el UUID.
         self.camera_name_dvr      = ""
+        # Identidad ESTABLE del canal DVR (numero de serie del equipo + canal).
+        # No cambia entre reinicios, al contrario que component_key: es lo que
+        # permite acumular historico por camara. Ver H-11 y _device_id().
+        self._dvr_device_serial   = ""
+        self._dvr_channel_id      = ""
 
         # DVR
         self._rtsp_worker: RTSPWorker | None = None
@@ -589,6 +594,9 @@ class Render_box(QFrame):
         label   = f"{type_label} {alias} · {ch_name}" if alias else f"{type_label} {ch_name}"
         # Nombre legible para el dashboard (sin emojis)
         self.camera_name_dvr = (f"{alias} {ch_name}".strip() or ch_name or "DVR")[:48]
+        # Identidad estable de esta camara fisica (ver _device_id()).
+        self._dvr_device_serial = str(channel_data.get("device_serial", "") or "")
+        self._dvr_channel_id    = str(channel_data.get("channel_id", "") or "")
 
         self._dvr_label.setText(label)
         self._dvr_label.setVisible(True)
@@ -660,7 +668,7 @@ class Render_box(QFrame):
                     "delivery_zone_coordinates": delivery_c,
                     "delivery_zone_activate":    self.delivery_zone_boolean,
                     "enable_vlm":                self.vlm_enabled_boolean,
-                    "camera_id": self.component_key,
+                    "camera_id": self._device_id(),
                     "camera_angle": self.camera_angle,
                     "heatmap_activate": self.heatmap_boolean,
                     "camera_name": self._camera_display_name(),
@@ -837,7 +845,7 @@ class Render_box(QFrame):
                         "description": f"Captura manual de {cam}.",
                         "timestamp": _t.strftime("%Y-%m-%d %H:%M:%S"),
                         "image_base64": "", "crop_image": "",
-                        "camera_id": self.component_key,
+                        "camera_id": self._device_id(),
                         "screenshot_path": self._ultima_captura,
                     })
                 except Exception:
@@ -1189,7 +1197,7 @@ class Render_box(QFrame):
         # video en vivo, y se van actualizando conforme se dibujan.
         self._set_store_zones_visible(True, actual or {})
 
-        dlg = PlanogramEditor(frame, self.component_key,
+        dlg = PlanogramEditor(frame, self._device_id(),
                               self._camera_display_name(), actual, self)
         # NO MODAL: el video sigue corriendo detras con el overlay, que es
         # justo lo que permite comprobar que las zonas caen donde deben.
@@ -1209,7 +1217,7 @@ class Render_box(QFrame):
             return
         self._layout_worker = _PostWorker(
             self._http_base() + "/retail/layout",
-            {"camera_id": self.component_key,
+            {"camera_id": self._device_id(),
              "layout": json.dumps(layout, ensure_ascii=False)}, self)
         self._layout_worker.done.connect(self._on_layout_saved)
         self._layout_worker.start()
@@ -1358,7 +1366,7 @@ class Render_box(QFrame):
         try:
             import requests
             r = requests.get(self._http_base() + "/retail/layout",
-                             params={"camera_id": self.component_key},
+                             params={"camera_id": self._device_id()},
                              timeout=10).json()
             if r.get("status") == "ok":
                 self._store_zones = r.get("layout") or {}
@@ -1403,7 +1411,7 @@ class Render_box(QFrame):
             "timestamp":    time.strftime("%Y-%m-%d %H:%M:%S"),
             "image_base64": "",
             "crop_image":   "",
-            "camera_id":    self.component_key,
+            "camera_id":    self._device_id(),
             "screenshot_path": screenshot_path or "",
         })
 
@@ -1514,7 +1522,7 @@ class Render_box(QFrame):
             return
         self._retail_worker = _PostWorker(
             self._http_base() + "/retail/calibrate",
-            {"camera_id": self.component_key}, self)
+            {"camera_id": self._device_id()}, self)
         self._retail_worker.done.connect(self._on_calibrate_result)
         self._retail_worker.start()
 
@@ -1607,6 +1615,57 @@ class Render_box(QFrame):
         """Activa/desactiva el overlay de mapa de calor del servidor."""
         self.heatmap_boolean = bool(checked)
         self._save_all("heatmap_boolean", self.heatmap_boolean)
+
+    @staticmethod
+    def _slug(texto: str, limite: int = 64) -> str:
+        """Deja el texto apto para identificador Y para nombre de archivo.
+
+        Importa porque el device_id acaba siendo el nombre de los heatmaps
+        (`output/heatmap/<device_id>.png`) y de las capturas.
+
+        Se admiten letras, digitos, `_`, `-` y puntos sueltos. Deliberadamente
+        MAS restrictivo que el contrato, que tambien permitiria `:`: los dos
+        puntos son validos en el envelope pero **ilegales en un nombre de
+        archivo de Windows**, y este valor termina siendo uno. Ademas se
+        colapsan los puntos seguidos, para que ningun `..` sobreviva."""
+        limpio = ''.join(
+            c if (c.isalnum() or c in '_-.') else '_' for c in (texto or ''))
+        while '..' in limpio:
+            limpio = limpio.replace('..', '.')
+        return limpio.strip('._-')[:limite].strip('._-') or 'sin_nombre'
+
+    def _device_id(self) -> str:
+        """Identificador ESTABLE de la camara, para el `camera_id` del payload.
+
+        `component_key` NO sirve para esto: es un `uuid.uuid4()` que se genera
+        al construir el panel, asi que cada arranque de la aplicacion inventa
+        camaras nuevas a ojos del servidor. Resultado: los heatmaps, el conteo
+        y la demografia se fragmentan en un UUID por sesion y no hay historico
+        por zona (H-11).
+
+        Prioridad, de mas estable a menos:
+
+        1. **Canal DVR** — numero de serie del equipo + canal. Identifica una
+           camara fisica y no cambia nunca.
+        2. **Ventana capturada** — su titulo. Estable mientras la aplicacion
+           de origen se llame igual.
+        3. **Posicion del recuadro** — ultimo recurso; estable dentro de una
+           misma disposicion de la rejilla.
+
+        `component_key` sigue existiendo como clave de enrutado del widget (el
+        servidor no lo usa para nada), asi que dos recuadros que muestren la
+        misma camara comparten `device_id` sin pisarse las respuestas.
+        """
+        if self._dvr_device_serial or self._dvr_channel_id:
+            serie = self._slug(self._dvr_device_serial, 40)
+            canal = self._slug(self._dvr_channel_id, 12)
+            return f"dvr-{serie}-{canal}" if canal else f"dvr-{serie}"
+
+        titulo = (getattr(self, 'title', '') or '').strip()
+        if titulo:
+            return f"win-{self._slug(titulo, 72)}"
+
+        return f"box-{int(getattr(self, 'index', 0)) + 1}"
 
     def _camera_display_name(self) -> str:
         """Nombre legible de esta camara para el dashboard.
@@ -1762,7 +1821,7 @@ class Render_box(QFrame):
                     "delivery_zone_coordinates": delivery_c,
                     "delivery_zone_activate":    self.delivery_zone_boolean,
                     "enable_vlm":                self.vlm_enabled_boolean,
-                    "camera_id": self.component_key,
+                    "camera_id": self._device_id(),
                     "camera_angle": self.camera_angle,
                     "heatmap_activate": self.heatmap_boolean,
                     "camera_name": self._camera_display_name(),
@@ -1960,8 +2019,14 @@ class Render_box(QFrame):
     @Slot(dict)
     def on_text_message_received(self, message):
         try:
+            # Enrutado: el sobre viaja con `component_key` (clave del recuadro)
+            # y el payload con `camera_id` (identidad estable de la camara, ver
+            # _device_id). Se aceptan las dos porque desde H-11 ya NO son el
+            # mismo valor: comparar solo contra component_key descartaria las
+            # respuestas que solo traen camera_id.
             msg_key = message.get("component_key") or message.get("camera_id") or ""
-            if msg_key and msg_key != self.component_key: return
+            if msg_key and msg_key not in (self.component_key, self._device_id()):
+                return
             metadata  = message.get("data", {}).get("metadata", {})
             if metadata:
                 # ── Analitica de supermercado ──
@@ -1992,11 +2057,15 @@ class Render_box(QFrame):
                         "timestamp":       iteration.get("timestamp", ""),
                         "image_base64":    img_b64,
                         "crop_image":      img_b64,
-                        "camera_id":       message.get("component_key", ""),
+                        "camera_id":       self._device_id(),
                         "screenshot_path": iteration.get("screenshot_path", ""),
                     })
             data = message["data"]
-            if data["status"] == "success" and data["camera_id"] == self.component_key:
+            # El servidor hace eco del `camera_id` que le enviamos, que desde
+            # H-11 es el device_id estable y NO component_key. Comparar contra
+            # component_key aqui fallaba siempre y la imagen procesada no se
+            # mostraba nunca.
+            if data["status"] == "success" and data["camera_id"] == self._device_id():
                 proc_img = data.get("processed_image")
                 detections = (data.get("metadata") or {}).get("detections")
                 if proc_img:

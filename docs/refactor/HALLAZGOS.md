@@ -161,7 +161,45 @@ entrar al historial. Anadidos a `.gitignore` en el commit de respaldo.
 
 ---
 
-## H-11 · El `camera_id` es aleatorio: la analitica por camara no se acumula · `ABIERTO` · **critico**
+## H-11 · El `camera_id` es aleatorio: la analitica por camara no se acumula · `CORREGIDO en tienda` · **critico**
+
+> **Estado (30-jul-2026).** Corregido en `tienda_view`. Los otros **tres
+> clientes siguen igual** (`perimetrales-view`, `windows_managers_view`,
+> `Amazonas View`): tienen su propia copia del mismo `uuid.uuid4()`. No se
+> replica el arreglo cuatro veces a mano a proposito — el HITO 4 extrae
+> `render_box` al nucleo compartido y entonces la correccion es una sola.
+>
+> **La correccion:** `camera_id` pasa a ser un identificador estable
+> (`_device_id()`), con esta prioridad:
+>
+> | Fuente | Ejemplo | Estabilidad |
+> |---|---|---|
+> | Canal DVR: serie del equipo + canal | `dvr-J12345678-2` | permanente, identifica la camara fisica |
+> | Titulo de la ventana capturada | `win-iVMS-4200` | mientras la aplicacion se llame igual |
+> | Posicion del recuadro | `box-3` | dentro de la misma disposicion |
+>
+> `component_key` **se conserva** como clave de enrutado del recuadro (el
+> servidor no lo usa para nada), asi que dos paneles que muestren la misma
+> camara comparten `device_id` sin pisarse las respuestas.
+>
+> **Dos regresiones que la correccion habria introducido, detectadas y
+> arregladas:** el cliente comparaba el `camera_id` que devuelve el servidor
+> contra `component_key` en dos sitios (`render_box.py`). Al dejar de ser el
+> mismo valor, esas comparaciones fallaban siempre y **la imagen procesada no
+> se habria mostrado nunca**. Ahora se comparan contra `_device_id()`.
+>
+> **Efecto colateral bueno:** el planograma (zonas de tienda) tambien se
+> guardaba por `camera_id`, asi que las zonas definidas se perdian en cada
+> reinicio. Con el id estable persisten.
+>
+> **8 pruebas** en `packages/elde_core/tests/test_device_id.py`, la principal:
+> el mismo canal DVR produce el mismo id en dos sesiones distintas.
+>
+> Lo que **no** recupera: los datos ya acumulados bajo los UUID viejos no se
+> pueden reasignar. Se empieza a acumular de cero, como estaba previsto en el
+> riesgo 5 del HITO 2.
+
+### Descripcion original
 
 **Causa.** `tienda_view/src/gui/components/render_box/render_box.py:195`:
 
