@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketState
 
 from . import captura_contrato as _captura
+from . import validacion_contrato as _validacion
 from ..analityc.core.Perimetrales import MultiObjectProcessor
 from ..analityc.core.base_perimeter import BasePerimeter
 from ..analityc.core.botsort_wrapper import BoTSORTWrapper
@@ -681,6 +682,19 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
             # mensaje, sin binarios. Nunca lanza.
             _captura.registrar("entrante", type_inference, request)
 
+            # Validacion del contrato (HITO 3), detras de la capa de
+            # compatibilidad: entiende el formato antiguo y el nuevo. Arranca
+            # en modo 'observar' (registra lo que rechazaria y deja pasar), asi
+            # que activarla NO cambia el comportamiento hasta que se ponga
+            # ELDE_VALIDAR_CONTRATO=estricto.
+            _ok, _motivo = _validacion.revisar(request)
+            if not _ok:
+                logger.warning("contrato rechaza el mensaje client=%s: %s",
+                               client_id, _motivo)
+                await _send_error(websocket, incoming_is_binary,
+                                  f"contrato: {_motivo}")
+                continue
+
             data = request.get("data", {})
             if not isinstance(data, dict):
                 await _send_error(websocket, incoming_is_binary, "Campo 'data' invalido o ausente")
@@ -854,6 +868,10 @@ def health_check():
         "total_connections": len(active_connections),
         "executor_max_workers": EXECUTOR_WORKERS,
         "clients": clients,
+        # Estado del contrato: sirve para decidir cuando se puede pasar de
+        # 'observar' a 'estricto' sin romper ningun cliente.
+        "contrato": _validacion.resumen(),
+        "captura_payloads": _captura.resumen() if _captura.activa() else None,
     }
 
 

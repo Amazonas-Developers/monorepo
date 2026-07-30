@@ -96,29 +96,29 @@ class CustomStatusBar(QStatusBar):
             
             
         self.layout_selector.currentTextChanged.connect(self._on_selector_changed)
+        "inserción______⤵️_______"
+        self.container_layout.addWidget(QLabel("Tipos de inferencias:")) # Etiqueta opcional
+        self.container_layout.addWidget(self.layout_selector)
+
+        self.btn_stopconection = BtnIco(ico_path='resource/finish_connection.png', title='Cerrar conexión con el servidor', h=25, w=25)
+        "inserción______⤵️_______"
+        self.container_layout.addWidget(self.btn_stopconection)
+
+        """____Boton para selección de render_BOX___"""
+        self.btn_layout = BtnIco(ico_path='resource/layout.png', title='Divisiones de ventanas: (3x3, 2x2, etc.)')
+        "inserción______⤵️_______"
+        self.container_layout.addWidget(self.btn_layout)
 
     def modo_seleccionado(self) -> str:
         """El modo de inferencia que REALMENTE muestra el selector, ya
         normalizado a los que este cliente soporta.
 
         Existe porque el valor persistido (`last_inference`) puede ser de otro
-        negocio: en ese caso el selector cae a 'Personal de Amazonas' (linea
-        93) pero quien arranca la conexion seguia usando el valor crudo. La
-        pantalla decia una cosa y el websocket enviaba otra."""
+        negocio: en ese caso el selector cae a 'Personal de Amazonas' pero
+        quien arranca la conexion seguia usando el valor crudo, asi que la
+        pantalla decia una cosa y el websocket enviaba otra (H-14)."""
         texto = self.layout_selector.currentText()
         return '' if texto in ('', 'Seleccione...') else texto
-        "inserción______⤵️_______"
-        self.container_layout.addWidget(QLabel("Tipos de inferencias:")) # Etiqueta opcional
-        self.container_layout.addWidget(self.layout_selector)
-        
-        self.btn_stopconection = BtnIco(ico_path='resource/finish_connection.png', title='Cerrar conexión con el servidor', h=25, w=25)
-        "inserción______⤵️_______"
-        self.container_layout.addWidget(self.btn_stopconection)
-        
-        """____Boton para selección de render_BOX___"""
-        self.btn_layout = BtnIco(ico_path='resource/layout.png', title='Divisiones de ventanas: (3x3, 2x2, etc.)')
-        "inserción______⤵️_______"
-        self.container_layout.addWidget(self.btn_layout)
     
     
     
