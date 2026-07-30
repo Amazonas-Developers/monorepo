@@ -103,11 +103,29 @@ arquitectura del refactor.
 
 ---
 
-## H-06 · `requirements.txt` del servidor es un `pip freeze` · `ABIERTO`
+## H-06 · `requirements.txt` del servidor: UTF-16 y con dependencias que faltan · `ABIERTO`
 
-1796 lineas, frente a las 104 de cada cliente. Es un volcado del entorno
-completo, no una lista curada: no hay forma de saber que necesita realmente el
-servidor, ni de reinstalarlo en otra maquina sin arrastrar todo.
+**Correccion de una cifra mia.** En el HITO 0 dije que tenia «1796 lineas».
+Era **falso**: el archivo esta en **UTF-16LE** (con BOM `ff fe`, tipico de
+`pip freeze > requirements.txt` en Windows PowerShell) y `grep`, al leerlo como
+UTF-8, devolvia una cuenta absurda. Tiene **92 lineas**.
+
+**Lo que si es cierto, verificado:**
+
+1. **Es un volcado de `pip freeze`**: el entorno entero en orden alfabetico
+   (`altgraph`, `annotated-doc`, `anyio`, `asyncio`...), no una lista curada.
+   De los 92 paquetes declarados, solo **32** se importan de verdad; **74**
+   estan declarados y no se usan.
+2. **Faltan dependencias que el servidor necesita para arrancar**:
+   `tensorrt`, `supervision`, `timm`, `safetensors`, `python-socketio`,
+   `pynvml`, `cpuinfo`. Una instalacion limpia desde este `requirements.txt`
+   **no produce un servidor funcional**.
+3. **El UTF-16 no rompe a pip** (su `auto_decode` reconoce el BOM: comprobado),
+   pero si rompe cualquier otra herramienta que lo lea como UTF-8: `grep`,
+   editores, scripts de CI y el propio analizador de este refactor.
+
+**Impacto.** El punto 2 es el grave: no hay forma de reconstruir el entorno del
+servidor en otra maquina a partir del repositorio.
 
 ---
 

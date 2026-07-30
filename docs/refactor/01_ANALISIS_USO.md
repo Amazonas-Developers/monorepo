@@ -133,9 +133,11 @@ El servidor interpreta **32 claves** del JSON entrante. No hay esquema ni valida
 | `perimetrales-view` | 105 | 16 | 92 | models, websocket, win32ui |
 | `windows_managers_view` | 104 | 16 | 91 | models, supervision, win32ui |
 | `Amazonas View` | 104 | 14 | 92 | models, win32ui |
-| `SERVER-IA PERIMETRALES` | 93 | 32 | 93 | cpuinfo, deep-analyzer, fastapi, httpx, matplotlib, mivolo |
+| `SERVER-IA PERIMETRALES` | 92 | 32 | 74 | **tensorrt, supervision, timm, safetensors, python-socketio, pynvml** |
 
-> El conteo de "declaradas sin usar" es **orientativo**: un paquete puede ser dependencia transitiva legitima. El dato solido es que el `requirements.txt` del servidor tiene 1796 lineas frente a ~40 paquetes realmente importados: es un `pip freeze`, no una lista de dependencias.
+> El conteo de "declaradas sin usar" es **orientativo**: un paquete puede ser dependencia transitiva legitima. Los nombres locales o vendorizados (`src`, `mivolo`, `perimetral-nocturna`, `deep-analyzer`, `report-generator`) son falsos positivos de la columna "sin declarar".
+>
+> Lo solido, y grave, es lo contrario: al servidor le **faltan por declarar** `tensorrt`, `supervision`, `timm`, `safetensors`, `python-socketio`, `pynvml` y `cpuinfo`. Una instalacion limpia desde su `requirements.txt` no da un servidor funcional. Ademas ese archivo esta en UTF-16 (ver `HALLAZGOS.md` H-06); la cifra de "1796 lineas" que aparecia en el HITO 0 era un error de lectura y queda corregida: son 92.
 
 ## 6. Invocaciones dinamicas (riesgo de falso "muerto")
 

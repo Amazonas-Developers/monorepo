@@ -54,9 +54,11 @@ Los **4 clientes** suman 37,043 LOC; el servidor por si solo, 55,569 LOC.
 | perimetrales-view | `requirements.txt` / `requirements_cliente.txt` | 104 / 15 |
 | windows_managers_view | `requirements.txt` | 104 |
 | Amazonas View | `requirements.txt` | 104 |
-| SERVER-IA PERIMETRALES | `requirements.txt` | **1796** |
+| SERVER-IA PERIMETRALES | `requirements.txt` (UTF-16) | 92 |
 
-> **Hallazgo.** Los cuatro clientes declaran **exactamente 104** dependencias: es el mismo archivo copiado. Y el `requirements.txt` del servidor con 1796 lineas es un volcado de `pip freeze` del entorno entero, no una lista curada de dependencias reales.
+> **Hallazgo.** Los cuatro clientes declaran **exactamente 104** dependencias: es el mismo archivo copiado. El del servidor son 92 paquetes y es un volcado de `pip freeze` (el entorno entero en orden alfabetico), no una lista curada.
+>
+> **Correccion (HITO 1).** Una version previa de este documento decia "1796 lineas". Era **falso**: el archivo esta codificado en **UTF-16LE** y `grep` lo contaba mal. Tiene 92 lineas. Detalle en `HALLAZGOS.md` H-06.
 
 ## 5. Duplicacion entre proyectos
 
@@ -691,7 +693,7 @@ Una tabla por proyecto. `Git` es la fecha del ultimo commit que toco el archivo 
 
 1. **La duplicacion es cuadruple, no triple.** Los 4 clientes salen del mismo cliente base: comparten hasta el `README.md`. ~17.700 LOC repetidos, casi la mitad del codigo cliente.
 2. **`selector.py` documenta mal a Amazonas View** (ver seccion 3).
-3. **El `requirements.txt` del servidor es un `pip freeze`** de 1796 lineas: imposible saber que necesita de verdad.
+3. **El `requirements.txt` del servidor es un `pip freeze`** (92 paquetes) en UTF-16, y le faltan dependencias criticas. Ver `HALLAZGOS.md` H-06.
 4. **`iniciar_servidor_headless.py`, el punto de entrada real del servidor, no estaba versionado** hasta el commit de respaldo de hoy.
 5. **`hik-connect/` son 3954 archivos de SDK de terceros** (~200 MB de .exe/.dll/.pdb): el 97% del arbol de la raiz, sin codigo propio salvo una nota.
 6. **`modelos NVIDIA/` ocupa 50 GB** en la raiz del proyecto.
