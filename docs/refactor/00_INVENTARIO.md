@@ -519,18 +519,18 @@ Una tabla por proyecto. `Git` es la fecha del ultimo commit que toco el archivo 
 | `_backup_simplificacion_20260727\person_amazona_inference.py` 🚩 | Python | 3273 | 2026-07-29 | 2026-07-27 | - |
 | `src\analityc\core\person_amazona_inference.py` | Python | 3134 | 2026-07-29 | 2026-07-27 | - |
 | `src\analityc\core\analytics\demographics.py` | Python | 2207 | 2026-07-29 | 2026-07-27 | analytics/demographics.py - Clasificacion de genero y edad con PRECISION |
-| `src\analityc\core\Perimetrales.pyc` | .pyc | 2170 | — | 2026-07-29 | � |
-| `src\analityc\core\Perimetrales.pyc.bak_wa` | .bak_wa | 2170 | 2026-07-29 | 2026-06-13 | � |
+| `src\analityc\core\Perimetrales.pyc` | .pyc | 2170 | — | 2026-07-29 |  |
+| `src\analityc\core\Perimetrales.pyc.bak_wa` | .bak_wa | 2170 | 2026-07-29 | 2026-06-13 |  |
 | `_backup_simplificacion_20260727\analytics\demographics.py` 🚩 | Python | 1983 | 2026-07-29 | 2026-07-27 | analytics/demographics.py - Clasificacion de genero y edad con PRECISION |
 | `src\analityc\core\Hummus.py` | Python | 1939 | 2026-07-29 | 2026-06-23 | - |
 | `webapp\app.py` | Python | 1368 | 2026-07-29 | 2026-06-19 | webapp/app.py - Dashboard de rostros reconocidos. |
 | `src\analityc\core\Misters.py` | Python | 1333 | 2026-03-23 | 2026-03-03 | - |
-| `src\analityc\core\hummus_vlm.pyc` | .pyc | 1332 | — | 2026-06-19 | � |
+| `src\analityc\core\hummus_vlm.pyc` | .pyc | 1332 | — | 2026-06-19 |  |
 | `_backup_simplificacion_20260727\app.py` 🚩 | Python | 994 | 2026-07-29 | 2026-07-27 | - |
 | `src\analityc\core\car_washed.py` | Python | 983 | 2026-07-29 | 2026-07-25 | - |
 | `_backup_simplificacion_20260727\analytics\face_reidentifier.py` 🚩 | Python | 962 | 2026-07-29 | 2026-07-27 | analytics/face_reidentifier.py - Face re-identification para evitar |
 | `src\analityc\core\analytics\face_reidentifier.py` | Python | 962 | 2026-07-29 | 2026-06-26 | analytics/face_reidentifier.py - Face re-identification para evitar |
-| `src\analityc\core\perimetrales_multicam.pyc` | .pyc | 945 | — | 2026-06-13 | � |
+| `src\analityc\core\perimetrales_multicam.pyc` | .pyc | 945 | — | 2026-06-13 |  |
 | `_backup_simplificacion_20260727\analytics\retail_analytics.py` 🚩 | Python | 890 | 2026-07-29 | 2026-07-27 | analytics/retail_analytics.py - Orquestador de la analitica de supermercado. |
 | `src\app\app.py` | Python | 852 | 2026-07-29 | 2026-07-29 | - |
 | `webapp\static\style.css` | CSS | 848 | 2026-06-10 | 2026-05-20 | /* ELDE Dashboard - Tema oscuro moderno */ |
@@ -539,7 +539,7 @@ Una tabla por proyecto. `Git` es la fecha del ultimo commit que toco el archivo 
 | `webapp\static\app.js` | JavaScript | 781 | 2026-06-10 | 2026-05-27 | // ELDE Dashboard - lógica del frontend |
 | `_backup_simplificacion_20260727\analytics\config.py` 🚩 | Python | 780 | 2026-07-29 | 2026-07-27 | analytics/config.py - Parametros configurables para analitica retail. |
 | `webapp\templates\index.html` | HTML | 663 | 2026-07-29 | 2026-06-19 | <!DOCTYPE html> |
-| `src\analityc\core\vlm_verifier.pyc` | .pyc | 658 | — | 2026-06-13 | � |
+| `src\analityc\core\vlm_verifier.pyc` | .pyc | 658 | — | 2026-06-13 |  |
 | `src\app\dashboard_tienda.py` | Python | 603 | 2026-07-29 | 2026-07-29 | src/app/dashboard_tienda.py — Dashboard de TIENDA (marketing y consumo). |
 | `src\analityc\core\analytics\config.py` | Python | 585 | 2026-07-29 | 2026-07-28 | analytics/config.py - Parametros configurables para analitica retail. |
 | `_backup_simplificacion_20260727\analytics\shelf_interaction.py` 🚩 | Python | 575 | 2026-07-29 | 2026-07-27 | analytics/shelf_interaction.py - Interaccion persona <-> anaquel. |
@@ -589,7 +589,7 @@ Una tabla por proyecto. `Git` es la fecha del ultimo commit que toco el archivo 
 | `_backup_simplificacion_20260727\analytics\staff_gallery.py` 🚩 | Python | 195 | 2026-07-29 | 2026-07-27 | analytics/staff_gallery.py - Personal registrado por FOTO. |
 | `demo.py` | Python | 195 | 2026-06-10 | 2026-06-09 | demo.py - Demo CLI de la capa de captura universal (Hito 1). |
 | `vigilante_amazonas\captura\fuente_rtsp.py` | Python | 190 | 2026-07-29 | 2026-07-17 | Captura RTSP multihilo con cola descartable por cámara. |
-| `requirements.txt` | Texto | 185 | 2026-03-23 | 2026-02-20 | ��a l t g r a p h = = 0 . 1 7 . 4  |
+| `requirements.txt` | Texto | 185 | 2026-03-23 | 2026-02-20 | altgraph==0.17.4 |
 | `_backup_simplificacion_20260727\analytics\seller_efficiency.py` 🚩 | Python | 182 | 2026-07-29 | 2026-07-27 | analytics/seller_efficiency.py - Metricas de eficiencia de vendedores y premio horario. |
 | `src\analityc\core\puente_vigilante.py` | Python | 182 | 2026-07-29 | 2026-07-16 | Puente VIGILANTE-AMAZONAS para el modo "Perimetrales" (BasePerimeter). |
 | `scripts\evaluar_etiquetado.py` | Python | 177 | 2026-07-29 | 2026-07-27 | evaluar_etiquetado.py - Mide la precision REAL contra etiquetas manuales. |
@@ -670,7 +670,7 @@ Una tabla por proyecto. `Git` es la fecha del ultimo commit que toco el archivo 
 | `vigilante_amazonas\servicios\__init__.py` | Python | 9 | 2026-07-29 | 2026-07-17 | Servicios de VIGILANTE-AMAZONAS: clasificador de seguridad, Re-ID, VLM y |
 | `.env` | - | 4 | — | 2025-12-28 | api_keyroboflow=«API KEY ENMASCARADA» |
 | `vigilante_amazonas\captura\__init__.py` | Python | 1 | 2026-07-29 | 2026-07-17 | Captura de video multihilo (RTSP o archivo) con colas descartables. |
-| `vigilante_amazonas\db\vigilante.db-shm` | .db-shm | 1 | 2026-07-29 | 2026-07-29 | �-                                    85��	�-                                    85��	        ������ |
+| `vigilante_amazonas\db\vigilante.db-shm` | .db-shm | 1 | 2026-07-29 | 2026-07-29 | -85	-85	 |
 | `vigilante_amazonas\deteccion\__init__.py` | Python | 1 | 2026-07-29 | 2026-07-17 | Detección multiclase (YOLO26 TensorRT/PT) + tracking (ByteTrack). |
 | `vigilante_amazonas\utilidades\__init__.py` | Python | 1 | 2026-07-29 | 2026-07-17 | Utilidades transversales de VIGILANTE-AMAZONAS (logging, helpers). |
 | `vigilante_amazonas\vlm_activo.txt` | Texto | 1 | 2026-07-29 | 2026-07-29 | 0 |
