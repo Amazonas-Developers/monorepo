@@ -445,3 +445,80 @@ cree el repositorio vacio en GitHub.
 
 Excluidos del monorepo por `.gitignore`, pero siguen ocupando disco y
 enturbiando cualquier busqueda.
+
+---
+
+## H-15 · Los venv de tienda y perimetrales son COPIAS del de managers · `CORREGIDO`
+
+Al mover las carpetas salio a la luz: el `pip.exe` de `tienda_view/venv` y el de
+`perimetrales-view/venv` llevaban incrustada esta ruta:
+
+```
+C:\Users\Sistema-1\Desktop\ELDE\windows_managers_view\venv\Scripts\python.exe
+```
+
+Es decir: **no se crearon con `python -m venv`, se copiaron del de managers.**
+
+**Por que importa.** Un `pip install X` desde el venv de tienda no instalaba en
+el venv de tienda: ejecutaba el Python de *managers* y lo instalaba **alli**.
+Nadie lo notaba porque los tres venv heredan ademas del user-site global
+(H-04), asi que el paquete acababa visible desde los tres de todos modos.
+
+**Como se corrigio.** Los 71 lanzadores `.exe` de los cinco venv se
+reapuntaron cada uno a **su propio** `python.exe`. Comprobado: los cinco `pip`
+declaran ahora su `site-packages` correcto.
+
+**Nota tecnica.** Un console script de Windows es el launcher de distlib con un
+shebang `#!"<ruta>"` y un zip pegado detras. Se verifico empiricamente —copiando
+un `pip.exe`, alargando la ruta y ejecutandolo— que cambiar la longitud del
+shebang **no** rompe nada: `zipimport` localiza el archivo desde el final por su
+registro EOCD. Tambien se descubrio que distlib entrecomilla la ruta **solo si
+tiene espacios**, asi que hay que contemplar las dos formas.
+
+**Lo que NO arregla.** Siguen sin aislar (H-04). Estos venv se reapuntaron, no
+se recrearon.
+
+---
+
+## H-16 · 15 rutas absolutas a esta maquina en `Hummus.py` y `Misters.py` · `CORREGIDO`
+
+Ademas de las 5 de `app.py` que ya estaban contadas, estos dos procesadores
+tenian 15 valores por defecto mas con la ruta completa a este equipo. Y con un
+detalle: estaban escritos como `r"C:\Users\Sistema-1\..."` —cadena **cruda**
+con las barras **dobladas**—, o sea que la ruta real llevaba separadores
+repetidos. Colaba unicamente porque Windows los colapsa.
+
+Los 20 valores estan ahora anclados a `__file__`, no al directorio de trabajo.
+
+**Defecto previo que quedo a la vista.** Tres de esos modelos —`1080.pt`,
+`yolo12m.pt`, `yolo11l.pt`— **no existen** en `models/base/`, ni antes ni
+ahora: la ruta vieja apuntaba al mismo sitio fisico. Los valores por defecto de
+Hummus y Misters llevan tiempo sin resolver; funcionan solo porque la
+configuracion los sobrescribe siempre. `yolo26m.pt`, el de `app.py`, si existe.
+
+---
+
+## H-17 · Las pruebas de alias del nucleo pasaban EN VACIO · `CORREGIDO`
+
+`test_los_alias_de_los_clientes_resuelven_al_nucleo` y
+`test_el_alias_es_un_redireccion_y_no_una_copia` recorren `CLIENTES_MIGRADOS` y
+se saltan el cliente cuyo `src/` no existe. Al mover los clientes a `clients/`
+las tres rutas quedaron obsoletas **a la vez**: las dos pruebas seguian en
+verde sin comprobar absolutamente nada.
+
+Anadido `test_las_carpetas_de_los_clientes_existen`, que falla en cuanto una
+ruta de la lista deja de existir. Es el guardia que faltaba.
+
+---
+
+## H-18 · El commit de seguridad dejo 3 archivos aun versionados · `CORREGIDO`
+
+El commit `2494827` ("saca del repositorio los archivos con claves en claro")
+anadio `HIKCONNECT_INTEGRATION.md` al `.gitignore`, pero ignorar **no**
+desversiona: tres de las cuatro copias seguian en el indice. Se detecto al
+mover las carpetas, porque en la ruta nueva el `.gitignore` si aplicaba y git
+las dejaba fuera.
+
+Las cuatro estan ahora fuera del indice y **siguen en disco**. Revisadas antes:
+no contienen valores de clave, solo nombres de dispositivo. Vuelven al
+repositorio cuando las claves esten rotadas (H-13).

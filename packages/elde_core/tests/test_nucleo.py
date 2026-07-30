@@ -51,8 +51,8 @@ ALIAS = {
     'model.settings_model': 'settings_model',
 }
 
-CLIENTES_MIGRADOS = ['tienda_view', 'perimetrales-view',
-                     'windows_managers_view']
+CLIENTES_MIGRADOS = ['clients/tienda', 'clients/perimetrales',
+                     'clients/managers']
 
 
 def test_todos_los_modulos_del_nucleo_importan():
@@ -102,6 +102,19 @@ def test_windows_detector_stop_absorbe_el_argumento_de_destroyed():
     msec = firma.parameters.get('msec')
     assert msec is not None and msec.kind == msec.KEYWORD_ONLY, \
         'msec debe ser de solo palabra clave, para que destroyed no lo pise'
+
+
+def test_las_carpetas_de_los_clientes_existen():
+    """Guardia contra el fallo silencioso.
+
+    Los dos tests de alias saltan el cliente cuyo `src/` no existe, asi que si
+    una ruta se queda obsoleta pasan en VACIO en vez de fallar. Al mover los
+    clientes a `clients/` el 30-jul-2026 quedaron obsoletas las tres a la vez.
+    Este test es el que se entera."""
+    faltan = [c for c in CLIENTES_MIGRADOS if not (RAIZ / c / 'src').is_dir()]
+    assert not faltan, (
+        'CLIENTES_MIGRADOS apunta a carpetas que no existen: '
+        + ', '.join(faltan))
 
 
 def test_los_alias_de_los_clientes_resuelven_al_nucleo():

@@ -25,10 +25,10 @@ from PySide6.QtWidgets import (
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # ── Servidor de inferencia ───────────────────────────────────────────
-# El servidor headless (SERVER-IA PERIMETRALES) escucha en el puerto 9000 y
+# El servidor headless (server/) escucha en el puerto 9000 y
 # sirve a los clientes ELDE (Tienda, Gestor, Perimetrales). Solo el servidor
 # LOCAL (el que corre en esta maquina) se puede arrancar desde aqui.
-SERVER_DIR = os.path.join(ROOT, "SERVER-IA PERIMETRALES")
+SERVER_DIR = os.path.join(ROOT, "server")
 SERVER_PY = os.path.join(SERVER_DIR, "venv", "Scripts", "python.exe")
 SERVER_ENTRY = "iniciar_servidor_headless.py"
 SERVER_PORT = 9000
@@ -118,20 +118,20 @@ SISTEMAS = [
      "desc": "Analitica de supermercado: servidor + dashboard + cliente.",
      "carpeta": ROOT, "bat": os.path.join(ROOT, "INICIAR_TIENDA.bat"),
      "needs_server": False,
-     "venv_py": os.path.join(ROOT, "tienda_view", "venv", "Scripts",
+     "venv_py": os.path.join(ROOT, "clients", "tienda", "venv", "Scripts",
                              "python.exe"),
-     "entry": os.path.join(ROOT, "tienda_view", "src", "main.py")},
+     "entry": os.path.join(ROOT, "clients", "tienda", "src", "main.py")},
 
     _sistema("Gestor de ventanas", "🖥️",
-             "Cliente oficial (windows_managers_view). Arranca el servidor "
+             "Cliente oficial (clients/managers). Arranca el servidor "
              "compartido si hace falta.",
-             "windows_managers_view", "#2ecc71",
+             os.path.join("clients", "managers"), "#2ecc71",
              bat="INICIAR_CLIENTE.bat", needs_server=True),
 
     _sistema("Perimetrales", "🛡️",
              "Cliente de vigilancia perimetral. Arranca el servidor "
              "compartido si hace falta.",
-             "perimetrales-view", "#e67e22",
+             os.path.join("clients", "perimetrales"), "#e67e22",
              bat="INICIAR_CLIENTE.bat", needs_server=True),
 
     # Amazonas View SI usa el servidor compartido: su INICIAR_AMAZONAS.bat
@@ -142,7 +142,7 @@ SISTEMAS = [
     _sistema("Amazonas View", "📹",
              "Cliente Amazonas View. Arranca el servidor compartido si hace "
              "falta.",
-             "Amazonas View", "#9b59b6",
+             os.path.join("clients", "amazonas"), "#9b59b6",
              bat="INICIAR_AMAZONAS.bat", needs_server=True),
 ]
 

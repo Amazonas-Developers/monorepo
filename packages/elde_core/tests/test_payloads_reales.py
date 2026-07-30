@@ -7,7 +7,7 @@ basta — de hecho, la primera version de este contrato **rechazaba un payload
 real y funcional** porque no contemplaba `camera_angle: "auto"`. Lo descubrio
 este archivo, no la lectura del codigo.
 
-Las capturas las genera `SERVER-IA PERIMETRALES/src/app/captura_contrato.py`
+Las capturas las genera `server/src/app/captura_contrato.py`
 con `ELDE_CAPTURA_PAYLOADS=1`. Si no hay capturas, las pruebas se saltan en
 vez de fallar: no todo el mundo tiene una sesion grabada.
 """
@@ -25,7 +25,7 @@ from elde_core.contracts import (FrameInference, FrameResult, desde_antiguo,
                                  es_formato_antiguo)
 
 RAIZ = Path(__file__).resolve().parents[3]
-CAPTURAS = RAIZ / "SERVER-IA PERIMETRALES" / "output" / "contrato" / "payloads.jsonl"
+CAPTURAS = RAIZ / "server" / "output" / "contrato" / "payloads.jsonl"
 
 _JPEG = b'\xff\xd8\xff\xe0' + b'\x00' * 64
 

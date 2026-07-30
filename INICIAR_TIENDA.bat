@@ -3,7 +3,7 @@ REM ============================================================
 REM  INICIAR_TIENDA - Arranca TODO el proyecto de tienda (ELDE):
 REM    1) SERVIDOR de inferencia headless  (ws://0.0.0.0:9000/ws)
 REM    2) DASHBOARD web de visitantes     (http://localhost:9000/dashboard)
-REM    3) CLIENTE de tienda (tienda_view)   (ventana de escritorio)
+REM    3) CLIENTE de tienda (clients\tienda)   (ventana de escritorio)
 REM  Unico lanzador del proyecto. Se ejecuta como Administrador
 REM  (auto-elevacion UAC).
 REM ============================================================
@@ -24,8 +24,8 @@ REM UTF-8: los print con acentos/emoji no deben crashear la consola.
 set "PYTHONUTF8=1"
 set "PYTHONIOENCODING=utf-8"
 
-set "SERVIDOR=%~dp0SERVER-IA PERIMETRALES"
-set "CLIENTE=%~dp0tienda_view"
+set "SERVIDOR=%~dp0server"
+set "CLIENTE=%~dp0clients\tienda"
 set "PUERTO=9000"
 set "LOG=%~dp0_tienda_log.txt"
 echo ===== INICIAR TIENDA %date% %time% ===== > "%LOG%"
@@ -38,14 +38,14 @@ echo.
 REM -- Verificaciones de venv (se crean con los SETUP_*.bat) --------
 if not exist "%SERVIDOR%\venv\Scripts\python.exe" (
     echo [ERROR] Falta el venv del SERVIDOR.
-    echo         Ejecuta una vez: "SERVER-IA PERIMETRALES\SETUP_SERVIDOR.bat"
+    echo         Ejecuta una vez: "server\SETUP_SERVIDOR.bat"
     echo [ERROR] venv servidor ausente >> "%LOG%"
     pause
     exit /b 1
 )
 if not exist "%CLIENTE%\venv\Scripts\python.exe" (
     echo [ERROR] Falta el venv del CLIENTE de tienda.
-    echo         Ejecuta una vez: "tienda_view\SETUP_CLIENTE.bat"
+    echo         Ejecuta una vez: "clients\tienda\SETUP_CLIENTE.bat"
     echo [ERROR] venv cliente ausente >> "%LOG%"
     pause
     exit /b 1
@@ -85,7 +85,7 @@ echo [3/4] Abriendo DASHBOARD DE TIENDA (http://localhost:%PUERTO_DASH%)...
 echo [3/4] abrir dashboard tienda >> "%LOG%"
 start "" http://localhost:%PUERTO_DASH%
 
-REM -- 4) CLIENTE de tienda (tienda_view) -------------------------
+REM -- 4) CLIENTE de tienda (clients\tienda) -------------------------
 echo [4/4] Iniciando CLIENTE de tienda...
 echo [4/4] start cliente >> "%LOG%"
 start "CLIENTE - TIENDA" /D "%CLIENTE%" "%CLIENTE%\venv\Scripts\python.exe" src\main.py

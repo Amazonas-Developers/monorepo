@@ -67,8 +67,8 @@ def test_ningun_env_del_repositorio_lleva_la_credencial():
     Es la regresion concreta que hay que impedir: la fuga de H-13 empezo por
     tener la App Key en un archivo de configuracion."""
     culpables = []
-    for cliente in ('tienda_view', 'perimetrales-view',
-                    'windows_managers_view', 'Amazonas View'):
+    for cliente in ('clients/tienda', 'clients/perimetrales',
+                    'clients/managers', 'clients/amazonas'):
         env = RAIZ / cliente / '.env'
         if not env.is_file():
             continue
@@ -88,8 +88,8 @@ def test_get_url_no_tiene_credenciales_escritas():
     """`get_url.py` fue el archivo que las publico. No puede recaer."""
     import re
     culpables = []
-    for cliente in ('tienda_view', 'perimetrales-view',
-                    'windows_managers_view', 'Amazonas View'):
+    for cliente in ('clients/tienda', 'clients/perimetrales',
+                    'clients/managers', 'clients/amazonas'):
         p = RAIZ / cliente / 'get_url.py'
         if not p.is_file():
             continue

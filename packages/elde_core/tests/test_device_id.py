@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[3]
-RENDER_BOX = (RAIZ / "tienda_view" / "src" / "gui" / "components" /
+RENDER_BOX = (RAIZ / "clients" / "tienda" / "src" / "gui" / "components" /
               "render_box" / "render_box.py")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
