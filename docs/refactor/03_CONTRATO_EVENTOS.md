@@ -193,9 +193,15 @@ Politica que adopta el contrato (a implementar en el nucleo, HITO 4):
       32 claves del payload estan cubiertos.
 - [x] **Ningun evento huerfano entra al contrato.** Las 5 rutas HTTP huerfanas
       del HITO 1 quedan fuera a proposito.
-- [x] **Los esquemas validan los payloads reales.** Contrastado con una
-      captura de una sesion real del 30-jul (pipeline `VigilanteAmazonas`),
-      no solo con la reconstruccion del codigo. Ver seccion 7.1.
+- [x] **Los esquemas validan los payloads reales.** Contrastado por dos vias
+      independientes:
+      1. Una **captura** de sesion real del pipeline `VigilanteAmazonas`, que
+         revelo seis errores del contrato deducido del codigo (seccion 7.1).
+      2. La **validacion en vivo**: con el cliente de tienda conectado y
+         analizando, el servidor valido **2.556 mensajes reales del pipeline
+         `Personal de Amazonas` con el 100% de aceptacion** y 0,0% de
+         problemas. Es una prueba mas fuerte que cualquier muestra: son
+         mensajes de produccion, no ejemplos.
 
 ### 7.1 Lo que enseno la captura real (y el codigo no)
 
@@ -264,17 +270,61 @@ Detalle completo, regresiones evitadas y alcance (solo tienda por ahora) en
 
 ---
 
-## 10. Lo que falta para cerrar el hito
+## 10. La validacion, conectada en el servidor
 
-1. **Conectar la validacion en el servidor**, detras de la capa de
-   compatibilidad.
-2. **Capturar una sesion del pipeline de tienda.** La captura del 30-jul fue de
-   `VigilanteAmazonas`; el pipeline `Personal de Amazonas` sigue cubierto solo
-   por la reconstruccion del codigo. Visto que el codigo ya mintio una vez
-   sobre el valor por defecto de `camera_angle`, conviene contrastarlo con
-   datos reales antes de endurecer los payloads.
+`src/app/validacion_contrato.py` engancha los esquemas al bucle del websocket,
+**detras de la capa de compatibilidad**. Se controla con
+`ELDE_VALIDAR_CONTRATO`:
 
-   Para capturarla: el servidor ya escucha con `ELDE_CAPTURA_PAYLOADS=1`;
-   hace falta que el cliente seleccione el modo de inferencia **«Personal de
-   Amazonas»** (la sesion anterior entro como `VigilanteAmazonas`, que es lo
-   que reporta `GET /health`).
+| Modo | Comportamiento |
+|---|---|
+| `observar` (**defecto**) | Valida, registra lo que rechazaria y **deja pasar** el mensaje. Activarla no cambia nada. |
+| `estricto` | Descarta el mensaje invalido y responde con un error claro. Objetivo del HITO 8. |
+| `apagado` | Ni valida. Para descartarla como sospechosa al diagnosticar rendimiento. |
+
+Esa progresion es lo que permite activar la validacion **sin ventana de
+caida**: primero se mira, luego se corta.
+
+### 10.1 Cuando se puede pasar a `estricto`
+
+`GET /health` expone el estado. Ejemplo real con el cliente de tienda
+conectado:
+
+```json
+"contrato": {
+  "modo": "observar",
+  "contadores": {"traducido_del_formato_antiguo": 2556, "valido": 2556},
+  "mensajes_con_problema_pct": 0.0,
+  "sin_errores": true,
+  "pipelines_observados": ["personal_amazonas"],
+  "pipelines_totales": 8,
+  "listo_para_estricto": false,
+  "para_cortar_falta": "ejercitar los 7 pipelines restantes"
+}
+```
+
+**«Sin errores» no es «listo para cortar»**, y la primera version de este
+indicador los confundia: daba `listo_para_estricto: true` con un solo cliente
+conectado, dejando siete pipelines sin probar. Ahora exige haber **observado
+los 8** y dice explicitamente que falta.
+
+---
+
+## 11. Estado del hito
+
+Los tres puntos que quedaban pendientes estan cerrados:
+
+| Paso del plan | Estado |
+|---|---|
+| 2 · Capturar payloads reales | hecho (`VigilanteAmazonas`) + 2.556 mensajes de tienda validados en vivo |
+| 3 · H-11, `device_id` estable | hecho en tienda; los otros 3 clientes, via nucleo en el HITO 4 |
+| 4 · Definir `contracts/` | hecho, 26 pruebas |
+| 5 · Capa de compatibilidad + validacion | hecho, en modo `observar` |
+
+Queda **fuera de este hito** y anotado para los siguientes:
+
+- Ejercitar los 7 pipelines restantes antes de pasar a `estricto` (HITO 8).
+- Instalar `elde_core` en los venv de los 4 clientes (HITO 4). Hoy solo esta
+  en el del servidor.
+- Endurecer los payloads a `extra='forbid'` cuando los 4 clientes esten
+  migrados (fin del HITO 7).

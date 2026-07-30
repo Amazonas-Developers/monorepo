@@ -44,6 +44,10 @@ SITE_ID = os.getenv('ELDE_SITE_ID', 'sitio-unico').strip() or 'sitio-unico'
 
 _lock = threading.Lock()
 _stats: Counter = Counter()
+# Pipelines que se han visto de verdad. Sin esto, "sin errores" se confundia
+# con "seguro para cortar": un solo cliente conectado puede dar 0% de fallos
+# mientras los otros siete pipelines no se han probado nunca.
+_pipelines: set = set()
 # Un mismo error se repite 25 veces por segundo: se registra el primero de cada
 # clase y despues solo se cuenta.
 _ya_registrado: set = set()
@@ -112,6 +116,8 @@ def revisar(mensaje: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
             return (MODO != 'estricto'), f"payload invalido: {exc}"
 
         _anota('valido')
+        with _lock:
+            _pipelines.add(getattr(env.pipeline, 'value', str(env.pipeline)))
         return True, None
     except Exception as exc:                  # la validacion jamas rompe nada
         _anota('error_interno_validacion', str(exc))
@@ -120,19 +126,30 @@ def revisar(mensaje: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
 
 def resumen() -> Dict[str, Any]:
     """Contadores para exponer por `/health` y decidir cuando pasar a
-    `estricto`: cuando `payload_invalido:*` y `antiguo_intraducible` lleven
-    dias a cero, cortar ya no rompe nada."""
+    `estricto`."""
     with _lock:
         datos = dict(_stats)
+        vistos = sorted(_pipelines)
     total = sum(datos.values()) or 1
     problemas = sum(v for k, v in datos.items()
                     if k.startswith(('payload_invalido', 'envelope_invalido',
                                      'antiguo_intraducible')))
+    sin_errores = problemas == 0 and total > 1
     return {
         'modo': MODO,
         'disponible': DISPONIBLE,
         'site_id': SITE_ID,
         'contadores': datos,
         'mensajes_con_problema_pct': round(100.0 * problemas / total, 2),
-        'listo_para_estricto': problemas == 0 and total > 1,
+        'sin_errores': sin_errores,
+        # Que pipelines se han ejercitado de verdad. "Sin errores" NO basta
+        # para cortar: hay 8 pipelines y un solo cliente conectado da 0% de
+        # fallos dejando siete sin probar.
+        'pipelines_observados': vistos,
+        'pipelines_totales': 8,
+        'listo_para_estricto': sin_errores and len(vistos) >= 8,
+        'para_cortar_falta': (
+            'nada' if (sin_errores and len(vistos) >= 8)
+            else ('resolver los errores' if not sin_errores
+                  else f'ejercitar los {8 - len(vistos)} pipelines restantes')),
     }
