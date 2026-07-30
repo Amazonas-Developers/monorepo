@@ -318,7 +318,39 @@ propio pipeline.
 
 ---
 
-## H-13 · Claves de Hik-Connect en claro y **ya publicadas en GitHub** · `ABIERTO` · **critico / seguridad**
+## H-13 · Claves de Hik-Connect en claro y **ya publicadas en GitHub** · `MITIGADO` · **falta rotarlas**
+
+> **Mitigado el 30-jul-2026: la credencial ya no vive en ningun archivo.**
+>
+> | Antes | Ahora |
+> |---|---|
+> | Escrita en los 4 `get_url.py` | Se escribe en el panel de Dispositivos del cliente |
+> | En el `.env` de perimetrales | Guardada **cifrada** en el almacen del cliente |
+> | Leida del `.env` por `_prefill_hik_env` | Publicada en `os.environ` del **proceso** al conectar |
+> | Sin forma de retirarla | **Borrada del entorno al cerrar sesion** |
+>
+> Vive en el entorno del proceso en marcha, no en disco: al cerrar el cliente
+> desaparece con el, asi que no hay nada que se pueda commitear por descuido.
+> Modulo nuevo: `elde_core/config/sesion_hik.py`.
+>
+> **7 pruebas** fijan la propiedad para que no se reintroduzca: cerrar sesion
+> no deja rastro en `os.environ`, ningun `.env` puede volver a declararla y
+> ningun `get_url.py` puede llevarla escrita.
+>
+> ### Lo que SIGUE pendiente y solo puedes hacer tu
+>
+> **Rotar el App Key y el Secret** en el portal de Hik-Connect para empresas.
+> Las claves viejas llevan meses en el historial de tres repos de GitHub y
+> sacarlas del codigo **no las desexpone**: hay que invalidarlas en el
+> proveedor. Lo mismo con la key de Roboflow.
+>
+> Son credenciales del gateway empresarial —se envian como `appKey`/`secretKey`
+> a `isa.hik-connect.com/api/hccgw/platform/v1/token/get`—, **no** de EZVIZ,
+> que usa las suyas y no esta comprometida.
+>
+> **Alcance de la mitigacion:** protege de la fuga por repositorio, que es la
+> que ocurrio. NO protege de alguien con acceso a la maquina: el almacen se
+> descifra con una clave derivada del propio hardware.
 
 **Que hay.** El App Key y el App Secret de Hik-Connect estan escritos en claro
 en el codigo, repetidos en tres archivos (valores enmascarados aqui a

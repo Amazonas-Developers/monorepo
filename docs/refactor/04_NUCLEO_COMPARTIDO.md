@@ -5,7 +5,7 @@
 > (paso 8, seccion 9). Lo que queda fuera esta en la seccion 5.
 > Generado el 2026-07-30.
 >
-> **Total extraido: 32 modulos, ~3.470 LOC** que estaban repetidos en 3 o 4
+> **Total extraido: 46 modulos, ~6.680 LOC** que estaban repetidos en 3 o 4
 > clientes.
 
 ---
@@ -260,3 +260,64 @@ legitimamente: cada cliente ofrece modos de inferencia distintos.
 `render_box.py` no se movera entero nunca: el HITO 2 decidio **partirlo**.
 `device_panel.py`, `alerts_sidebar.py` e `interactive_imageLabel.py` si son
 candidatos, y necesitan el mismo trabajo de diff que se hizo con `hikconnect`.
+
+---
+
+## 11. Cierre del paso 8: widgets grandes y componentes nuevos
+
+### 11.1 `device_panel.py` (920 LOC)
+
+Mismo patron que el DVR: **tienda ≡ managers** (0 diferencias) y perimetrales
+270 lineas por delante. Gana perimetrales, coherente con la reconciliacion
+anterior, porque lo que anade es la modernizacion que ya vive en el nucleo:
+descubrimiento en red, EZVIZ como tercera via, regiones de Hik-Connect y el
+dialogo del codigo de verificacion. Trae ademas un `closeEvent`, justo la
+higiene de H-01 que a los otros les faltaba.
+
+Arrastro dos piezas mas al nucleo: `workers/dvr_connect_worker.py` y
+`gui/components/discovery_dialog.py`, este ultimo exclusivo de perimetrales.
+Los tres clientes que no lo tenian reciben su alias.
+
+### 11.2 `interactive_imageLabel.py` (272 LOC)
+
+Aditivo: perimetrales anade `hay_punto_en` y `arrastrando_punto`.
+
+**Amazonas View queda fuera a proposito.** Su version es mas antigua, con otra
+firma de `__init__` y sin las zonas de pedido/entrega; adoptar el superconjunto
+le cambiaria la interfaz que su `render_box` ya invoca. Es el criterio de todo
+el paso 8: se reconcilia cuando el superconjunto es compatible, no siempre.
+
+### 11.3 El panel de alertas: primero ampliar, luego migrar
+
+`perimetrales-view` tenia 481 lineas propias porque mostraba **hora de
+llegada, hora de salida y permanencia**, que el armazon compartido no cubria.
+Migrarlo tal cual habria perdido el dato mas util de la vigilancia.
+
+El orden correcto fue el inverso: **primero** se anadio ese soporte al nucleo
+(`_tiempos`, `global_id` en el titular) y **despues** se migro. Resultado:
+
+| Cliente | Antes | Ahora |
+|---|---:|---:|
+| tienda_view | 449 | 59 |
+| perimetrales-view | 481 | 64 |
+| windows_managers_view | 394 | 48 |
+| **compartido** | — | **333** |
+
+Cada uno conserva sus columnas de dominio, que es lo que NO debe compartirse.
+
+### 11.4 Componentes nuevos del nucleo
+
+Dos que no existian en ningun cliente:
+
+- **`config/sesion_hik.py`** — la App Key deja de vivir en archivos. Se escribe
+  en el cliente, se guarda cifrada, se publica en el entorno del proceso al
+  conectar y **se borra al cerrar sesion** (H-13).
+- **`ui/panel_capturas.py`** — pide las capturas al servidor por HTTP en vez de
+  leer una carpeta local. Elimina el hardcode de `CAPTURE_CLIENT_DIR`, que
+  apuntaba a Amazonas View y dejaba al resto de clientes sin nada que mostrar,
+  y funciona con el servidor en otra maquina.
+
+### 11.5 Balance
+
+**46 modulos, ~6.680 LOC** en el nucleo. **44 pruebas** en verde. Los 4
+clientes importan su `main.py` completo y cierran con codigo 0.
