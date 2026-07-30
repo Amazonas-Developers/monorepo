@@ -223,6 +223,10 @@ proposito, regla 8):
 | `get_url.py` lineas 11-12 | en las **4** copias del script (un cliente cada una) |
 | `Amazonas View/HIKCONNECT_INTEGRATION.md` | documentacion |
 | `hik-connect/api hik.txt` | notas de la API |
+| `perimetrales-view/.env` | **no** estaba en riesgo (los `.env` siempre estuvieron ignorados), pero hay que actualizarlo al rotar |
+
+Barrido completo del arbol de trabajo: esos son **todos** los sitios donde
+aparecen las claves. No hay mas copias escondidas en respaldos ni en venvs.
 
 ```
 API_KEY    = "<<6-chars-enmascarados>>…"   (32 caracteres)
