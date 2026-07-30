@@ -134,8 +134,16 @@ class MainWindow(QMainWindow):
 
         self.window_child.setStatusBar(self.footer_bar)
 
-        if last_inference is not None:
-            self.socket_init(last_inference)
+        # Se arranca con el modo que MUESTRA el selector, no con el valor
+        # persistido en crudo. Si `last_inference` venia de otro negocio (p. ej.
+        # 'VigilanteAmazonas' de una sesion anterior), el selector ya lo
+        # normalizo a 'Personal de Amazonas', pero conectar con el valor crudo
+        # hacia que la pantalla dijera una cosa y el websocket enviase otra
+        # — y el selector esta deshabilitado, asi que no habia forma de
+        # corregirlo desde la interfaz.
+        modo = self.footer_bar.modo_seleccionado()
+        if modo:
+            self.socket_init(modo)
 
 
     # ── DVR: actualizar sidebar cuando cambia la lista ────────

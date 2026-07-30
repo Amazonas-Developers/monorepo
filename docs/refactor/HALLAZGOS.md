@@ -250,6 +250,45 @@ dashboard de tienda describe sesiones, no lugares.
 
 ---
 
+## H-14 · El cliente de tienda muestra un modo y envia otro · `CORREGIDO`
+
+**Sintoma.** El selector de inferencia mostraba «Personal de Amazonas», pero el
+servidor recibia `type_inference: "VigilanteAmazonas"`. Confirmado con
+`GET /health` mientras el cliente («ELDE Tienda 🛒», PID 25980) estaba
+conectado y enviando.
+
+**Causa.** Una secuencia de cuatro pasos en `custom_status_bar.py`:
+
+1. Llega `type_inference_default = last_inference`, leido de la configuracion
+   **persistida** — podia ser de otro negocio, de una sesion anterior.
+2. `findText("VigilanteAmazonas")` da -1 porque este cliente solo ofrece
+   `['Seleccione...', 'Personal de Amazonas']`, asi que cae a
+   «Personal de Amazonas» (linea 93) y **eso es lo que se muestra**.
+3. `setDisabled(True)` (linea 95): el operador **no puede corregirlo** desde la
+   interfaz.
+4. `currentTextChanged` se conecta en la linea 98, **despues** del
+   `setCurrentIndex`, asi que la normalizacion nunca se notifico.
+
+Y `windows_main.py:137-138` arrancaba la conexion con el valor **crudo**, no
+con el normalizado.
+
+**Lo irónico:** el comentario de `custom_status_bar.py:79-82` dice que el
+selector se limita «para que el operador no elija por error un modo de otro
+negocio». Un valor persistido lograba exactamente eso, y sin posibilidad de
+deshacerlo.
+
+**Correccion.** Nueva `CustomStatusBar.modo_seleccionado()` devuelve lo que el
+selector muestra de verdad, y `windows_main` arranca con eso. Una sola fuente
+de verdad: lo que se ve es lo que se envia. Corrige tambien el caso
+`last_inference = None`, que antes mostraba «Personal de Amazonas» y **no
+conectaba con nada**.
+
+**Impacto en el refactor.** Es la razon por la que la captura de payloads del
+HITO 3 solo recogio `VigilanteAmazonas`: el cliente de tienda nunca envio su
+propio pipeline.
+
+---
+
 ## H-13 · Claves de Hik-Connect en claro y **ya publicadas en GitHub** · `ABIERTO` · **critico / seguridad**
 
 **Que hay.** El App Key y el App Secret de Hik-Connect estan escritos en claro

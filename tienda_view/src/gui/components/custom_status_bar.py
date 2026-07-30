@@ -96,6 +96,17 @@ class CustomStatusBar(QStatusBar):
             
             
         self.layout_selector.currentTextChanged.connect(self._on_selector_changed)
+
+    def modo_seleccionado(self) -> str:
+        """El modo de inferencia que REALMENTE muestra el selector, ya
+        normalizado a los que este cliente soporta.
+
+        Existe porque el valor persistido (`last_inference`) puede ser de otro
+        negocio: en ese caso el selector cae a 'Personal de Amazonas' (linea
+        93) pero quien arranca la conexion seguia usando el valor crudo. La
+        pantalla decia una cosa y el websocket enviaba otra."""
+        texto = self.layout_selector.currentText()
+        return '' if texto in ('', 'Seleccione...') else texto
         "inserción______⤵️_______"
         self.container_layout.addWidget(QLabel("Tipos de inferencias:")) # Etiqueta opcional
         self.container_layout.addWidget(self.layout_selector)
