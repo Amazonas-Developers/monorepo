@@ -139,6 +139,30 @@ def test_el_alias_es_un_redireccion_y_no_una_copia():
         '\n  '.join(demasiado_largo)
 
 
+def test_el_monitor_se_registra_en_atexit():
+    """El arreglo de H-01 tiene que valer para los 4 clientes, no solo tienda.
+
+    El nucleo puede tener el `stop()` correcto y aun asi abortar al cerrar si
+    nadie lo llama: solo el `main.py` de tienda conectaba `stop_scanner` a
+    `aboutToQuit`, y perimetrales y managers seguian saliendo con 0xc0000409.
+    Registrarlo en `atexit` desde el propio nucleo lo resuelve para todos."""
+    import inspect
+    from elde_core.capture import window_monitor
+    src = inspect.getsource(window_monitor)
+    assert 'atexit.register' in src, (
+        'el monitor debe registrarse en atexit: sin eso, el arreglo de H-01 '
+        'solo funciona en los clientes cuyo main.py llama a stop_scanner()')
+    assert hasattr(window_monitor.windows_monitor, 'stop_scanner')
+
+
+def test_stop_scanner_es_idempotente():
+    """Se llama desde atexit Y desde el main.py de tienda: no puede molestar
+    que se invoque dos veces."""
+    from elde_core.capture.window_monitor import windows_monitor
+    windows_monitor.stop_scanner()
+    windows_monitor.stop_scanner()      # segunda vez: no debe lanzar
+
+
 def test_el_paquete_dvr_importa_completo():
     modulos = ['base', 'context', 'dahua_http', 'dahua_sdk', 'discovery',
                'ezviz', 'hikconnect', 'hikconnect_channel_encoder',

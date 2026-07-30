@@ -5,7 +5,7 @@
 > (paso 8, seccion 9). Lo que queda fuera esta en la seccion 5.
 > Generado el 2026-07-30.
 >
-> **Total extraido: 21 modulos, ~2.370 LOC** que estaban repetidos en 3 o 4
+> **Total extraido: 32 modulos, ~3.470 LOC** que estaban repetidos en 3 o 4
 > clientes.
 
 ---
@@ -197,3 +197,66 @@ que la version elegida esta completa.
 `tienda_view` y `windows_managers_view` reciben los 3 arreglos de Hik-Connect,
 el soporte de codigo de verificacion para streams cifrados, la estrategia EZVIZ
 y el descubrimiento de equipos en red. Antes solo los tenia perimetrales.
+
+---
+
+## 10. Widgets y almacen DVR (segunda pasada del paso 8)
+
+### 10.1 La normalizacion vuelve a pagar
+
+De los 20 archivos de `gui/` comparados entre los 3 clientes migrados:
+
+| | Archivos | LOC |
+|---|---:|---:|
+| Identicos tras normalizar CRLF | 13 | 984 |
+| Divergentes de verdad | 7 | 4.367 |
+
+Se movieron 10 widgets (los 3 restantes eran `__init__.py` vacios) mas
+`models/dvr_storage.py`, que si divergia pero de forma **aditiva**
+(`verification_code`), coherente con la reconciliacion del paquete `dvr/`: gana
+otra vez perimetrales-view. Va a `elde_core/dvr/storage.py` porque es el almacen
+cifrado de equipos, no un widget.
+
+Cuatro widgets importaban modulos del cliente; esos imports se reescribieron a
+sus equivalentes del nucleo (todos ya migrados) o a imports relativos:
+`box_image`, `device_list`, `dvr_tree` y `sidebar_dock`.
+
+`perimetrales-view` no tiene `modal_msm`, `add_device_dialog` ni `device_list`:
+resuelve 8/8 de los que si tiene.
+
+### 10.2 El arreglo de H-01 no llegaba a todos los clientes
+
+Al verificar el cierre salio que `perimetrales-view` y `windows_managers_view`
+**seguian abortando con 0xc0000409**, pese a tener ya el `stop()` correcto del
+nucleo. El motivo: el nucleo puede tener el arreglo y aun asi abortar si nadie
+lo invoca, y solo el `main.py` de tienda conectaba `stop_scanner` a
+`aboutToQuit`.
+
+Se resolvio **en el nucleo**, registrando `stop_scanner` en `atexit` desde el
+propio `Windows_monitor`. `atexit` corre antes de que el interprete desmonte
+nada, asi que el hilo se para a tiempo sin depender de que cada `main.py` se
+acuerde.
+
+Resultado medido, los 3 clientes:
+
+| Cliente | Antes | Ahora |
+|---|---|---|
+| tienda_view | limpio | limpio |
+| perimetrales-view | **0xC0000409** | **codigo 0** |
+| windows_managers_view | **0xC0000409** | **codigo 0** |
+
+Es el mejor argumento a favor del nucleo compartido: un arreglo, tres clientes.
+
+### 10.3 Lo que sigue divergiendo (4.367 LOC)
+
+`render_box.py` (1.914), `device_panel.py` (920), `alerts_sidebar.py` (481),
+`custom_status_bar.py` (329), `windows_main.py` (325),
+`interactive_imageLabel.py` (272) y `window_bar.py` (126).
+
+Cuatro de ellos divergen **en parte por los arreglos de este refactor** (H-02,
+H-11, H-14 y el interruptor de WhatsApp), y `custom_status_bar.py` diverge
+legitimamente: cada cliente ofrece modos de inferencia distintos.
+
+`render_box.py` no se movera entero nunca: el HITO 2 decidio **partirlo**.
+`device_panel.py`, `alerts_sidebar.py` e `interactive_imageLabel.py` si son
+candidatos, y necesitan el mismo trabajo de diff que se hizo con `hikconnect`.
