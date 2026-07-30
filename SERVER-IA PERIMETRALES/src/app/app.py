@@ -15,6 +15,7 @@ from fastapi import (FastAPI, WebSocket, WebSocketDisconnect,
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketState
 
+from . import captura_contrato as _captura
 from ..analityc.core.Perimetrales import MultiObjectProcessor
 from ..analityc.core.base_perimeter import BasePerimeter
 from ..analityc.core.botsort_wrapper import BoTSORTWrapper
@@ -675,6 +676,11 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
                 await _send_error(websocket, incoming_is_binary, str(exc))
                 continue
 
+            # Captura de payloads para el contrato (HITO 3). Apagada salvo que
+            # ELDE_CAPTURA_PAYLOADS=1; guarda una muestra por forma distinta de
+            # mensaje, sin binarios. Nunca lanza.
+            _captura.registrar("entrante", type_inference, request)
+
             data = request.get("data", {})
             if not isinstance(data, dict):
                 await _send_error(websocket, incoming_is_binary, "Campo 'data' invalido o ausente")
@@ -778,6 +784,7 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
                 break
 
             request["data"] = result
+            _captura.registrar("saliente", type_inference, request)
             try:
                 if incoming_is_binary:
                     await websocket.send_bytes(msgpack.packb(request, use_bin_type=True))
