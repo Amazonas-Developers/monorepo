@@ -17,6 +17,7 @@ from starlette.websockets import WebSocketState
 
 from . import captura_contrato as _captura
 from . import validacion_contrato as _validacion
+from . import whatsapp_alertas as _whatsapp
 from ..analityc.core.Perimetrales import MultiObjectProcessor
 from ..analityc.core.base_perimeter import BasePerimeter
 from ..analityc.core.botsort_wrapper import BoTSORTWrapper
@@ -796,6 +797,17 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
 
             if websocket.client_state != WebSocketState.CONNECTED:
                 break
+
+            # Reenvio de alertas a WhatsApp para los pipelines que NO son
+            # VigilanteWS (ese ya tiene su propia ruta en su adaptador y
+            # duplicariamos los mensajes). Solo actua si el cliente activo su
+            # interruptor y si el procesador publica alertas en metadata.
+            if (data.get("enviar_whatsapp")
+                    and type_inference != "VigilanteAmazonas"
+                    and isinstance(result, dict)):
+                _whatsapp.reenviar(result.get("metadata"),
+                                   camera_name=str(camera_name or ""),
+                                   camera_id=str(camera_id_raw or ""))
 
             request["data"] = result
             _captura.registrar("saliente", type_inference, request)

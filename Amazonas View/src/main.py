@@ -124,6 +124,24 @@ def main():
         dock_alerts.setTitleBarWidget(QWidget())
         windowsPrincipal.addDockWidget(Qt.RightDockWidgetArea, dock_alerts)
 
+
+        # ── Interruptor "Enviar por WhatsApp" del pie ──
+        # Es GLOBAL: una sola casilla gobierna todas las camaras. El estado se
+        # persiste, y al arrancar se propaga a cada recuadro para que el flag
+        # viaje en el payload del frame desde el primer envio.
+        whatsapp_activo = bool(settingsModel.get("whatsapp_envio_activo", False))
+        chk_wa = window_containter.footer_bar.chk_envio_whatsapp
+        chk_wa.setChecked(whatsapp_activo)
+        for box in window_containter.list_box:
+            box.whatsapp_boolean = whatsapp_activo
+
+        def _toggle_envio_whatsapp(valor):
+            settingsModel.set("whatsapp_envio_activo", bool(valor))
+            for box in window_containter.list_box:
+                box.whatsapp_boolean = bool(valor)
+
+        chk_wa.toggled.connect(_toggle_envio_whatsapp)
+
         window_containter.show()
     
         splashScreen.finish(windowsPrincipal)

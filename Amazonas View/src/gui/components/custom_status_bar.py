@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QStatusBar, QLabel, QWidget, QHBoxLayout, QComboBox
+from PySide6.QtWidgets import QStatusBar, QLabel, QWidget, QHBoxLayout, QComboBox, QCheckBox
 from PySide6.QtCore import Slot, Qt, Signal
 
 from .custon_btn.btn_footer import BtnIco
@@ -89,6 +89,22 @@ class CustomStatusBar(QStatusBar):
         "inserción______⤵️_______"
         self.container_layout.addWidget(QLabel("Tipos de inferencias:")) # Etiqueta opcional
         self.container_layout.addWidget(self.layout_selector)
+
+        """____Interruptor de ENVÍO por WHATSAPP (bot 'ava')___
+        Reenvia cada alerta como imagen a un grupo de WhatsApp; el envio lo
+        hace el servidor. Es GLOBAL para todas las camaras y su estado se
+        persiste (ver main.py). Por defecto DESACTIVADO."""
+        self.chk_envio_whatsapp = QCheckBox('Enviar por WhatsApp')
+        self.chk_envio_whatsapp.setChecked(False)
+        self.chk_envio_whatsapp.setToolTip(
+            'Activar/desactivar el envío de alertas por WhatsApp.\n'
+            'Desactivado: las alertas siguen viéndose en el panel lateral,\n'
+            'pero NO se envían imágenes al grupo de WhatsApp.')
+        self.chk_envio_whatsapp.setStyleSheet(
+            'QCheckBox { color: #999; }'
+            'QCheckBox::indicator { width: 14px; height: 14px; }')
+        self.chk_envio_whatsapp.toggled.connect(self._on_envio_whatsapp_toggled)
+        self.container_layout.addWidget(self.chk_envio_whatsapp)
         
         self.btn_stopconection = BtnIco(ico_path='resource/finish_connection.png', title='Cerrar conexión con el servidor', h=25, w=25)
         "inserción______⤵️_______"
@@ -109,6 +125,21 @@ class CustomStatusBar(QStatusBar):
     
     
     
+
+    def _on_envio_whatsapp_toggled(self, activo):
+        """Retroalimentacion visual del interruptor de envio por WhatsApp."""
+        if activo:
+            self.chk_envio_whatsapp.setStyleSheet(
+                'QCheckBox { color: white; }'
+                'QCheckBox::indicator { width: 14px; height: 14px; }')
+            self.showMessage('Envío de alertas por WhatsApp ACTIVADO', 4000)
+        else:
+            self.chk_envio_whatsapp.setStyleSheet(
+                'QCheckBox { color: #999; }'
+                'QCheckBox::indicator { width: 14px; height: 14px; }')
+            self.showMessage('Envío de alertas por WhatsApp DESACTIVADO '
+                             '(el panel lateral sigue mostrando alertas)', 5000)
+
     @Slot(bool, str)
     def update_ui(self, is_connected, message):
         if is_connected:

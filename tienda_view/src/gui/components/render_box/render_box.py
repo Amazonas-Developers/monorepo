@@ -233,6 +233,10 @@ class Render_box(QFrame):
         # Nombre legible de la camara (DVR: alias+canal) para que el
         # dashboard no muestre el UUID.
         self.camera_name_dvr      = ""
+        # Reenvio de alertas a WhatsApp: lo gobierna el
+        # interruptor GLOBAL del pie (main.py lo propaga a
+        # todos los recuadros). El envio lo hace el servidor.
+        self.whatsapp_boolean     = False
         # Identidad ESTABLE del canal DVR (numero de serie del equipo + canal).
         # No cambia entre reinicios, al contrario que component_key: es lo que
         # permite acumular historico por camara. Ver H-11 y _device_id().
@@ -670,6 +674,7 @@ class Render_box(QFrame):
                     "enable_vlm":                self.vlm_enabled_boolean,
                     "camera_id": self._device_id(),
                     "camera_angle": self.camera_angle,
+                    "enviar_whatsapp": self.whatsapp_boolean,
                     "heatmap_activate": self.heatmap_boolean,
                     "camera_name": self._camera_display_name(),
                     "track_classes": self._selected_classes,
@@ -1823,6 +1828,7 @@ class Render_box(QFrame):
                     "enable_vlm":                self.vlm_enabled_boolean,
                     "camera_id": self._device_id(),
                     "camera_angle": self.camera_angle,
+                    "enviar_whatsapp": self.whatsapp_boolean,
                     "heatmap_activate": self.heatmap_boolean,
                     "camera_name": self._camera_display_name(),
                     "track_classes": self._selected_classes,

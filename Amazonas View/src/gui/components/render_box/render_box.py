@@ -165,6 +165,10 @@ class Render_box(QFrame):
         self.image_h              = 0
         self.current_pixmap       = None
         self.component_key        = str(uuid.uuid4())
+        # Reenvio de alertas a WhatsApp: lo gobierna el interruptor
+        # GLOBAL del pie (main.py lo propaga a todos los recuadros).
+        # El envio lo hace el servidor.
+        self.whatsapp_boolean     = False
         self.can_send_next_frame  = True
 
         # DVR / archivo de video
@@ -533,6 +537,7 @@ class Render_box(QFrame):
                     "roi_coordinates": self.imagen_label.get_coordinates(w, h),
                     "roi_activate": self.roi_boolean,
                     "camera_id": self.component_key,
+                    "enviar_whatsapp": self.whatsapp_boolean,
                     "track_classes": self._selected_classes,
                 }
                 self.socket.send_binary_frame(self.component_key, data)
@@ -913,6 +918,7 @@ class Render_box(QFrame):
                     "header": header, "image": image_bytes,
                     "roi_coordinates": roi_c, "roi_activate": self.roi_boolean,
                     "camera_id": self.component_key,
+                    "enviar_whatsapp": self.whatsapp_boolean,
                     "track_classes": self._selected_classes,
                 }
                 if self.smart_mode and self.can_send_next_frame:
