@@ -43,6 +43,19 @@ def load_stylesheet():
 def main():
     try:
         load_dotenv()
+
+        # Registro unificado (nucleo). Hasta el 30-jul-2026 este
+        # cliente no registraba NADA: 33 print() y ni un solo
+        # getLogger, asi que un fallo no dejaba rastro. Va DESPUES
+        # de load_dotenv() para que el .env pueda fijar el nivel y
+        # la carpeta (ELDE_LOG_NIVEL, ELDE_LOG_DIR).
+        from pathlib import Path as _Path
+        from elde_core.logging import configurar as _iniciar_registro
+        from config.ajustes import CLIENT_TYPE as _CLIENT_TYPE
+        _iniciar_registro(
+            _CLIENT_TYPE,
+            (os.getenv('site_id') or '').strip() or 'sitio-unico',
+            raiz_proyecto=_Path(__file__).resolve().parents[1])
         
         email_jarvis = os.getenv('jarvis_email')
         password_jarvis = os.getenv('jarvis_password')

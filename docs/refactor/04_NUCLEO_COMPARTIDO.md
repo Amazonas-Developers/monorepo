@@ -321,3 +321,59 @@ Dos que no existian en ningun cliente:
 
 **46 modulos, ~6.680 LOC** en el nucleo. **44 pruebas** en verde. Los 4
 clientes importan su `main.py` completo y cierran con codigo 0.
+
+---
+
+## 10. `logging/` — el subpaquete que faltaba desde el HITO 2 (30-jul-2026)
+
+El HITO 2 propuso `logging/` y `geometry/` en el nucleo. Ninguno se creo. El
+primero ya esta; el segundo sigue abierto porque casi toda esa geometria vive
+dentro de `render_box.py`, y encaja partirlo en el mismo trabajo.
+
+### Lo que se encontro al ir a hacerlo
+
+| Proyecto | `basicConfig` | `getLogger` | `print()` |
+|---|---:|---:|---:|
+| clients/tienda | 0 | **0** | 27 |
+| clients/perimetrales | 0 | **0** | 31 |
+| clients/managers | 0 | **0** | 23 |
+| clients/amazonas | 0 | **0** | 33 |
+| server | 1 | 24 | 112 |
+
+Los **cuatro clientes no registraban absolutamente nada**. Cuando uno fallaba no
+quedaba rastro; y comparar que hicieron dos clientes ante el mismo evento era
+imposible, porque no habia nada que comparar. Eso es exactamente lo que el
+HITO 8 necesita.
+
+### Que hace `elde_core.logging`
+
+- **La identidad va en cada linea:** `client_type/site_id`, los mismos del
+  contrato del HITO 3. Sin eso, juntar cuatro logs da un amasijo.
+- **Archivo rotatorio UTF-8 + consola tolerante.** Los clientes imprimen
+  `📄 ✅ 🔥` y eso reventaba el arranque en consolas cp1252; el logger no podia
+  repetir el error.
+- **Las excepciones no capturadas se registran** antes de que muera el proceso.
+  Es la clase de fallo que dejo a tienda cerrandose sin dejar rastro (H-01). El
+  hook se **encadena** al anterior: registra, no cambia lo que pasa despues.
+- **Idempotente.** Llamarlo dos veces no duplica cada mensaje.
+
+Regla 6: nivel, carpeta, tamaño y numero de copias salen de `ELDE_LOG_NIVEL`,
+`ELDE_LOG_DIR`, `ELDE_LOG_MB` y `ELDE_LOG_COPIAS`.
+
+### El servidor, sin tocar sus 24 modulos
+
+Sus modulos hacen `logging.getLogger(__name__)`, que no cuelga de `elde`.
+Reescribir 24 archivos seria redisenar, no refactorizar. En su lugar,
+`configurar(..., tambien_raiz=True)` engancha **los mismos** manejadores al
+logger raiz. Efecto colateral util: deja la raiz con manejadores, asi que el
+`logging.basicConfig()` que `app.py` ya hacia queda en nada por si solo, sin
+tener que quitarlo.
+
+Verificado con el servidor real: `src.app.app` escribe ahora en
+`server/logs/server.log` con `server/sitio-unico` delante.
+
+### Pruebas
+
+7 pruebas en `tests/test_registro.py`, incluida la que fija que
+`tambien_raiz` captura un logger que **no** cuelga de `elde` — que es lo unico
+que hace util la opcion. Total del nucleo: **52**.

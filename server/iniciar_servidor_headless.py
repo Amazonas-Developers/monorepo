@@ -36,6 +36,19 @@ def _asegurar_venv() -> None:
 
 _asegurar_venv()
 
+# Registro unificado (nucleo), ANTES de importar nada del servidor: sus modulos
+# hacen `logging.getLogger(__name__)` al importarse y `app.py` llama a
+# `logging.basicConfig()`. Configurando primero, esa llamada queda en nada (no
+# hace nada si la raiz ya tiene manejadores) y el servidor entero escribe con el
+# mismo formato que los cuatro clientes, con `server/<site_id>` delante.
+from elde_core.logging import configurar as _iniciar_registro  # noqa: E402
+
+_iniciar_registro(
+    'server',
+    (os.getenv('site_id') or '').strip() or 'sitio-unico',
+    raiz_proyecto=Path(__file__).resolve().parent,
+    tambien_raiz=True)
+
 import uvicorn  # noqa: E402  (tras asegurar el venv)
 
 
