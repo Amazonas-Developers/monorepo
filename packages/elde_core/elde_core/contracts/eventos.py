@@ -41,6 +41,16 @@ class CameraAngle(str, Enum):
 def _valida_poligono(v: Optional[Poligono], nombre: str) -> Optional[Poligono]:
     if v is None:
         return v
+    if not v:
+        # Lista VACIA = "no hay poligono", que no es lo mismo que un poligono
+        # mal formado. Es lo que devuelve `get_coordinates()` cuando la zona no
+        # tiene puntos, y viaja acompañada de su `*_activate: False`.
+        #
+        # Rechazarla habria tumbado a los cuatro clientes al pasar la
+        # validacion a `estricto`: basta con no tener ROI dibujado. Lo encontro
+        # el modo `observar` del HITO 8 con trafico real, que es justo para lo
+        # que existe.
+        return v
     if len(v) < 3:
         raise ValueError(f"{nombre}: un poligono necesita 3 puntos o mas, "
                          f"llegaron {len(v)}")

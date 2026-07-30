@@ -193,3 +193,27 @@ if __name__ == "__main__":
                 print(f"  FALLA {nombre}: {exc}")
     print(f"\n{'TODO OK' if not fallos else f'{fallos} FALLOS'}")
     raise SystemExit(1 if fallos else 0)
+
+
+def test_un_poligono_vacio_es_no_hay_zona_y_no_un_error():
+    """El fallo que el modo `observar` encontro en el HITO 8.
+
+    `get_coordinates()` devuelve `[]` cuando la zona no tiene puntos, y el
+    cliente lo manda acompañado de su `*_activate: False`. Rechazarlo habria
+    tumbado a los cuatro clientes al pasar la validacion a `estricto`: bastaba
+    con no tener un ROI dibujado.
+    """
+    frame = FrameInference(image=b'\xff\xd8algo', roi_activate=False,
+                           roi_coordinates=[], order_zone_coordinates=[],
+                           delivery_zone_coordinates=[])
+    assert frame.roi_coordinates == []
+
+
+def test_un_poligono_de_dos_puntos_si_es_un_error():
+    """Vacio significa 'no hay zona'; dos puntos significa 'zona rota'."""
+    try:
+        FrameInference(image=b'\xff\xd8algo', roi_coordinates=[[0, 0], [1, 1]])
+    except Exception as exc:
+        assert '3 puntos' in str(exc)
+    else:
+        raise AssertionError('deberia rechazar un poligono de 2 puntos')

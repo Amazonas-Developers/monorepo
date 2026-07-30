@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketState
 
 from . import captura_contrato as _captura
+from . import registro_dispositivos as _registro
 from . import validacion_contrato as _validacion
 from . import whatsapp_alertas as _whatsapp
 from ..analityc.core.Perimetrales import MultiObjectProcessor
@@ -88,8 +89,14 @@ async def lifespan(app: FastAPI):
     if getattr(executor, "_shutdown", False):
         executor = ThreadPoolExecutor(max_workers=EXECUTOR_WORKERS)
     logger.info("Servidor iniciando - ThreadPoolExecutor con %d workers", EXECUTOR_WORKERS)
+    # El registro de dispositivos se acumula entre arranques: sin esto, cada
+    # reinicio del servidor perderia el historico de que camaras existen.
+    _registro.cargar()
     yield
     logger.info("Servidor apagandose - cerrando ThreadPoolExecutor")
+    # El volcado esta amortiguado (cada 30 s), asi que al cerrar puede quedar
+    # medio minuto de altas sin escribir.
+    _registro.volcar()
     executor.shutdown(wait=False)
 
 
@@ -108,6 +115,12 @@ app.add_middleware(
 # usa imports perezosos de este modulo para evitar el ciclo.
 from .dashboard import router as dashboard_router  # noqa: E402
 app.include_router(dashboard_router)
+
+# API REST de LECTURA (HITO 8). Es la puerta por la que los dashboards leeran
+# cuando dejen de vivir dentro de este proceso (HITO 9). Solo GET: lo que
+# modifica algo se queda en /dashboard/api/.
+from .api_lectura import router as api_lectura_router  # noqa: E402
+app.include_router(api_lectura_router)
 
 
 # -----------------------------------------------------------------------------
@@ -706,6 +719,13 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
             # en modo 'observar' (registra lo que rechazaria y deja pasar), asi
             # que activarla NO cambia el comportamiento hasta que se ponga
             # ELDE_VALIDAR_CONTRATO=estricto.
+            # Registro de dispositivos (HITO 8): apunta que camaras existen.
+            # Va aqui, junto a la validacion, porque mira el MISMO mensaje. No
+            # se pudo construir antes de cerrar H-11: con un `camera_id`
+            # aleatorio por sesion habria acumulado un dispositivo nuevo cada
+            # vez que se abria un cliente. Nunca lanza.
+            _registro.anotar(request, type_inference)
+
             _ok, _motivo = _validacion.revisar(request)
             if not _ok:
                 logger.warning("contrato rechaza el mensaje client=%s: %s",
@@ -901,6 +921,7 @@ def health_check():
         # Estado del contrato: sirve para decidir cuando se puede pasar de
         # 'observar' a 'estricto' sin romper ningun cliente.
         "contrato": _validacion.resumen(),
+        "registro": _registro.resumen(),
         "captura_payloads": _captura.resumen() if _captura.activa() else None,
     }
 

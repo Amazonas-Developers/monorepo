@@ -535,3 +535,77 @@ las dejaba fuera.
 Las cuatro estan ahora fuera del indice y **siguen en disco**. Revisadas antes:
 no contienen valores de clave, solo nombres de dispositivo. Vuelven al
 repositorio cuando las claves esten rotadas (H-13).
+
+---
+
+## H-19 · El pipeline `Hummus` no puede arrancar: su modelo no existe · `ABIERTO`
+
+Salio al ejercitar los 8 pipelines en el HITO 8. Al conectar un cliente en modo
+`Hummus`, el servidor corta la conexion:
+
+```
+Error critico: No se encontro el modelo principal.
+Rutas probadas: server\models\base\1080.pt
+Fallback ausente: server\models\base\1080.pt
+```
+
+La configuracion declara `Hummus -> models/base/1080.pt` y **ese archivo no
+esta en el disco**. Ni ahora ni antes de mover el servidor: la ruta absoluta
+vieja apuntaba al mismo sitio fisico (ver H-16).
+
+Lo delata el propio arranque, en una linea que se pierde entre el resto:
+
+```
+Modelo no encontrado en disco: ...\models\base\1080.pt
+1 modelo(s) no encontrado(s) en disco. El servidor iniciara pero fallara al
+intentar usarlos.
+```
+
+**`Misters` si funciona** aunque su valor por defecto tambien apunte a
+`1080.pt`: no esta en `model_paths`, asi que cae en el `model_path` general
+(`yolo26m.pt`, que si existe). Es la confirmacion de lo que H-16 suponia — los
+valores por defecto de Hummus/Misters llevan tiempo sin resolver y solo
+funcionan cuando la configuracion los tapa.
+
+**Que hace falta:** el archivo `1080.pt`, o apuntar `Hummus` a un modelo que
+exista. Es una decision de producto (que modelo debe usar Hummus), no de
+refactor, asi que queda anotado sin tocar.
+
+---
+
+## H-20 · `PerimetralesBoTSORT` falla en CADA frame · `ABIERTO` · **critico**
+
+```
+Error en worker: BoTSORTWrapper.process_frame() takes 3 positional arguments
+but 8 were given
+```
+
+`BoTSORTWrapper` se construye en `app.py:267`, pero **no tiene rama propia** en
+el despacho de frames: no hay ningun `isinstance(processor, BoTSORTWrapper)`.
+Cae en la rama generica, que llama
+
+```python
+processor.process_frame(img, roi, roi_activate, camera_id,
+                        heatmap_activate=heatmap_activate)
+```
+
+mientras su firma es
+
+```python
+def process_frame(self, frame: np.ndarray, camera_id: int)
+```
+
+Cinco argumentos contra dos. **No es un caso raro: es todos los frames.** Este
+modo no ha funcionado nunca desde que la firma diverge.
+
+El contrato **si** valida sus mensajes (aparece en `pipelines_observados` con
+0% de problemas): el fallo esta despues, en el procesamiento. Sirve para
+distinguir las dos capas — que el contrato acepte un mensaje no dice nada de si
+el dominio sabe atenderlo.
+
+**Por que no lo arreglo aqui:** la regla 3 del refactor manda anotar los fallos
+y corregirlos solo con aprobacion. Ademas hay que decidir que se le pasa: o se
+le da una rama propia con `(img, camera_id)`, o se amplia su firma para que
+acepte lo mismo que los demas. Lo segundo es lo coherente con el resto, pero
+cambia el comportamiento de un procesador que no puedo probar sin camaras
+reales.
