@@ -1,27 +1,10 @@
-from PySide6.QtCore import QTimer, QObject, Signal
+"""Movido al nucleo compartido: `elde_core.capture.hwnd_state`.
 
+Este archivo ya solo redirige, para que los imports existentes de este cliente
+sigan funcionando sin tocarlos. Se elimina cuando el cliente se refactorice
+(HITOS 5-7). Ver docs/refactor/04_NUCLEO_COMPARTIDO.md.
+"""
+import sys as _sys
+from elde_core.capture import hwnd_state as _modulo
 
-
-class HwndState(QObject):
-
-    change_hwnd = Signal(int)
-
-
-    def __init__(self):
-        super().__init__()
-        self._hwnd = None
-
-
-
-    def set_hwnd(self, hwnd: int):
-        if hwnd != self._hwnd:
-            self._hwnd = hwnd
-            self.change_hwnd.emit(hwnd)
-
-    
-    def get_hwnd(self):
-        return self._hwnd
-    
-
-
-hwndState = HwndState()
+_sys.modules[__name__] = _modulo

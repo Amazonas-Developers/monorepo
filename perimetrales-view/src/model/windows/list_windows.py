@@ -1,24 +1,10 @@
-import win32gui
-import os
-from dotenv import load_dotenv
+"""Movido al nucleo compartido: `elde_core.capture.list_windows`.
 
+Este archivo ya solo redirige, para que los imports existentes de este cliente
+sigan funcionando sin tocarlos. Se elimina cuando el cliente se refactorice
+(HITOS 5-7). Ver docs/refactor/04_NUCLEO_COMPARTIDO.md.
+"""
+import sys as _sys
+from elde_core.capture import list_windows as _modulo
 
-load_dotenv()
-name_my_window = os.getenv('name_project', 'App')
-
-
-def open_windows_windows(): 
-    windows = []
-    def enum_windows_proc(hwnd, param):
-
-        if win32gui.IsWindowVisible(hwnd) and win32gui.GetWindowText(hwnd):
-
-            if(name_my_window != win32gui.GetWindowText(hwnd)): windows.append({
-                'hwnd': hwnd,
-                'title': win32gui.GetWindowText(hwnd),
-                'class': win32gui.GetClassName(hwnd)
-            })
-        return True
-    
-    win32gui.EnumWindows(enum_windows_proc, None)
-    return windows
+_sys.modules[__name__] = _modulo
