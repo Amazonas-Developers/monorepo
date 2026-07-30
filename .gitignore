@@ -52,9 +52,13 @@ tmp_mivolo_v2/
 # ~200 MB de .exe/.dll/.pdb/.pdf y demos en C#/C++: son 3954 de los 4054
 # archivos del arbol y NO son fuente de este proyecto. Se distribuyen
 # aparte, igual que ya se hace con perimetrales-view/src/sdk/.
-# Se conserva unicamente la nota propia de la API.
-hik-connect/*
-!hik-connect/api hik.txt
+#
+# OJO: aqui habia un `!hik-connect/api hik.txt` para conservar la nota propia
+# de la API. Esa negacion iba DESPUES de la regla de secretos, asi que ganaba
+# y dejaba el archivo sin ignorar — y ese archivo lleva el App Key en claro
+# (H-13). Con el repositorio en publico eso era una fuga a un `git add -A` de
+# distancia. Se elimina la excepcion: la carpeta entera queda fuera.
+hik-connect/
 
 # ===== Empaquetados y distribucion =====
 *.zip
