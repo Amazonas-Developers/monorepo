@@ -1,8 +1,12 @@
 # HITO 4 — Núcleo compartido
 
-> Primera pasada: se extrae lo **identico** entre clientes (paso 7 del plan).
-> Lo *casi* identico (paso 8, riesgo alto) queda pendiente y explicado en la
-> seccion 5. Generado el 2026-07-30.
+> Dos pasadas: primero lo **identico** entre clientes (paso 7, seccion 1) y
+> despues la **reconciliacion** del paquete `dvr/`, que exigia leer diffs
+> (paso 8, seccion 9). Lo que queda fuera esta en la seccion 5.
+> Generado el 2026-07-30.
+>
+> **Total extraido: 21 modulos, ~2.370 LOC** que estaban repetidos en 3 o 4
+> clientes.
 
 ---
 
@@ -104,8 +108,9 @@ los HITOS 5-7.
 - [x] **Cero dependencias del nucleo hacia codigo de cliente.** Verificado con
       AST sobre todos los modulos del nucleo (`test_nucleo.py`): ningun import
       de `core.*`, `gui.*`, `model.*` ni `workers.*`.
-- [x] **Tests minimos.** 31 pruebas en total: 13 de contrato, 5 de payloads
-      reales, 8 de `device_id`, 5 del nucleo.
+- [x] **Tests minimos.** 35 pruebas en total: 13 de contrato, 5 de payloads
+      reales, 8 de `device_id`, 9 del nucleo (4 de ellas fijan los arreglos
+      de Hik-Connect para que una reconciliacion futura no los pierda).
 - [~] **Type hints completos y docstrings en espanol.** Los modulos movidos
       conservan el estilo del original: unos tienen anotaciones y otros no. No
       se reescribieron a proposito — el HITO 4 mueve codigo, y reescribirlo a la
@@ -117,8 +122,8 @@ los HITOS 5-7.
 
 | Comprobacion | Resultado |
 |---|---|
-| Modulos del nucleo que importan solos | 10/10 |
-| Alias que resuelven al nucleo | 10/10 en los 3 clientes migrados |
+| Modulos del nucleo que importan solos | 10/10 + 10/10 del paquete `dvr` |
+| Alias que resuelven al nucleo | 10/10 y 9/9 (`dvr`) en los 3 clientes |
 | Imports de `main.py` por cliente | tienda 11/11 · perimetrales 13/13 · managers 11/11 |
 | `stop_scanner()` y destruccion sin TypeError | los 3 clientes |
 | Amazonas View tras revertir | importa correctamente |
@@ -126,8 +131,10 @@ los HITOS 5-7.
 ## 8. Deuda que sale de este hito
 
 1. **Instalar `elde_core` en Amazonas View** (necesita venv) — HITO 7.
-2. **Paso 8: reconciliar los casi-duplicados** (`dvr/`, widgets). Riesgo alto,
-   revision de diffs obligatoria.
+2. **Paso 8 de los widgets** (~1.800 LOC): `device_panel.py`,
+   `interactive_imageLabel.py`, `dvr_tree.py`, `window_bar.py`... El de `dvr/`
+   ya esta hecho (seccion 9); estos siguen pendientes y exigen la misma
+   revision de diffs.
 3. **Type hints y docstrings** de los modulos movidos — HITOS 5-7.
 4. Los alias son temporales: desaparecen al refactorizar cada cliente.
 
