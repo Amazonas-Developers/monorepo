@@ -377,3 +377,81 @@ Verificado con el servidor real: `src.app.app` escribe ahora en
 7 pruebas en `tests/test_registro.py`, incluida la que fija que
 `tambien_raiz` captura un logger que **no** cuelga de `elde` — que es lo unico
 que hace util la opcion. Total del nucleo: **52**.
+
+---
+
+## 11. Despiece de `render_box` (30-jul-2026)
+
+El HITO 2 decidio **partir** `render_box.py`, no moverlo entero. Al medirlo
+metodo a metodo se ve por que las dos cosas son distintas.
+
+### Lo que dijo la medicion
+
+De 25 metodos presentes en los cuatro clientes, solo 6 son identicos (~30 LOC).
+Los grandes divergen... o eso parecia mirando el minimo de los cuatro. **Por
+parejas** la foto es otra:
+
+| Metodo | tienda · perimetrales · managers | amazonas |
+|---|---|---|
+| `start_dvr_stream` (168 LOC) | 0,97 · 0,97 · **1,00** | 0,37 — 67 LOC |
+| `loop_show_result` (79 LOC) | 0,99 · 1,00 · 0,99 | 0,42 — 50 LOC |
+| `setup_ui` | 0,58 – 0,84 | 0,47 |
+| `__init__` | 0,78 – 0,95 | 0,41 |
+
+Tres clientes tenian **el mismo codigo escrito tres veces**; amazonas
+arrastraba una copia anterior. Y las tres versiones modernas diferian en
+exactamente dos cosas: una linea (`self._detenido = False`, solo en
+perimetrales) y el **orden de una clave** de un diccionario.
+
+`setup_ui` y `__init__` se quedan en cada cliente: ahi si divergieron de
+verdad, y es la disposicion propia de cada producto.
+
+### Las dos rebanadas
+
+1. **`ui/identidad_camara.py`** (88 LOC) — `slug`, `device_id` y
+   `nombre_visible` como funciones puras. Es la que llevaba **H-11** dentro.
+2. **`ui/render_box_captura.py`** (339 LOC) — `CapturaDVRMixin` con
+   `start_dvr_stream` y `loop_show_result`.
+
+| Cliente | render_box antes | ahora | |
+|---|---:|---:|---|
+| tienda | 1.697 | 1.416 | −281 |
+| perimetrales | 1.343 | 1.128 | −215 |
+| managers | 1.454 | 1.240 | −214 |
+| amazonas | 1.043 | 984 | −59 |
+| **Total** | **5.537** | **4.768** | **−769** |
+
+769 LOC duplicadas fuera, a cambio de 427 compartidas y con pruebas.
+
+### Lo que gano Amazonas al reconciliarlo
+
+Como con el paquete `dvr/` en el HITO 7, su copia era anterior y le faltaban
+dos cosas reales:
+
+1. **El flujo de Hik-Connect con encriptacion de stream**: el dialogo del
+   codigo de verificacion, la renovacion del token y el refresco de la URL con
+   esa clave. Sin eso, un canal encriptado sencillamente **no abria**.
+2. **El `msgpack.Unpacker` incremental.** Desempaquetaba el chunk entero de una
+   vez, asi que un frame partido entre dos lecturas del pipe se perdia.
+
+### Dos trampas que la medicion evito
+
+**`_direct_mode`.** En perimetrales vale `True`, y el payload manda
+`draw_server = not _direct_mode`. Copiar ese valor a amazonas le habria quitado
+la imagen dibujada por el servidor — y amazonas **no sabe dibujarla**: no tiene
+`_draw_detections_and_show` ni overlay de Supervision. Se le puso `False`, que
+reproduce lo que recibe hoy (el servidor tiene `draw_server: bool = True` por
+defecto).
+
+**La etiqueta sin zonas.** El HITO 7 ya habia decidido que Amazonas conserva su
+`Interactive_imageLabel` propia, sin zonas de pedido/entrega. La version
+compartida las pedia a ciegas; el `AttributeError` habria caido en el
+`except` de `loop_show_result` y **el cliente habria dejado de enviar frames
+sin decir por que**. Ahora se comprueban antes, y hay una prueba que lo fija.
+
+### Pruebas
+
+6 en `test_render_box_captura.py`, sobre un doble (sin pantalla ni servidor):
+el payload lleva el `device_id` y no el uuid, una etiqueta sin zonas no rompe
+el envio, `draw_server` es lo contrario de `_direct_mode`, y un mensaje partido
+en dos lecturas se recompone. Total del nucleo: **61**.

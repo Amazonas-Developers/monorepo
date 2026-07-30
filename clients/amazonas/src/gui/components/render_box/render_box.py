@@ -38,6 +38,10 @@ from workers.rtsp_worker import RTSPWorker
 # Identidad estable de la camara (H-11). La logica vive en el nucleo: los
 # cuatro clientes tenian el mismo fallo y ahora comparten el mismo arreglo.
 from elde_core.ui import identidad_camara as _identidad
+# Captura compartida: start_dvr_stream y loop_show_result eran el mismo
+# codigo en los cuatro clientes (0,97-1,00 de similitud entre tres de
+# ellos; amazonas arrastraba una copia anterior).
+from elde_core.ui.render_box_captura import CapturaDVRMixin
 from workers.video_worker import (
     VideoFileWorker, EXTENSIONES_VIDEO, es_archivo_de_video,
 )
@@ -123,7 +127,7 @@ class _BarraFlotante(QWidget):
 _BORDE = 1
 
 
-class Render_box(QFrame):
+class Render_box(CapturaDVRMixin, QFrame):
 
     double_clicked_signal = Signal(int, bool)
     roi_change_signal     = Signal(list)
@@ -174,6 +178,24 @@ class Render_box(QFrame):
         # `camera_id`: era un uuid4 por sesion y fragmentaba el historico.
         self._dvr_device_serial   = ""
         self._dvr_channel_id      = ""
+        # Estado que la version compartida de start_dvr_stream y
+        # loop_show_result da por hecho (elde_core.ui.render_box_captura).
+        # Amazonas venia de una copia ANTERIOR y no lo tenia, igual que le
+        # pasaba con el paquete dvr/ en el HITO 7. Los valores elegidos son
+        # los que dejan su comportamiento EXACTAMENTE como estaba:
+        #   _direct_mode = False  ->  draw_server = True, que es el valor por
+        #   defecto del servidor y lo que amazonas recibe hoy. Ponerlo en True
+        #   (como perimetrales) le quitaria la imagen dibujada y este cliente
+        #   NO sabe dibujarla: no tiene overlay de Supervision.
+        self._unpacker            = None
+        self._pending_frame_bytes = None
+        self._direct_mode         = False
+        self.camera_angle         = "auto"
+        self.camera_name_dvr      = ""
+        self.heatmap_boolean      = False
+        self.order_zone_boolean   = False
+        self.delivery_zone_boolean = False
+        self.vlm_enabled_boolean  = False
         # Reenvio de alertas a WhatsApp: lo gobierna el interruptor
         # GLOBAL del pie (main.py lo propaga a todos los recuadros).
         # El envio lo hace el servidor.
@@ -356,73 +378,6 @@ class Render_box(QFrame):
 
     # ── DVR: stream RTSP ─────────────────────────────────────
 
-    def start_dvr_stream(self, channel_data: dict):
-        """
-        Recibe datos del canal (drop) e inicia el RTSPWorker.
-        Detecta automáticamente si es Hik-Connect o IP.
-        """
-        self._stop_dvr_stream()
-
-        # Detener captura HWND sin resetear estado de IA
-        if self.process is not None:
-            self.process.terminate()
-            if not self.process.waitForFinished(1000):
-                self.process.kill()
-            self.process = None
-        self.hwnd = None
-
-        # Detectar tipo de canal (Hik-Connect o IP)
-        channel_type = ChannelTypeDetector.get_channel_type(channel_data)
-        rtsp_url = channel_data.get("rtsp_main", "")
-        
-        if not rtsp_url:
-            # Tipico de Hik-Connect: la nube no devolvio URL de streaming
-            # (token caducado, dispositivo apagado o sin permiso).
-            nombre = channel_data.get("channel_name", "el canal")
-            self._log_dvr(
-                f"⚠ {nombre} no tiene URL de streaming.\n"
-                "Vuelve a conectar el dispositivo en la pestaña "
-                "Dispositivos para renovar el acceso.", error=True)
-            return
-
-        # Identidad estable de esta camara fisica (ver _device_id()).
-        self._dvr_device_serial = str(channel_data.get("device_serial", "") or "")
-        self._dvr_channel_id    = str(channel_data.get("channel_id", "") or "")
-        alias   = channel_data.get("device_alias", "")
-        ch_name = channel_data.get("channel_name", "")
-        type_label = "🔐 HC" if channel_type == "hikconnect" else "📹"
-        label   = f"{type_label} {alias} · {ch_name}" if alias else f"{type_label} {ch_name}"
-
-        self._dvr_label.setText(label)
-        self._dvr_label.setVisible(True)
-        self._btn_stop_dvr.setVisible(True)
-        self._dvr_mode = True
-        self.stop = False
-        self.can_send_next_frame = True
-
-        # Habilitar boton IA si el socket esta conectado
-        if self.socket and self.socket.is_connected():
-            self.btn_smart.setEnabled(True)
-
-        self._rtsp_worker = RTSPWorker(
-            rtsp_url,
-            channel_id=channel_data.get("channel_id", ""),
-        )
-        self._rtsp_worker.frame_ready.connect(self._on_dvr_frame)
-        # Los avisos del stream se muestran EN LA CELDA, no solo en la
-        # barra: antes un fallo de conexion solo cambiaba el texto de FPS
-        # y el canal parecia quedarse colgado sin explicacion.
-        self._rtsp_worker.connected.connect(
-            lambda: self._log_dvr("🟢 DVR en vivo")
-        )
-        self._rtsp_worker.error.connect(
-            lambda msg: self._log_dvr(f"⚠ {msg}", error=True)
-        )
-        self._rtsp_worker.disconnected.connect(
-            lambda: self._log_dvr("⚫ DVR desconectado")
-        )
-        self._rtsp_worker.start()
-        self.text_fps.setText("⏳ Conectando al stream…")
 
     # ── Analisis de un archivo de video ──────────────────────
 
@@ -722,6 +677,13 @@ class Render_box(QFrame):
             self._save_all(key, value)
         self._save_all("roi_boolean", True)
 
+    def _camera_display_name(self) -> str:
+        """Nombre legible de esta camara para el dashboard."""
+        return _identidad.nombre_visible(
+            nombre_dvr=self.camera_name_dvr,
+            titulo_ventana=getattr(self, 'title', ''),
+            indice=getattr(self, 'index', 0))
+
     def _device_id(self) -> str:
         """Identificador ESTABLE de la camara, para el `camera_id` del payload.
 
@@ -909,56 +871,6 @@ class Render_box(QFrame):
         except Exception as e:
             print(f"get_hwnd error: {e}")
 
-    def loop_show_result(self):
-        # `stop` corta el bucle; `_pausado` congela sin soltar la fuente.
-        if not self.process or self.stop or self._pausado:
-            return
-        raw_data = self.process.readAllStandardOutput().data()
-        if not raw_data: return
-        try:
-            unpacker = msgpack.Unpacker(raw=False, strict_map_key=False)
-            unpacker.feed(raw_data)
-            message = next(iter(unpacker), None)
-            if message is None: return
-            header      = message.get("header")
-            image_bytes = message.get("image_bytes")
-            if not header or not image_bytes: return
-
-            self.frame_count += 1
-            now = time.time()
-            if now - self.last_fps_time >= 1.0:
-                self.current_fps   = self.frame_count
-                self.frame_count   = 0
-                self.last_fps_time = now
-                self.text_fps.setText(f"FPS: {self.current_fps}")
-
-            if self.socket is not None:
-                if self.image_w == 0 or self.image_h == 0:
-                    tmp = QPixmap()
-                    tmp.loadFromData(image_bytes, "JPEG")
-                    if not tmp.isNull():
-                        self.image_w = tmp.width()
-                        self.image_h = tmp.height()
-
-                roi_c = self.imagen_label.get_coordinates(self.image_w,
-                                                          self.image_h)
-                data = {
-                    "header": header, "image": image_bytes,
-                    "roi_coordinates": roi_c, "roi_activate": self.roi_boolean,
-                    "camera_id": self._device_id(),
-                    "enviar_whatsapp": self.whatsapp_boolean,
-                    "track_classes": self._selected_classes,
-                }
-                if self.smart_mode and self.can_send_next_frame:
-                    self.socket.send_binary_frame(self.component_key, data)
-                    self.can_send_next_frame = False
-
-                if self.smart_mode:
-                    self.loop_show_result()
-                else:
-                    self.update_streaming_frame(image_bytes, type_image="jpeg_bytes", tets=True)
-        except Exception as e:
-            print(f"loop_show_result error: {e}")
 
     def update_streaming_frame(self, frame, type_image="base64", tets=False):
         # Canal detenido: se descartan los frames que sigan llegando. El
