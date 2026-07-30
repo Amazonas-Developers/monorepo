@@ -1,5 +1,5 @@
-from .context    import DVRContext
-from .base       import DeviceInfo, ChannelInfo, DVRStrategy
-from .hikconnect import HikConnectStrategy
+"""Movido al nucleo compartido: `elde_core.dvr`."""
+import sys as _sys
+import elde_core.dvr as _modulo
 
-__all__ = ["DVRContext", "DeviceInfo", "ChannelInfo", "DVRStrategy", "HikConnectStrategy"]
+_sys.modules[__name__] = _modulo

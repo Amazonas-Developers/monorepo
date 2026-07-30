@@ -139,6 +139,62 @@ def test_el_alias_es_un_redireccion_y_no_una_copia():
         '\n  '.join(demasiado_largo)
 
 
+def test_el_paquete_dvr_importa_completo():
+    modulos = ['base', 'context', 'dahua_http', 'dahua_sdk', 'discovery',
+               'ezviz', 'hikconnect', 'hikconnect_channel_encoder',
+               'hikvision_http', 'hikvision_sdk']
+    fallos = []
+    for m in modulos:
+        try:
+            __import__(f'elde_core.dvr.{m}', fromlist=['*'])
+        except Exception as exc:
+            fallos.append(f'{m}: {type(exc).__name__}: {exc}')
+    assert not fallos, 'modulos dvr que no importan:\n  ' + '\n  '.join(fallos)
+
+
+def test_no_se_pierden_los_arreglos_de_hikconnect():
+    """Fija los 3 arreglos por los que gano la version de perimetrales-view.
+
+    Si una reconciliacion futura toma la version equivocada, estos fallan. Cada
+    uno corresponde a un fallo medido contra la cuenta real, documentado en el
+    codigo y en 04_NUCLEO_COMPARTIDO.md."""
+    import inspect
+    from elde_core.dvr import hikconnect
+    src = inspect.getsource(hikconnect)
+
+    # 1. La URL del m3u8 trae query, asi que endswith() nunca acertaba y la
+    #    verificacion del contenido no se ejecutaba.
+    assert '".m3u8" in url' in src, 'se perdio el arreglo de deteccion del m3u8'
+    assert 'url.endswith(".m3u8")' not in src, \
+        'volvio el endswith(".m3u8"), que falla con la query de la URL'
+
+    # 2. El campo `online` de la nube no es fiable: filtrar por el descartaba
+    #    canales que si transmiten.
+    assert 'if online == "1":' not in src, \
+        'volvio el filtro por online=="1", medido como poco fiable'
+
+    # 3. Marca de equipo bloqueado por la nube (ErrCode en los segmentos).
+    assert '_hls_bloqueado' in src, 'se perdio la deteccion de HLS bloqueado'
+
+
+def test_dvr_admite_codigo_de_verificacion():
+    """Necesario para desbloquear streams cifrados. Aditivo: defecto ''."""
+    import inspect
+    from elde_core.dvr.base import DVRStrategy
+    p = inspect.signature(DVRStrategy.__init__).parameters
+    assert 'verification_code' in p, 'falta verification_code en DVRStrategy'
+    assert p['verification_code'].default == '', \
+        'verification_code debe tener defecto vacio para no romper llamadas'
+
+
+def test_dvr_tiene_la_estrategia_ezviz():
+    """Venia solo en perimetrales-view; al reconciliar la reciben los 3."""
+    import inspect
+    from elde_core.dvr import context
+    assert 'EzvizStrategy' in inspect.getsource(context), \
+        'se perdio la estrategia EZVIZ al reconciliar'
+
+
 if __name__ == '__main__':
     fallos = 0
     for nombre, fn in sorted(globals().items()):

@@ -86,24 +86,14 @@ migrar un cliente hay que comprobarlo, no darlo por hecho.
 
 ## 5. Lo que NO se movio, y por que
 
-### 5.1 El paquete `dvr/` (~682 LOC en 3 clientes)
-
-Es el bloque mas grande y el mas tentador, pero `context.py` importa
-`.hikconnect`, y `hikconnect.py` **no es identico** entre clientes: tiene 90-99%
-de similitud (551 LOC). Moverlo obligaria a elegir una version sin haber leido
-el diff, y esas divergencias suelen ser arreglos aplicados a un solo cliente.
-
-Es el **paso 8** del plan, marcado de riesgo alto desde el HITO 2. Requiere
-revisar diffs archivo por archivo, no una migracion mecanica.
-
-### 5.2 Los widgets de interfaz (~1.800 LOC)
+### 5.1 Los widgets de interfaz (~1.800 LOC)
 
 `device_panel.py` (650 LOC), `interactive_imageLabel.py` (250), `dvr_tree.py`,
 `window_bar.py`, `modal_msm.py` y compania. Varios estan en el mismo caso que
 `hikconnect`: casi identicos, no identicos. Y `window_bar.py` diverge
 precisamente por mi arreglo de H-02.
 
-### 5.3 `render_box.py`
+### 5.2 `render_box.py`
 
 Mezcla chrome comun con logica de dominio (zonas de tienda, VLM, planograma).
 El HITO 2 ya decidio que hay que **partirlo**, no moverlo entero. Es trabajo de
@@ -140,3 +130,63 @@ los HITOS 5-7.
    revision de diffs obligatoria.
 3. **Type hints y docstrings** de los modulos movidos — HITOS 5-7.
 4. Los alias son temporales: desaparecen al refactorizar cada cliente.
+
+---
+
+## 9. Reconciliacion del paquete `dvr/` (paso 8)
+
+Es el paso que el HITO 2 marco de **riesgo alto**. No se hizo de forma
+mecanica: se leyo el diff de cada archivo y se decidio con evidencia.
+
+### 9.1 Cuatro "divergencias" que no lo eran
+
+`dahua_http.py`, `dahua_sdk.py`, `hikvision_http.py` y `hikvision_sdk.py`
+(579 LOC) aparecian con hash distinto en `windows_managers_view`, pero **mismo
+numero de lineas**. Tras normalizar fines de linea y espacios finales resultaron
+**identicos**: la diferencia era ruido de CRLF. Riesgo real: cero.
+
+Leccion util para el resto del refactor: comparar por hash crudo sobreestima la
+divergencia.
+
+### 9.2 Gana `perimetrales-view`, y por que
+
+| Archivo | Divergencia | Decision |
+|---|---|---|
+| `base.py` | tienda ≡ managers; perimetrales anade `verification_code` (defecto `""`) | perimetrales: aditivo y compatible |
+| `context.py` | 3 iguales; perimetrales anade estrategia EZVIZ + `verification_code` | perimetrales: aditivo |
+| `hikconnect.py` | tienda ≡ managers; perimetrales, 69 lineas en 7 bloques, con **cambios** | perimetrales: contiene 3 arreglos |
+| `discovery.py`, `ezviz.py` | solo en perimetrales | se incorporan (funcionalidad nueva) |
+
+Los tres arreglos de `hikconnect.py`, cada uno documentado con medidas reales en
+los propios comentarios del codigo:
+
+1. **`url.endswith(".m3u8")` no acertaba nunca.** La URL trae query
+   (`...m3u8?expire=...&id=...`), asi que la verificacion del contenido del
+   m3u8 **no se ejecutaba** y se devolvian URLs con `ErrCode`.
+2. **El campo `online` de la nube es poco fiable.** Medido contra la cuenta
+   real: un DVR reporta `online="0"` en todos sus canales y transmite a
+   1280x720, mientras otro reporta `online="1"` y devuelve `ErrCode`. Se dejo
+   de filtrar por el y el `status` pasa a reflejar si hay stream de verdad.
+3. **Rendimiento.** Pedir main+sub en 20 canales tardaba minutos, porque cada
+   peticion prueba 3 protocolos y descarga el m3u8. Ahora el sub reutiliza el
+   main.
+
+**Cambio de comportamiento asumido:** `rtsp_sub` ya no es un stream de menor
+calidad, es el mismo que `rtsp_main`. Se comprobo que solo se almacena y se
+propaga en `device_panel.py`, siempre con `.get("rtsp_sub", "")`, y que
+`perimetrales-view` ya corre asi en produccion.
+
+### 9.3 Un bug que salio al reconciliar
+
+La prueba que fija el arreglo del m3u8 fallo: `hikconnect.py` tenia **una
+segunda aparicion del mismo fallo** en la linea 592, en otro camino de codigo,
+que el arreglo original no habia tocado. Corregida.
+
+Es el argumento a favor de fijar los arreglos con pruebas en vez de confiar en
+que la version elegida esta completa.
+
+### 9.4 Que gana cada cliente
+
+`tienda_view` y `windows_managers_view` reciben los 3 arreglos de Hik-Connect,
+el soporte de codigo de verificacion para streams cifrados, la estrategia EZVIZ
+y el descubrimiento de equipos en red. Antes solo los tenia perimetrales.
