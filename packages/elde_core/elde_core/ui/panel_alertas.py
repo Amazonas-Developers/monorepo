@@ -38,6 +38,7 @@ import base64
 import os
 import subprocess
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Callable, Dict, List, Optional
 
 from PySide6.QtCore import Qt, QByteArray, Slot
@@ -47,6 +48,50 @@ from PySide6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
 
 MAX_ALERTAS = 200          # por columna, antes de descartar las mas viejas
 _MINIATURA = 56            # lado de la miniatura, en pixeles
+
+
+# ── Tiempos: llegada, salida y permanencia ───────────────────────────────
+# Los emite la vigilancia perimetral y son su dato mas util («entro a las
+# 21:14 y estuvo 3 min»). Viven en el nucleo, no en el cliente, para que
+# cualquier pipeline que los publique los vea pintados sin duplicar el panel.
+
+def _a_fecha(valor) -> Optional[datetime]:
+    """epoch | ISO | None -> datetime local, o None. Tolerante a lo que venga."""
+    if valor in (None, '', 0):
+        return None
+    try:
+        if isinstance(valor, str):
+            crudo = valor.strip()
+            if not crudo:
+                return None
+            if crudo.endswith('Z'):
+                crudo = crudo[:-1] + '+00:00'
+            dt = datetime.fromisoformat(crudo)
+            return (dt.astimezone().replace(tzinfo=None)
+                    if dt.tzinfo is not None else dt)
+        return datetime.fromtimestamp(float(valor))
+    except (ValueError, TypeError, OSError):
+        return None
+
+
+def _hora(valor, vacio: str = '—') -> str:
+    dt = _a_fecha(valor)
+    return dt.strftime('%H:%M:%S') if dt else vacio
+
+
+def _permanencia(segundos) -> str:
+    """Segundos -> «3 min 12 s». Cadena vacia si no hay dato usable."""
+    try:
+        s = int(float(segundos))
+    except (TypeError, ValueError):
+        return ''
+    if s < 0:
+        return ''
+    if s < 60:
+        return f'{s} s'
+    if s < 3600:
+        return f'{s // 60} min {s % 60:02d} s'
+    return f'{s // 3600} h {(s % 3600) // 60:02d} min'
 
 
 @dataclass(frozen=True)
@@ -94,6 +139,14 @@ class TarjetaAlerta(QFrame):
         titular.setWordWrap(True)
         texto.addWidget(titular)
 
+        # Tiempos, si el pipeline los publica. Van ANTES de la descripcion
+        # porque en vigilancia son el dato que se mira primero.
+        tiempos = self._tiempos(alerta)
+        if tiempos:
+            lbl = QLabel(tiempos)
+            lbl.setStyleSheet('color:#9ad; font-size:10px;')
+            texto.addWidget(lbl)
+
         desc = str(alerta.get('description') or '').strip()
         if desc:
             lbl = QLabel(desc)
@@ -114,9 +167,30 @@ class TarjetaAlerta(QFrame):
     def _titular(alerta: dict) -> str:
         evento = str(alerta.get('event_type') or '').strip()
         clase = str(alerta.get('class_name') or '').strip()
-        if evento and clase and evento.lower() != clase.lower():
-            return f'{evento} — {clase}'
-        return evento or clase or 'Detección'
+        gid = str(alerta.get('global_id') or '').strip()
+        base = (f'{evento} — {clase}'
+                if evento and clase and evento.lower() != clase.lower()
+                else (evento or clase or 'Detección'))
+        return f'{base}  [{gid}]' if gid else base
+
+    @staticmethod
+    def _tiempos(alerta: dict) -> str:
+        """Linea «llegada / salida / permanencia», solo con lo que haya.
+
+        Un objeto que sigue en el sitio no tiene hora de salida: se marca con
+        «sigue» en vez de dejar un hueco, que se confunde con un dato perdido.
+        """
+        partes = []
+        llegada = alerta.get('hora_llegada')
+        if llegada:
+            partes.append(f'⬇ {_hora(llegada)}')
+        if 'hora_salida' in alerta:
+            salida = alerta.get('hora_salida')
+            partes.append(f'⬆ {_hora(salida)}' if salida else '⬆ sigue')
+        perm = _permanencia(alerta.get('permanencia_s'))
+        if perm:
+            partes.append(f'⏱ {perm}')
+        return '   '.join(partes)
 
     @staticmethod
     def _pie(alerta: dict) -> str:
