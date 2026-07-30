@@ -161,6 +161,57 @@ entrar al historial. Anadidos a `.gitignore` en el commit de respaldo.
 
 ---
 
+## H-11 · El `camera_id` es aleatorio: la analitica por camara no se acumula · `ABIERTO` · **critico**
+
+**Causa.** `tienda_view/src/gui/components/render_box/render_box.py:195`:
+
+```python
+self.component_key = str(uuid.uuid4())
+```
+
+Ese `component_key` es lo que se envia al servidor como `camera_id`
+(`render_box.py:663`). Se genera **al construir el panel de video**, asi que
+cada arranque de la aplicacion —o cada panel nuevo— inventa una camara
+distinta a ojos del servidor.
+
+**Consecuencias.**
+
+1. Los heatmaps, el conteo y la demografia se acumulan bajo un UUID nuevo en
+   cada sesion: **no hay historico por camara**, solo fragmentos sueltos.
+2. Cualquier nombre que se asigne a un `camera_id` (`config/pasillos.json`)
+   queda obsoleto en el siguiente arranque.
+3. El ranking de pasillo mas/menos frecuentado **no es comparable** entre
+   sesiones.
+
+**Evidencia.** De los 7 `camera_id` con heatmap, las imagenes de fondo se
+agrupan por hash en solo **4 escenas**, y al mirarlas son en realidad **2**:
+
+| camera_id | Muestras | Escena real |
+|---|---:|---|
+| `de60bb79…` | 13360 | Corredor de oficina, «Camera 12». La unica camara real |
+| `a45de547…` | 795 | mismo videoclip de prueba |
+| `5e1834aa…` | 54 | mismo videoclip de prueba |
+| `9e0bf6b0…` | 4 | mismo videoclip (solo cambia el poligono ROI dibujado) |
+| `18dbc565…` | 4 | mismo videoclip |
+| `a0eae1a7…` | 4 | mismo videoclip |
+| `4465df4d…` | 3 | mismo videoclip |
+
+Seis de los siete son la misma grabacion reprocesada en sesiones distintas.
+Ademas, la escena real **no es un supermercado**: es un corredor con puertas,
+reloj de pared y cartelera informativa.
+
+**Correccion propuesta (requiere aprobacion).** Ya existe un identificador
+estable a mano: `_camera_display_name()` (`render_box.py`) resuelve
+`alias del canal DVR > titulo de la ventana > "Camara N"`. Basta derivar el
+`camera_id` de ahi —o persistir el UUID junto al canal en la configuracion del
+cliente— para que la identidad sobreviva a los reinicios. Es un cambio de
+comportamiento, asi que no se toca sin tu visto bueno.
+
+**Nota.** Hasta que esto se arregle, cualquier metrica «por pasillo» del
+dashboard de tienda describe sesiones, no lugares.
+
+---
+
 ## H-10 · Peso muerto en la raiz del proyecto · `ABIERTO`
 
 - `modelos NVIDIA/`: **50 GB**.
