@@ -64,6 +64,13 @@ def _obtener_emisor():
     return _emisor
 
 
+# Eventos que NO son una alarma. Un visitante de tienda con un 🚨 delante
+# confunde: quien lee el grupo debe distinguir de un vistazo una intrusion de
+# una metrica de negocio.
+_EVENTOS_INFORMATIVOS = ('visitante', 'captura', 'pedido', 'entrega',
+                         'lavado', 'aforo')
+
+
 def _texto(alerta: Dict[str, Any], camara: str) -> str:
     """Titular del mensaje. Se mantiene el formato de VIGILANTE para que los
     mensajes del grupo sigan siendo homogeneos."""
@@ -71,7 +78,9 @@ def _texto(alerta: Dict[str, Any], camara: str) -> str:
                 or 'deteccion')
     desc = str(alerta.get('description') or '').strip()
     ts = str(alerta.get('timestamp') or '').strip()
-    partes = [f"🚨 {clase.upper()}"]
+    evento = str(alerta.get('event_type') or '').strip().lower()
+    icono = '👤' if any(e in evento for e in _EVENTOS_INFORMATIVOS) else '🚨'
+    partes = [f"{icono} {clase.upper()}"]
     if camara:
         partes.append(f"cámara {camara}")
     titulo = " · ".join(partes)

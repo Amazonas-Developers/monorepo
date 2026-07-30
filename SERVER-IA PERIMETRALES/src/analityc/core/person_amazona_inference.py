@@ -2858,11 +2858,93 @@ class PersonAmazonas:
                 # (sobreescribe el mismo archivo -> sin duplicados).
                 meta['demo_final'] = True
                 self._write_client_capture(stem, meta)
+                # Y avisar: este es EL evento de tienda. Ver _emitir_visitante.
+                self._emitir_visitante(stem, meta)
             except Exception:
                 pass
         if len(self._capture_meta) > 20000:  # acotar memoria
             self._capture_meta = dict(
                 list(self._capture_meta.items())[-10000:])
+
+    def _emitir_visitante(self, stem: str, meta: dict) -> None:
+        """Encola el evento «visitante identificado» de este pipeline.
+
+        ## Por que este momento y no otro
+
+        El pipeline de tienda no producia NINGUNA alerta: su metadata solo
+        traia `detections`, `demographics`, `heatmap` y `analytics_report`. Eso
+        dejaba dos cosas vacias: el panel lateral del cliente y el envio por
+        WhatsApp, que reenvia lo que haya en `metadata['alerts']`.
+
+        Se emite justo cuando **el genero y la edad convergen** para un track,
+        que ocurre UNA sola vez por persona. Emitir por deteccion inundaria a
+        25 fps; emitir al capturar seria prematuro, porque en ese instante la
+        demografia todavia dice «Analizando...».
+
+        Nunca lanza: esto corre dentro del bucle de inferencia.
+        """
+        try:
+            genero = str(meta.get('gender') or '').strip()
+            edad = str(meta.get('age_range') or '').strip()
+            if not genero or genero.lower() == 'desconocido':
+                return              # sin demografia util no hay nada que contar
+
+            visitas = meta.get('visitas')
+            recurrente = isinstance(visitas, int) and visitas > 1
+            desc = f"Visitante {genero}"
+            if edad:
+                desc += f", {edad} años"
+            desc += (f". Visita nº {visitas} (recurrente)." if recurrente
+                     else ". Primera visita registrada.")
+
+            alerta = {
+                'event_type': 'Visitante',
+                'class_name': f"{genero} {edad}".strip(),
+                'description': desc,
+                'timestamp': str(meta.get('timestamp') or ''),
+                'camera_name': str(
+                    getattr(self, '_camera_display_name', '') or ''),
+                'gender': genero,
+                'age_range': edad,
+                'visitas': visitas,
+                'person_uuid': meta.get('person_uuid'),
+                'crop_image': self._captura_en_b64(stem),
+            }
+            if not hasattr(self, '_alertas_pendientes'):
+                self._alertas_pendientes = []
+            self._alertas_pendientes.append(alerta)
+            # Cota de memoria: si el cliente no recoge, no se acumula sin fin.
+            if len(self._alertas_pendientes) > 200:
+                self._alertas_pendientes = self._alertas_pendientes[-100:]
+        except Exception:
+            pass
+
+    def _captura_en_b64(self, stem: str) -> str:
+        """Recorte de la persona en base64, para que la alerta lleve imagen.
+
+        Sin imagen, el emisor de WhatsApp descarta la alerta y la tarjeta del
+        panel sale sin miniatura."""
+        try:
+            import base64 as _b64
+            ruta = os.path.join(AnalyticsConfig.CAPTURE_DIR, "persons",
+                                f"{stem}.jpg")
+            if not os.path.isfile(ruta):
+                return ''
+            with open(ruta, 'rb') as f:
+                return _b64.b64encode(f.read()).decode('ascii')
+        except Exception:
+            return ''
+
+    def _drenar_alertas(self) -> list:
+        """Devuelve las alertas acumuladas y vacia la cola.
+
+        Se drena al construir la metadata de cada frame: asi cada alerta viaja
+        exactamente una vez."""
+        pendientes = getattr(self, '_alertas_pendientes', None)
+        if not pendientes:
+            return []
+        self._alertas_pendientes = []
+        return pendientes
 
     def _build_detections(self) -> list:
         """Lista de detecciones para que el CLIENTE las dibuje (modo directo,
@@ -3280,6 +3362,12 @@ class PersonAmazonas:
                 ec = getattr(self, 'entry_counts', {})
                 abc = getattr(self, 'active_by_category', {})
                 metadata = {
+                    # Alertas de este pipeline. Antes iba SIEMPRE vacia: el
+                    # cliente no tenia nada que mostrar en su panel lateral y
+                    # el reenvio por WhatsApp no tenia nada que enviar. Ahora
+                    # lleva un evento por visitante, en el instante en que su
+                    # genero y edad convergen (ver _emitir_visitante).
+                    'alerts': self._drenar_alertas(),
                     'frame_number': self.frame_counter,
                     'roi_active': activate_roi,
                     'staff_detected': staff_detected,
