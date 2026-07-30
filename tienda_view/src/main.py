@@ -65,7 +65,12 @@ def main():
         password_jarvis = os.getenv('jarvis_password')
         url_api_jarvis = os.getenv('jarvis_url')
         
-        settingsModel = SettingsModel()
+        # app_name PROPIO: los tres clientes compartian la misma
+        # carpeta de configuracion y se pisaban los ajustes (causa
+        # raiz de H-14). legacy_app_name siembra desde la antigua
+        # la primera vez para no perder los DVR ya dados de alta.
+        settingsModel = SettingsModel(app_name='tienda_view',
+                                      legacy_app_name='windows_managers_view')
         list_windows = open_windows_windows()
         
         app = AppSingleton.initialize(sys.argv)

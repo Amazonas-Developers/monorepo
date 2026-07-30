@@ -1,19 +1,55 @@
+"""
+Configuracion persistida y cifrada de cada cliente.
+
+## Cuidado con `app_name`: es el DIRECTORIO de configuracion
+
+Hasta el 30-jul-2026, `tienda_view`, `perimetrales-view` y
+`windows_managers_view` construian `SettingsModel()` **sin argumentos**, asi que
+los tres caian en el valor por defecto `windows_managers_view` y **compartian la
+misma carpeta de configuracion**. En disco solo existian dos:
+`amazonas_view` y `windows_managers_view`.
+
+Consecuencia real, no teorica: los DVR dados de alta, el establecimiento
+seleccionado, el interruptor de WhatsApp y `last_inference` eran **los mismos
+para los tres clientes**. Eso es la causa raiz de H-14 — el cliente de tienda
+arrancaba con `type_inference = "VigilanteAmazonas"` porque **se lo habia
+escrito perimetrales** en la configuracion compartida.
+
+Por eso cada cliente debe pasar SU nombre. Para no perder lo ya guardado,
+`legacy_app_name` siembra la configuracion nueva a partir de la antigua la
+primera vez.
+"""
+
 import json
 import os
+import shutil
 from pathlib import Path
 from appdirs import user_config_dir
 from cryptography.fernet import Fernet
 
 
-
 class SettingsModel:
-    
-    def __init__(self, app_name='windows_managers_view', filename='config.json', keyfile='cfghwrpoñm,.}ht4780sSDCWAG.key'): 
+
+    def __init__(self, app_name='windows_managers_view',
+                 filename='config.json',
+                 keyfile='cfghwrpoñm,.}ht4780sSDCWAG.key',
+                 legacy_app_name=None):
 
         config_dir = user_config_dir(app_name)
-      
+
+        # Primera ejecucion con nombre propio: se copia lo que hubiera en la
+        # carpeta compartida antigua, para que el usuario no pierda sus DVR ni
+        # sus preferencias al separar las configuraciones.
+        if legacy_app_name and not os.path.isdir(config_dir):
+            viejo = user_config_dir(legacy_app_name)
+            if os.path.isdir(viejo):
+                try:
+                    shutil.copytree(viejo, config_dir)
+                except Exception:
+                    pass          # si falla, se arranca con la config vacia
+
         self.key_path = os.path.join(config_dir, keyfile)
-        
+
         os.makedirs(os.path.dirname(self.key_path), exist_ok=True)
         
         if os.path.exists(self.key_path): 

@@ -65,7 +65,10 @@ def main():
         password_jarvis = os.getenv('jarvis_password')
         url_api_jarvis = os.getenv('jarvis_url')
         
-        settingsModel = SettingsModel()
+        # Este cliente es el dueño historico de la carpeta
+        # 'windows_managers_view'; los otros dos la usaban por
+        # error (ver H-14 y el docstring de SettingsModel).
+        settingsModel = SettingsModel(app_name='windows_managers_view')
         list_windows = open_windows_windows()
         
         app = AppSingleton.initialize(sys.argv)
