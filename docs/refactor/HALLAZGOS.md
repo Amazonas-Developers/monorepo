@@ -90,7 +90,13 @@ a revalidar torch/CUDA del servidor. Decision del usuario.
 
 ---
 
-## H-05 · `selector.py` documenta mal a Amazonas View · `ABIERTO`
+## H-05 · `selector.py` documenta mal a Amazonas View · `CORREGIDO`
+
+> **Corregido el 30-jul-2026.** La entrada de Amazonas View pasa a
+> `needs_server=True` y usa su `INICIAR_AMAZONAS.bat`. Antes estaba marcada
+> `needs_server=False` por un comentario que afirmaba que era un «proyecto
+> aparte con backend propio»: quien lo arrancara desde el selector se quedaba
+> sin servidor.
 
 `selector.py:137-141` afirma que Amazonas View es un «proyecto aparte, backend
 propio» y lo marca `needs_server=False`. Es **falso**: su
@@ -103,7 +109,18 @@ arquitectura del refactor.
 
 ---
 
-## H-06 · `requirements.txt` del servidor: UTF-16 y con dependencias que faltan · `ABIERTO`
+## H-06 · `requirements.txt` del servidor: UTF-16 y con dependencias que faltan · `CORREGIDO`
+
+> **Corregido el 30-jul-2026.** Reescrito en UTF-8 sin BOM (92 → 98 paquetes) y
+> anadidas las 6 dependencias que faltaban, con el nombre de **distribucion**
+> correcto, que no coincide con el del import: `import tensorrt` lo aporta
+> `tensorrt_cu12`, `import pynvml` lo aporta `nvidia-ml-py` y `import cpuinfo`
+> lo aporta `py-cpuinfo`. Verificado que pip parsea los 98 requisitos.
+>
+> **Queda un aviso anotado en el propio archivo:** la linea de
+> `opencv-contrib-python-rolling` apunta a un `.whl` en `Downloads/`, asi que
+> en otra maquina la instalacion falla ahi. No se toca porque esa build
+> concreta es la que funciona en este equipo.
 
 **Correccion de una cifra mia.** En el HITO 0 dije que tenia «1796 lineas».
 Era **falso**: el archivo esta en **UTF-16LE** (con BOM `ff fe`, tipico de
@@ -137,7 +154,19 @@ servidor en otra maquina a partir del repositorio.
 
 ---
 
-## H-08 · El reinicio a cero del dashboard no pide confirmacion · `ABIERTO`
+## H-08 · El reinicio a cero del dashboard no dice CUANTO se va a borrar · `CORREGIDO`
+
+> **Correccion de mi propio hallazgo.** El titulo original decia «no pide
+> confirmacion», y era **falso**: el endpoint exige `confirmar=true` y la
+> interfaz ya mostraba un dialogo. Lo que faltaba de verdad era el **alcance**:
+> el dialogo enumeraba categorias («todas las capturas») sin decir cuantas.
+>
+> **Corregido el 30-jul-2026** con un endpoint de previsualizacion,
+> `GET /dashboard/api/vaciar-detecciones/previo`, que cuenta sin tocar nada. El
+> dialogo ahora dice cifras reales — medido contra el servidor en vivo:
+> «954 archivos: 408 capturas del servidor, 408 del cliente, 33 rostros,
+> 29 identidades del Re-ID, 75 de mapas de calor» — y avisa de que el conteo de
+> visitantes vuelve a cero. Si no hay nada que vaciar, ni siquiera pregunta.
 
 **Contexto.** Se investigo la «desaparicion» de `output/heatmap/`. Resulto
 **no ser un bug**: el endpoint de reinicio de `dashboard.py:345-433` *mueve*
@@ -335,7 +364,18 @@ a configuracion) resuelve la causa; la rotacion resuelve el incidente.
 
 ---
 
-## H-12 · Dos carpetas divergentes publican en el mismo repo de GitHub · `ABIERTO`
+## H-12 · Dos carpetas divergentes publican en el mismo repo de GitHub · `CORREGIDO en local`
+
+> **Resuelto en esta maquina el 30-jul-2026**, como efecto de la absorcion del
+> HITO 2: ninguno de los 5 proyectos conserva ya un `.git` propio, asi que
+> desde aqui es imposible publicar en `view.official.git` ni en
+> `Amazonasview.git`. El unico remoto vivo es el monorepo. Los historiales
+> antiguos siguen intactos en `ELDE_backup_git/` (4 bundles verificados y los
+> `.git` originales).
+>
+> **Lo que queda y solo puedes hacer tu:** archivar o poner en privado los tres
+> repositorios antiguos en GitHub. Otras copias del proyecto en otras maquinas
+> si podrian seguir publicando en ellos y pisandose entre si.
 
 Topologia de remotos actual:
 

@@ -134,11 +134,16 @@ SISTEMAS = [
              "perimetrales-view", "#e67e22",
              bat="INICIAR_CLIENTE.bat", needs_server=True),
 
-    # Amazonas View: proyecto aparte con su propio backend/jarvis; no usa el
-    # servidor compartido -> needs_server=False.
+    # Amazonas View SI usa el servidor compartido: su INICIAR_AMAZONAS.bat
+    # lanza el mismo iniciar_servidor_headless.py que la tienda. El comentario
+    # anterior decia lo contrario ("proyecto aparte, backend propio") y por eso
+    # estaba marcado needs_server=False: quien lo arrancara desde aqui se
+    # quedaba sin servidor. Ver HALLAZGOS.md H-05.
     _sistema("Amazonas View", "📹",
-             "Cliente Amazonas View (proyecto aparte, backend propio).",
-             "Amazonas View", "#9b59b6"),
+             "Cliente Amazonas View. Arranca el servidor compartido si hace "
+             "falta.",
+             "Amazonas View", "#9b59b6",
+             bat="INICIAR_AMAZONAS.bat", needs_server=True),
 ]
 
 

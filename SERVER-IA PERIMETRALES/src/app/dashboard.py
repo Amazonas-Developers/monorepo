@@ -340,6 +340,54 @@ def dashboard_vlm_estado():
                             status_code=500)
 
 
+def _contar_en(origen: str) -> int:
+    """Cuantos archivos hay bajo `origen`. 0 si no existe. Nunca lanza."""
+    try:
+        if os.path.isfile(origen):
+            return 1
+        if not os.path.isdir(origen):
+            return 0
+        return sum(len(fs) for _, _, fs in os.walk(origen))
+    except OSError:
+        return 0
+
+
+@router.get("/dashboard/api/vaciar-detecciones/previo")
+def dashboard_vaciar_previo():
+    """Que se llevaria el vaciado, SIN tocar nada.
+
+    Existe porque el dialogo de confirmacion enumeraba las categorias
+    («todas las capturas», «la galeria de identidades»...) pero no **cuanto**
+    hay en cada una. Confirmar a ciegas sobre trabajo que puede ser de semanas
+    es justo lo que hay que evitar: con esto el usuario ve «204 capturas, 29
+    identidades, 19 mapas de calor» antes de decidir. Ver HALLAZGOS.md H-08.
+    """
+    try:
+        capturas = _captures_dir()
+        cliente = getattr(AnalyticsConfig, 'CAPTURE_CLIENT_DIR', '') or ''
+        db = _person_db_dir()
+        detalle = {
+            'capturas': _contar_en(os.path.join(capturas, 'persons')),
+            'rostros': _contar_en(os.path.join(capturas, 'faces')),
+            'capturas_cliente': _contar_en(_abs(cliente)) if cliente else 0,
+            'rostros_reid': _contar_en(os.path.join(db, 'faces')),
+            'galeria_reid': _contar_en(_abs(AnalyticsConfig.REID_DB_PATH)),
+            'mapas_de_calor': _contar_en(_heatmap_dir()),
+        }
+        personas = len(_all_persons())
+        return {
+            'status': 'ok',
+            'detalle': detalle,
+            'total': sum(detalle.values()),
+            'personas_en_galeria': personas,
+            'hay_algo': sum(detalle.values()) > 0,
+        }
+    except Exception as exc:
+        logger.exception("vaciar_previo error")
+        return JSONResponse({'status': 'error', 'message': str(exc)},
+                            status_code=500)
+
+
 @router.post("/dashboard/api/vaciar-detecciones")
 def dashboard_vaciar_detecciones(confirmar: bool = False):
     """Vacia TODAS las detecciones acumuladas.
@@ -813,10 +861,34 @@ $vaciar.addEventListener('click', async()=>{
  // para JS se escribe con DOBLE barra invertida. Con una sola, Python lo
  // convierte en un salto real dentro de la cadena JS y eso es un SyntaxError
  // que tumba el <script> COMPLETO (la pagina se quedaba en "cargando…").
- if(!confirm('Se van a vaciar TODAS las detecciones:\\n\\n'+
+ // Se consulta ANTES cuanto hay, para que el dialogo diga cifras reales en
+ // vez de "todas las capturas". Confirmar a ciegas sobre trabajo que puede
+ // ser de semanas es lo que se quiere evitar (H-08).
+ let dt=null;
+ try{
+  const rp=await fetch('/dashboard/api/vaciar-detecciones/previo');
+  const dp=await rp.json();
+  if(dp.status==='ok') dt=dp;
+ }catch(e){ /* si el previo falla, se sigue con el texto generico */ }
+
+ let detalle;
+ if(dt){
+  if(!dt.hay_algo){ alert('No hay nada que vaciar.'); return; }
+  const d=dt.detalle;
+  detalle='Se van a apartar '+dt.total+' archivos:\\n\\n'+
+   '  - '+d.capturas+' capturas del servidor\\n'+
+   '  - '+d.capturas_cliente+' capturas del cliente\\n'+
+   '  - '+d.rostros+' rostros recortados\\n'+
+   '  - '+dt.personas_en_galeria+' identidades del Re-ID ('+d.rostros_reid+' rostros)\\n'+
+   '  - '+d.mapas_de_calor+' archivos de mapas de calor\\n\\n';
+ }else{
+  detalle='Se van a vaciar TODAS las detecciones:\\n\\n'+
    '  - todas las capturas (servidor y cliente)\\n'+
    '  - la galeria de identidades del Re-ID\\n'+
-   '  - los mapas de calor\\n\\n'+
+   '  - los mapas de calor\\n\\n';
+ }
+ if(!confirm(detalle+
+   'El conteo de visitantes vuelve a empezar de cero.\\n\\n'+
    'No se destruyen: se mueven a output/papelera/ con la fecha, '+
    'por si hiciera falta recuperarlas.')) return;
  $vaciar.disabled=true; const previo=$vaciar.textContent;
