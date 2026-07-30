@@ -121,7 +121,7 @@ def main():
 
 
         # ── Sidebar de Alertas IA (lado derecho) ──
-        alerts_sidebar = AlertsSidebar(parent=None, title='Alertas IA')
+        alerts_sidebar = AlertsSidebar(parent=None, title='Visitantes')
         
         dock_alerts = QDockWidget(None)
         dock_alerts.setWidget(alerts_sidebar)
