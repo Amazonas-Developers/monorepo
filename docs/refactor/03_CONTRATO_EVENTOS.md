@@ -193,22 +193,45 @@ Politica que adopta el contrato (a implementar en el nucleo, HITO 4):
       32 claves del payload estan cubiertos.
 - [x] **Ningun evento huerfano entra al contrato.** Las 5 rutas HTTP huerfanas
       del HITO 1 quedan fuera a proposito.
-- [~] **Los esquemas validan los payloads reales.** Validan el payload
-      reconstruido **literalmente** del codigo emisor, y hay 13 pruebas que lo
-      demuestran. Falta contrastarlo con una **captura de una sesion real**:
-      la herramienta esta lista (`ELDE_CAPTURA_PAYLOADS=1`) y el servidor ya
-      corre con ella activa, pero hace falta ejecutar un cliente.
+- [x] **Los esquemas validan los payloads reales.** Contrastado con una
+      captura de una sesion real del 30-jul (pipeline `VigilanteAmazonas`),
+      no solo con la reconstruccion del codigo. Ver seccion 7.1.
+
+### 7.1 Lo que enseno la captura real (y el codigo no)
+
+Esta es la razon por la que el criterio exigia payloads reales. La primera
+version del contrato, deducida leyendo `render_box.py`, **habria rechazado un
+mensaje real y perfectamente funcional**:
+
+| Hallazgo | Deducido del codigo | Realidad capturada |
+|---|---|---|
+| `camera_angle` | `frontal\|lateral\|cenital`, por defecto `frontal` | tambien **`auto`**, y es el **valor por defecto real** (`person_amazona_inference.py:860`) |
+| `header` | no existia | el cliente perimetral manda `{timestamp, size, format}` |
+| `enviar_whatsapp` | no modelado | lo manda el cliente perimetral |
+| Frame anotado | solo `image` | **`processed_image`** en los pipelines perimetrales |
+| Detecciones | solo `tracks` | **`metadata.detections`** en los perimetrales |
+| `status` | se asumio `"ok"` | tambien **`"success"`** |
+
+El caso de `camera_angle` es el importante: un enum incompleto no es un
+detalle cosmetico, es un **rechazo de trafico legitimo** en cuanto se active
+la validacion en el servidor.
+
+Tambien confirma algo para el HITO 8: el mismo dato viaja con **dos nombres
+distintos** segun el pipeline (`image`/`processed_image`,
+`tracks`/`metadata.detections`). El contrato modela los dos porque los dos
+circulan; unificarlos es trabajo del servidor unico, no de este hito.
 
 ## 8. Pruebas
 
-`packages/elde_core/tests/test_contratos.py` — **13 pruebas, todas en verde**,
-ejecutadas desde los venv del servidor, de tienda y de perimetrales (el mismo
-contrato tiene que valer en los tres).
+**18 pruebas en verde**, ejecutadas desde los venv del servidor, de tienda y
+de perimetrales — el mismo contrato tiene que valer en los tres. Son los
+**primeros tests del ecosistema**: no habia ninguno en los 5 proyectos.
 
-Son los **primeros tests del ecosistema**: no habia ninguno en los 5 proyectos.
+`tests/test_contratos.py` (13) — el contrato contra el payload reconstruido
+del codigo:
 
 ```
-OK  test_el_payload_real_valida          <- el payload de hoy, campo por campo
+OK  test_el_payload_real_valida          <- el payload de tienda, campo por campo
 OK  test_traduce_los_ocho_pipelines      <- ningun modo vivo se queda fuera
 OK  test_rechaza_imagen_que_no_es_jpeg
 OK  test_rechaza_poligono_de_dos_puntos
@@ -217,15 +240,21 @@ OK  test_la_respuesta_conserva_la_forma_antigua
 … y 7 mas
 ```
 
+`tests/test_payloads_reales.py` (5) — el contrato contra las **capturas de
+verdad**. Si no hay capturas, se salta en vez de fallar. Incluye un aviso de
+campos vistos pero no modelados, que es la lista de deberes antes de endurecer
+los payloads al cerrar el HITO 7.
+
 ---
 
 ## 9. Lo que falta para cerrar el hito
 
-1. **Una sesion real con captura** para contrastar el punto 7. Arrancar un
-   cliente contra el servidor (ya esta escuchando con la captura encendida) y
-   dejarlo analizar un minuto.
-2. **H-11**: el `device_id` estable. El contrato ya lo exige; el cliente
+1. **H-11**: el `device_id` estable. El contrato ya lo exige; el cliente
    todavia manda `uuid4()`. Es el paso 3 del plan de migracion y va en este
    hito.
-3. **Conectar la validacion en el servidor**, detras de la capa de
+2. **Conectar la validacion en el servidor**, detras de la capa de
    compatibilidad.
+
+La captura de payloads reales (paso 2) esta **hecha**. Conviene repetirla con
+el cliente de **tienda** —la sesion capturada fue de `VigilanteAmazonas`— para
+cubrir tambien las claves de ese pipeline antes de endurecer nada.

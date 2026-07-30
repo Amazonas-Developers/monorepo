@@ -25,7 +25,14 @@ Poligono = List[Punto]
 
 class CameraAngle(str, Enum):
     """Perfil de angulo de la camara. Ajusta el filtro de aspecto del
-    detector: en cenital una persona se ve mucho mas ancha que alta."""
+    detector: en cenital una persona se ve mucho mas ancha que alta.
+
+    `auto` deja que el servidor lo deduzca solo, y es el valor por defecto
+    real (`person_amazona_inference.py:860`). Una version anterior de este
+    contrato no lo contemplaba y habria **rechazado payloads reales y
+    funcionales**: lo detecto la captura de una sesion de verdad, no la
+    lectura del codigo emisor."""
+    AUTO = "auto"
     FRONTAL = "frontal"
     LATERAL = "lateral"
     CENITAL = "cenital"
@@ -57,14 +64,20 @@ class FrameInference(BaseModel):
     roi_coordinates: Optional[Poligono] = None
 
     # ── Camara ──
-    camera_angle: CameraAngle = CameraAngle.FRONTAL
+    camera_angle: CameraAngle = CameraAngle.AUTO
     camera_name: Optional[str] = Field(default=None, max_length=48)
+    # Cabecera del frame que anade el cliente de perimetrales: timestamp de
+    # captura, tamano y formato. Visto en la captura real, no en el codigo de
+    # tienda. Se deja abierto porque cada cliente mete lo suyo.
+    header: Optional[Dict[str, Any]] = None
 
     # ── Analitica ──
     heatmap_activate: bool = False
     track_classes: Optional[List[int]] = None
     draw_server: bool = True
     enable_vlm: bool = False
+    # Notificacion por WhatsApp de las alertas (clientes perimetrales).
+    enviar_whatsapp: bool = False
 
     # ── Zonas de Hummus (pedido / entrega de bandeja) ──
     order_zone_activate: bool = False
@@ -132,13 +145,28 @@ class FrameResult(BaseModel):
 
     model_config = ConfigDict(extra='allow')
 
-    status: Optional[str] = None
+    status: Optional[str] = None           # "ok" o "success" segun pipeline
     message: Optional[str] = None
-    image: Optional[bytes] = None          # frame anotado, si draw_server
+    processing_time: Optional[float] = Field(default=None, ge=0.0)
+
+    # Eco del device_id, para que el cliente sepa a que camara corresponde
+    # la respuesta cuando tiene varias en vuelo.
+    camera_id: Optional[str] = None
+
+    # El frame anotado viaja con DOS nombres segun el pipeline: `image` en
+    # los de tienda y `processed_image` en los perimetrales. Ambos se
+    # modelan porque ambos circulan; unificarlos es trabajo del HITO 8, no
+    # de este hito, cuyo objetivo es formalizar lo que hay.
+    image: Optional[bytes] = None
+    processed_image: Optional[bytes] = None
+
+    # Igual con las detecciones: `tracks` en tienda, `metadata.detections`
+    # en perimetrales.
     tracks: Optional[List[Deteccion]] = None
+    metadata: Optional[Dict[str, Any]] = None
+
     detections_in_roi: Optional[int] = None
     valid_tracks_in_roi: Optional[int] = None
-    processing_time: Optional[float] = Field(default=None, ge=0.0)
 
 
 class ConnectionInit(BaseModel):
