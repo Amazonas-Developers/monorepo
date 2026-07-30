@@ -477,18 +477,25 @@ class DevicePanel(QWidget):
     # ── Hik-Connect: credenciales y región ────────────────────
 
     def _prefill_hik_env(self, forzar: bool = False) -> None:
-        """Vuelca las credenciales del .env en el formulario.
+        """Rellena el formulario con la credencial de la SESION EN CURSO.
 
-        `forzar=False` solo rellena los campos vacíos (comodidad al abrir);
-        `forzar=True` sobrescribe (botón «Usar credenciales del .env»). En
-        ningún caso limita: se puede escribir cualquier otra App Key/Secret.
+        Antes esto leia `hik_app_key` / `hik_app_secret` del **.env**, y ese
+        era justamente el problema: una credencial en un archivo de
+        configuracion acaba compartida y publicada (H-13). Ya no se lee ningun
+        archivo.
+
+        Ahora solo puede haber credenciales en el entorno si el usuario **ya
+        inicio sesion desde este mismo cliente**; al cerrar sesion se borran y
+        este metodo deja de tener nada que ofrecer. La fuente permanente es el
+        almacen cifrado del cliente, que se carga al seleccionar el equipo.
         """
-        import os
-        clave = (os.getenv("hik_app_key") or "").strip()
-        secreto = (os.getenv("hik_app_secret") or "").strip()
+        from ..config import sesion_hik
+
+        clave, secreto = sesion_hik.credenciales()
         if not clave and not secreto:
             if forzar:
-                self._log("No hay hik_app_key / hik_app_secret en el .env.",
+                self._log("No hay ninguna sesión de Hik-Connect abierta. "
+                          "Escribe la App Key y el Secret para conectarte.",
                           error=True)
                 self.log_box.setVisible(True)
             return
@@ -673,6 +680,17 @@ class DevicePanel(QWidget):
     def _on_connect_ok(self, info: DeviceInfo):
         self._last_info = info
         self._set_loading(False)
+
+        # Sesion abierta: las credenciales que acaban de funcionar se publican
+        # en el entorno del PROCESO para que el resto del codigo pueda usarlas
+        # sin volver a pedirlas. No se escriben en ningun archivo de
+        # configuracion — ese fue el origen de H-13 — y se borran al cerrar
+        # sesion o al cerrar el cliente.
+        if self._marca_nube():
+            from ..config import sesion_hik
+            if sesion_hik.iniciar(self.txt_appkey.text().strip(),
+                                  self.txt_appsecret.text()):
+                self._log("🔐 Sesión de Hik-Connect abierta en este cliente.")
         self._log(f"✅ {info.brand} {info.model}  ·  Serie: {info.serial_number}")
         self._log(f"   Firmware: {info.firmware_version}  ·  {info.num_video_channels} canales")
         for ch in info.channels:
@@ -900,16 +918,24 @@ class DevicePanel(QWidget):
         reply = QMessageBox.question(
             self, "Cerrar sesión Hik-Connect",
             f"¿Desconectar '{dev.display_label()}'?\n"
-            "Se eliminarán todos los canales asociados.",
+            "Se eliminarán todos los canales asociados y la App Key dejará de "
+            "estar disponible en este cliente.",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No,
         )
         if reply != QMessageBox.Yes:
             return
-        
-        # Eliminar la cuenta
+
+        # Eliminar la cuenta (borra tambien la credencial cifrada del almacen)
         self._delete_device(self._editing_id)
         self._clear_form()
-        self._log("✅ Sesión cerrada correctamente", error=False)
+
+        # Y retirarla del entorno del proceso: cerrar sesion tiene que dejar
+        # el cliente como si nunca se hubiera escrito la clave. Si quedara en
+        # os.environ, cualquier script lanzado despues seguiria usandola.
+        from ..config import sesion_hik
+        sesion_hik.cerrar()
+        self._log("✅ Sesión cerrada. La App Key ya no está en memoria.",
+                  error=False)
 
     def _clear_form(self):
         self._editing_id = None
