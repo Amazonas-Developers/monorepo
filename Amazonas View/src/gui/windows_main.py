@@ -160,13 +160,22 @@ class MainWindow(QMainWindow):
 
     def socket_init(self, parameter):
         self.socket.url            = self._url_servidor()
+        # Contrato del HITO 3: el cliente DECLARA quien es. El servidor lo
+        # deducia del modo de inferencia, y este cliente ofrece SEIS, asi
+        # que la deduccion fallaba justo aqui.
+        from config import cargar as _cargar_ajustes
+        _a = _cargar_ajustes()
+        self.socket.client_type    = _a.client_type
+        self.socket.site_id        = _a.site_id
         self.socket.type_inference = parameter
         self.socket.conect_server()
         self.data_model_gui.set("last_inference", parameter)
 
-    # Servidor por defecto cuando no se configura nada. Es el que venia
-    # fijo en el codigo, asi que sin tocar nada el comportamiento no cambia.
-    SERVIDOR_POR_DEFECTO = "ws://72.68.60.171:9000/ws"
+    # Ultimo recurso si no hay nada configurado en ninguna parte. Sale del
+    # .env (`server_ws_url`), no de un literal con una IP concreta: tenerla
+    # escrita aqui hacia que un equipo mal configurado intentase conectar en
+    # silencio al servidor de otra instalacion (regla 6 del refactor).
+    SERVIDOR_POR_DEFECTO = os.getenv("server_ws_url", "")
 
     def _url_servidor(self) -> str:
         """URL del servidor de inferencia, por orden de prioridad.
@@ -181,6 +190,15 @@ class MainWindow(QMainWindow):
         crudo = (os.environ.get("AMAZONAS_SERVER_WS", "").strip()
                  or str(self.data_model_gui.get("servidor_ws") or "").strip()
                  or self.SERVIDOR_POR_DEFECTO)
+        if not crudo:
+            # Antes se caia a una IP escrita en el codigo y el cliente
+            # intentaba conectar en silencio a un servidor ajeno. Es mejor
+            # decirlo que fingir que hay servidor.
+            raise SystemExit(
+                "No hay servidor configurado.\n"
+                "Define `server_ws_url` en el .env de Amazonas View, o "
+                "AMAZONAS_SERVER_WS al lanzarlo.\n"
+                "Ejemplo:  server_ws_url = 'ws://192.168.1.50:9000/ws'")
         if not crudo.startswith(("ws://", "wss://")):
             crudo = f"ws://{crudo}"
         if not crudo.rstrip("/").endswith("/ws"):

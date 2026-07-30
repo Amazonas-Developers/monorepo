@@ -164,7 +164,15 @@ class MainWindow(QMainWindow):
     def socket_init(self, parameter):
         # URL del servidor de IA: configurable por entorno/.env (server_ws_url),
         # que el selector fija segun el servidor elegido. Fallback: .171 local.
-        self.socket.url            = os.getenv("server_ws_url", "ws://72.68.60.171:9000/ws")
+        # La URL sale de config/, que la valida: antes se caia en silencio a
+        # una IP escrita en el codigo (regla 6 del refactor).
+        from config import cargar
+        ajustes = cargar()
+        self.socket.url            = ajustes.server_ws_url
+        # Contrato del HITO 3: este cliente ofrece SEIS modos, asi que la
+        # deduccion del client_type por pipeline fallaba justo aqui.
+        self.socket.client_type    = ajustes.client_type
+        self.socket.site_id        = ajustes.site_id
         self.socket.type_inference = parameter
         self.socket.conect_server()
         self.data_model_gui.set("last_inference", parameter)

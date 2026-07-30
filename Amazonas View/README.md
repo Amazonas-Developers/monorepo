@@ -1,89 +1,72 @@
-window_manager/
-├── main.py                     # Punto de entrada y inicialización de la app.
-|
-├── core/                       # Lógica de negocio (Controladores, lógica de captura).
-│   ├── network/
-│   │   
-|   │_init__.py
-│   │   │  
-│   │   ├── socket_client.py    # Maneja la conexión continua (WebSockets/Socket.io)
-│   │   └── api_client.py
-│   │   
-│   └── window_controller.py
-|
-├── native/                     # Funciones C++ y Pybind11 para tareas nativas.
-│   ├── ...
-│   └── bindings.cpp
-|
-├── gui/                        # Capa de presentación (Widgets, Ventana principal).
-│   ├── main_window.py
-│   ├── components/
-│   │   ├── ...
-│   │   └── window_preview.py   # Contiene la clase interactive_imageLabel
-│   └── styles/
-│       └── theme.py
-|
-├── models/                     # Modelos de datos y la CLASE que maneja la persistencia.
-│   ├── __init__.py
-│   ├── window_data.py
-│   └── settings_model.py       # NUEVO: Clase central para cargar/guardar la configuración del usuario.
-|
-├── config/                     # Configuración estática y por defecto.
-│   ├── __init__.py
-│   └── default_settings.json   # NUEVO: Valores iniciales de los puntos, tema, etc.
-|
-└── data_user/                  # Ubicación LÓGICA donde se guardan los archivos de usuario.
-    └── user_settings.json      # ARCHIVO REAL: Se guarda en una ruta específica del SO (ej. %APPDATA%).ssss
----
+# Amazonas View — cliente multimodo
 
-## Instalación en otra computadora
+Cliente de video con analitica: captura de ventana o de canal DVR, envio al
+servidor de IA y visualizacion de resultados.
 
-> **Importante:** El SDK nativo de Hikvision (los archivos `.dll`, `.exe` y `.lib`)
-> **NO** está incluido en este repositorio porque pesa ~69 MB y es software de
-> terceros. Hay que descargarlo aparte y colocarlo manualmente (ver paso 4).
+Su panel derecho es la **galeria de personas detectadas** (`CapturasSidebar`),
+que sustituyo al antiguo «Alertas IA» cuando ese quedo permanentemente vacio:
+el pipeline dejo de emitir alertas y solo produce personas con genero y edad.
+Lee las fotos de la carpeta `capture/` que escribe el servidor.
 
-### 1. Clonar el repositorio
-```bash
-git clone <URL-del-repo>
-cd "Amazonas View"
+## Modos de inferencia
+
+Es un cliente **multimodo**: el selector del pie ofrece `Hummus`, `HummusVLM`,
+`Autolavado`, `Perimetrales`, `PerimetralesMultiCam` y `Personal de Amazonas`.
+
+Por eso importa que declare su `client_type`: el servidor lo **deducia** del
+modo de inferencia, y esa deduccion falla justamente en un cliente que ofrece
+varios — pedir `Perimetrales` desde aqui se etiquetaba como si fuera el cliente
+perimetral.
+
+## Instalacion y arranque
+
+```bat
+INICIAR_AMAZONAS.bat
+venv\Scripts\python.exe src\main.py
 ```
 
-### 2. Crear y activar un entorno virtual
-```bash
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# Linux / macOS
-source venv/bin/activate
+El nucleo compartido va en modo editable:
+
+```bat
+venv\Scripts\python.exe -m pip install -e ..\packages\elde_core
 ```
 
-### 3. Instalar dependencias
-```bash
-pip install -r requirements.txt
+## Configuracion
+
+Todo en el `.env` de esta carpeta. **Sin valores de red en el codigo**: si falta
+lo obligatorio, el cliente avisa con un ejemplo y no arranca. Antes se caia en
+silencio a una IP escrita a mano, y el operador solo veia que "no llega nada".
+
+| Parametro | Obligatorio | Para que |
+|---|---|---|
+| `server_ws_url` | **si** | Servidor de IA. De el se deriva la URL del dashboard |
+| `site_id` | no | Local o sucursal; viaja en el contrato |
+| `jarvis_email`, `jarvis_password`, `jarvis_url` | si | Cuenta de Jarvis |
+
+### Las credenciales de Hik-Connect NO van aqui
+
+Se escriben en el panel de **Dispositivos**, se guardan cifradas y se borran al
+cerrar sesion. Tenerlas en un archivo fue lo que las publico en GitHub
+(`docs/refactor/HALLAZGOS.md`, H-13).
+
+## Estructura
+
+```
+src/
+├── main.py       punto de entrada
+├── config/       configuracion validada al arrancar
+├── core/         enlaces al nucleo compartido
+├── gui/          interfaz
+└── workers/      hilos de captura
 ```
 
-### 4. Colocar el SDK de Hikvision (necesario para el modo SDK nativo)
-1. Descarga el **HCNetSDK** desde el portal de desarrolladores de Hikvision
-   (versión usada por la app: `EN-HCNetSDKV6.1.9.4_build20220412_win64`).
-2. Copia **todas** las DLLs de la carpeta `\lib\` del SDK dentro de:
-   ```
-   src/sdk/hikvision/
-   ```
-   El archivo principal debe quedar en `src/sdk/hikvision/HCNetSDK.dll`,
-   junto con las subcarpetas `HCNetSDKCom/` y demás DLLs.
-3. (Opcional, Dahua) Copia `dhnetsdk.dll`, `dhconfigsdk.dll` y `dhplay.dll`
-   en `src/sdk/dahua/`.
+La mayoria de archivos son **redirecciones** al nucleo `elde_core` y
+desapareceran al terminar la migracion.
 
-> En cada carpeta hay un archivo `COLOCA_DLLS_AQUI.txt` como recordatorio.
-> Alternativamente, dentro de la app puedes indicar la ruta del DLL en el
-> campo **"Ruta SDK"** en lugar de copiarlo aquí.
+## Solucion de problemas
 
-### 5. Ejecutar
-```bash
-python src/main.py
-```
-
-### ¿Y si no quiero usar el SDK nativo?
-La aplicación también soporta conexión por **HTTP/ISAPI** (Hikvision y Dahua)
-y por **Hik-Connect**, que **no requieren** los DLLs. En ese caso puedes
-omitir el paso 4 y elegir ese modo de conexión al añadir el dispositivo.
+| Sintoma | Causa probable |
+|---|---|
+| «Falta `server_ws_url` en el .env» | Falta la linea; el ejemplo va en el mensaje |
+| Un canal aparece congelado | Enlace de nube caducado: reconecta el equipo en Dispositivos |
+| El cliente abre y se cierra | Mirar la consola: `main.py` imprime el traceback |
