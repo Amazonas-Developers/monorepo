@@ -212,6 +212,48 @@ dashboard de tienda describe sesiones, no lugares.
 
 ---
 
+## H-13 · Claves de Hik-Connect en claro y **ya publicadas en GitHub** · `ABIERTO` · **critico / seguridad**
+
+**Que hay.** El App Key y el App Secret de Hik-Connect estan escritos en claro
+en el codigo, repetidos en tres archivos (valores enmascarados aqui a
+proposito, regla 8):
+
+| Archivo | Donde |
+|---|---|
+| `get_url.py` lineas 11-12 | en las **4** copias del script (un cliente cada una) |
+| `Amazonas View/HIKCONNECT_INTEGRATION.md` | documentacion |
+| `hik-connect/api hik.txt` | notas de la API |
+
+```
+API_KEY    = "<<6-chars-enmascarados>>…"   (32 caracteres)
+API_SECRET = "<<6-chars-enmascarados>>…"   (32 caracteres)
+```
+
+**Lo grave: ya estan expuestas.** `get_url.py` esta versionado en el historial
+de `perimetrales-view`, `windows_managers_view` y `Amazonas View`, y esos tres
+repositorios tienen remoto en GitHub con push hasta el 2-jul-2026. Las claves
+llevan meses publicadas.
+
+**Que se ha hecho.** Los tres archivos se excluyeron del monorepo nuevo y se
+purgaron de su historial con `filter-branch` (verificado: no aparecen en
+ningun commit). Los archivos siguen en disco. **Esto no desexpone nada**: solo
+evita repetir la fuga en el repositorio nuevo.
+
+**Que hace falta, y solo puedes hacerlo tu:**
+
+1. **Rotar el App Key y el App Secret** en la consola de Hik-Connect. Es lo
+   unico que corta el acceso de verdad: quitar las claves del codigo no las
+   borra del historial de GitHub ni de los clones de terceros.
+2. Decidir que se hace con los tres repos antiguos (borrarlos, hacerlos
+   privados o reescribir su historial).
+3. Una vez rotadas, las claves nuevas van a `.env` —nunca al codigo— y la
+   documentacion puede volver al repositorio.
+
+**Nota.** El proximo paso natural del refactor (regla 6, sacar todo el hardcode
+a configuracion) resuelve la causa; la rotacion resuelve el incidente.
+
+---
+
 ## H-12 · Dos carpetas divergentes publican en el mismo repo de GitHub · `ABIERTO`
 
 Topologia de remotos actual:
