@@ -28,7 +28,7 @@ from core.app_singleton import  AppSingleton
 ##from gui.windows_main import MainWindow
 
 
-from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout, QWidget, QDockWidget, QTextEdit
+from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout, QWidget, QDockWidget, QTextEdit, QTabWidget
 from PySide6.QtCore import Qt
 
 from gui.windows_main import MainWindow 
@@ -149,6 +149,22 @@ def main():
         # Conectar alertas de cada render_box al sidebar
         for box in window_containter.list_box:
             box.alert_received.connect(alerts_sidebar.add_alert)
+
+        # ── Panel de capturas (pestaña junto a las alertas) ──
+        # Lee las fotos del SERVIDOR por HTTP, no de una carpeta local: antes
+        # el servidor solo las escribia en la carpeta de Amazonas View (ruta
+        # fija en su config), asi que tienda no tenia ninguna que mostrar.
+        # Pidiendolas al servidor funciona igual con el servidor en otra
+        # maquina, que es el caso real hoy.
+        from elde_core.ui.panel_capturas import PanelCapturas
+        capturas_panel = PanelCapturas(
+            url_ws=os.getenv('server_ws_url', ''),
+            titulo='Personas detectadas')
+
+        tabs_derecha = QTabWidget()
+        tabs_derecha.addTab(alerts_sidebar, 'Visitantes')
+        tabs_derecha.addTab(capturas_panel, 'Capturas')
+        dock_alerts.setWidget(tabs_derecha)
     
 
         # ── Interruptor "Enviar por WhatsApp" del pie ──

@@ -2,6 +2,8 @@
 analytics/config.py - Parametros configurables para analitica retail.
 """
 
+import os
+
 
 class AnalyticsConfig:
     """Contenedor de parametros configurables para todos los modulos de analitica."""
@@ -512,7 +514,13 @@ class AnalyticsConfig:
     # que el cliente muestra como galeria clickeable (misma maquina; el click
     # abre el archivo). La foto se RE-anota cuando la demografia converge y
     # se borra si el Re-ID la marca como duplicado. Vacio = desactivado.
-    CAPTURE_CLIENT_DIR: str = r"C:\Users\Sistema-1\Desktop\ELDE\Amazonas View\capture"
+    # Se lee del entorno: escribirla aqui la ataba a UNA maquina y a UN
+    # cliente (apuntaba a "Amazonas View"), asi que el resto de clientes se
+    # quedaban sin carpeta de capturas y su panel no podia mostrar nada.
+    # Vacio = desactivado, que es el valor por defecto correcto: los clientes
+    # piden las capturas por HTTP al servidor (elde_core.ui.panel_capturas),
+    # lo que ademas funciona con el servidor en otra maquina.
+    CAPTURE_CLIENT_DIR: str = os.getenv("ELDE_CAPTURE_CLIENT_DIR", "")
 
     # ── Deteccion CONTINUA de eventos (VLM Qwen2.5-VL) ──
     # YOLO dispara: cuando hay al menos una persona, cada EVENT_CHECK_EVERY_S
