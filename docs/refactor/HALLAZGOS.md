@@ -212,6 +212,35 @@ dashboard de tienda describe sesiones, no lugares.
 
 ---
 
+## H-12 · Dos carpetas divergentes publican en el mismo repo de GitHub · `ABIERTO`
+
+Topologia de remotos actual:
+
+| Carpeta local | Remoto configurado |
+|---|---|
+| `perimetrales-view` | `view.official.git` (origin) **+** `Amazonasview.git` |
+| `windows_managers_view` | `view.official.git` (origin) |
+| `Amazonas View` | `Amazonasview.git` (origin) |
+| `SERVER-IA PERIMETRALES` | `SERVER-IA.git` (origin) |
+
+**El problema.** `perimetrales-view` y `windows_managers_view` son dos clientes
+distintos, con contenido divergente, y los dos tienen su `origin/main` apuntando
+a **`view.official.git`**. Quien haga `git push` segundo sobrevive; el trabajo
+del otro queda enterrado en el remoto. Lo mismo, en menor grado, con
+`Amazonasview.git`, que es origin de `Amazonas View` y a la vez segundo remoto
+de `perimetrales-view`.
+
+**Estado.** Los remotos estan vivos: ultimos push entre el 29-may y el
+2-jul-2026, y localmente solo hay 1-3 commits sin publicar (los de respaldo de
+este refactor). No hay perdida detectada **todavia**.
+
+**Correccion propuesta.** Es una de las razones de la decision del HITO 2:
+absorber los subrepos en el monorepo y publicar en **un unico remoto nuevo**,
+dejando los tres actuales como archivo de solo lectura. Requiere que el usuario
+cree el repositorio vacio en GitHub.
+
+---
+
 ## H-10 · Peso muerto en la raiz del proyecto · `ABIERTO`
 
 - `modelos NVIDIA/`: **50 GB**.

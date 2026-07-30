@@ -181,26 +181,49 @@ sitio. Situacion actual: la raiz es un repo nuevo y `Amazonas View`,
 dentro como **gitlink** — la raiz apunta a un commit suyo pero no versiona su
 contenido. No es un monorepo real.
 
-**Propuesta: absorber**, con este procedimiento:
+### 5.1 Los remotos actuales ya estan rotos
 
-1. `git bundle create <proyecto>.bundle --all` de cada subrepo → respaldo
-   completo del historial, un archivo por proyecto, fuera del arbol.
+Los remotos **si estan vivos** (ultimo push entre el 29-may y el 2-jul-2026),
+pero la topologia es incoherente:
+
+| Carpeta local | Remoto configurado |
+|---|---|
+| `perimetrales-view` | `view.official.git` (origin) **+** `Amazonasview.git` |
+| `windows_managers_view` | `view.official.git` (origin) |
+| `Amazonas View` | `Amazonasview.git` (origin) |
+| `SERVER-IA PERIMETRALES` | `SERVER-IA.git` (origin) |
+
+**Dos carpetas locales distintas y divergentes publican en el mismo repo.**
+`perimetrales-view` y `windows_managers_view` tienen las dos su `origin/main`
+en `view.official.git`; el que empuje segundo pisa al primero. Y
+`Amazonasview.git` es a la vez el origin de `Amazonas View` y un segundo remoto
+de `perimetrales-view`. Esto es un problema de hoy, no del refactor
+(registrado como H-12).
+
+### 5.2 Decision: absorber y publicar en un remoto nuevo
+
+1. `git bundle create <proyecto>.bundle --all` por subrepo → respaldo completo
+   del historial, fuera del arbol.
 2. Verificar cada bundle (`git bundle verify`).
-3. Eliminar los `.git` anidados.
-4. `git add -A` en la raiz: el monorepo pasa a versionar todo de verdad.
-5. Tag `pre-absorcion` antes del paso 3.
+3. Tag `pre-absorcion` en la raiz.
+4. Eliminar los `.git` anidados.
+5. `git add -A` en la raiz: el monorepo pasa a versionar todo de verdad.
+6. Publicar el monorepo en **un remoto nuevo** (p. ej. `ELDE-ecosistema`).
+   Los tres repos actuales quedan como archivo de solo lectura.
 
 **Por que absorber y no submodulos:** el HITO 4 consiste precisamente en mover
 codigo *entre* proyectos. Con submodulos, cada extraccion al nucleo son dos
 commits en dos repos mas la actualizacion del puntero, y un `git bisect` que
-cruce el limite no funciona. El coste de los submodulos se paga en cada uno de
-los hitos 4 a 7.
+cruce el limite no funciona. El coste se paga en cada uno de los hitos 4 a 7.
 
-**Que se pierde:** el historial por proyecto deja de estar vivo (queda en los
-bundles) y los remotos de GitHub dejan de recibir. **Si necesitas seguir
-publicando en `Amazonasview.git`, `view.official.git` o `SERVER-IA.git`, esta
-decision cambia** y hay que ir a submodulos. Es la unica pregunta de este hito
-que no puedo responder yo.
+**Por que un remoto nuevo y no conservar los tres:** conservarlos significaria
+mantener viva la colision de 5.1. Con uno solo desaparece, y hay un unico sitio
+donde publicar el ecosistema.
+
+**Que se pierde:** el historial deja de estar vivo por proyecto (queda en los
+bundles y en los repos archivados) y hay que crear un repositorio vacio en
+GitHub. No se pierde trabajo: solo hay 1-3 commits sin publicar por repo, y son
+los commits de respaldo de este refactor.
 
 ---
 
@@ -211,29 +234,44 @@ dependa de algo que aun no existe.
 
 | # | Paso | Hito | Riesgo | Rollback |
 |---|---|---|---|---|
-| 1 | Bundles + absorcion de los subrepos | 2 | **medio** | restaurar desde bundle |
-| 2 | Crear `packages/elde_core` vacio e instalable | 4 | nulo | borrar carpeta |
-| 3 | Definir `contracts/` con los payloads REALES capturados hoy | 3 | bajo | nadie lo usa aun |
-| 4 | Capa de compatibilidad en el servidor: acepta formato viejo y nuevo | 3 | bajo | quitar la capa |
-| 5 | Mover al nucleo lo **identico** (34 archivos, 3.541 LOC) | 4 | bajo | los clientes aun tienen su copia |
-| 6 | Reconciliar lo **casi identico** (>=90%) eligiendo una version | 4 | **alto** | por archivo, con diff revisado |
-| 7 | Cliente tienda: usar el nucleo + contrato + config | 5 | medio | rama por cliente |
-| 8 | Idem perimetrales / amazonas / managers | 6-7 | medio | idem |
-| 9 | Servidor: validacion, registro de dispositivos, API de lectura | 8 | medio | la capa de compatibilidad sigue |
-| 10 | Dashboards sobre la API | 9 | bajo | los actuales siguen vivos |
-| 11 | Vaciar `_legacy/` | 10 | bajo | tag previo |
+| 1 | Bundles + absorcion + remoto nuevo | 2 | **medio** | restaurar desde bundle |
+| 2 | **Capturar payloads reales** del websocket en una sesion normal | 3 | nulo | son datos, no codigo |
+| 3 | **Arreglar H-11**: `device_id` estable | 3 | medio | revertir el commit |
+| 4 | Definir `contracts/` validando contra los payloads del paso 2 | 3 | bajo | nadie lo usa aun |
+| 5 | Capa de compatibilidad en el servidor: acepta formato viejo y nuevo | 3 | bajo | quitar la capa |
+| 6 | Crear `packages/elde_core` vacio e instalable | 4 | nulo | borrar carpeta |
+| 7 | Mover al nucleo lo **identico** (34 archivos, 3.541 LOC) | 4 | bajo | los clientes aun tienen su copia |
+| 8 | Reconciliar lo **casi identico** (>=90%) eligiendo una version | 4 | **alto** | por archivo, con diff revisado |
+| 9 | Cliente tienda: usar el nucleo + contrato + config | 5 | medio | rama por cliente |
+| 10 | Idem perimetrales / amazonas / managers | 6-7 | medio | idem |
+| 11 | Servidor: validacion, registro de dispositivos, API de lectura | 8 | medio | la capa de compatibilidad sigue |
+| 12 | Dashboards sobre la API | 9 | bajo | los actuales siguen vivos |
+| 13 | Vaciar `_legacy/` | 10 | bajo | tag previo |
 
-**El paso 6 es el peligroso.** Los archivos con 90-99% de similitud divergieron
+**El paso 8 es el peligroso.** Los archivos con 90-99% de similitud divergieron
 por algo: puede ser un arreglo aplicado en un solo cliente. Cada reconciliacion
 exige leer el diff y decidir, nunca «gana el mas nuevo».
 
-### 6.1 Prerrequisito que no estaba en el plan
+### 6.1 Por que H-11 va en el HITO 3 y no mas tarde
 
-**H-11 (`camera_id` aleatorio) hay que arreglarlo antes del HITO 9.** Sin
-identidad de camara estable no existe historico por zona, y eso vacia de
-sentido el dashboard de tienda («pasillo mas frecuentado») y el de
-perimetrales («seguimiento por ID global entre camaras»). Propongo abordarlo en
-el HITO 5, junto con el cliente de tienda, que es donde vive el bug.
+El envelope del HITO 3 lleva `device_id` como campo obligatorio: **la identidad
+del dispositivo *es* parte del contrato**. Definir el contrato sobre el
+`uuid4()` por sesion de H-11 seria formalizar el bug, y obligaria a rehacer
+tanto el contrato como su capa de compatibilidad al corregirlo despues.
+Arreglarlo cuando todavia no hay nada construido encima cuesta mucho menos.
+
+Ya existe la pieza estable: `_camera_display_name()` resuelve
+`alias del canal DVR > titulo de la ventana > "Camara N"`.
+
+### 6.2 Por que capturar payloads es obligatorio
+
+No es una mejora opcional. Es literalmente un criterio de aceptacion del
+HITO 3 —«los esquemas validan los payloads reales del sistema actual»— y sin
+una captura previa no hay forma de cumplirlo.
+
+Ademas **no existe ni un test en los 5 proyectos**: esos payloads son la unica
+red disponible para comprobar en los hitos 5-7 que el comportamiento no
+cambio. Por eso van en el paso 2, antes de tocar nada.
 
 ---
 
@@ -280,12 +318,18 @@ el requisito de historico de los dashboards ya conocido.
 
 ## 9. Riesgos abiertos
 
-1. **Sin tests, la equivalencia funcional se comprueba a mano.** No hay
-   suite en ninguno de los 5 proyectos. Antes del HITO 5 conviene capturar
-   payloads reales para poder comparar antes/despues.
+1. **Sin tests, la equivalencia funcional se comprueba a mano.** No hay suite
+   en ninguno de los 5 proyectos. Lo mitiga el paso 2 (captura de payloads),
+   pero solo cubre el contrato de red: la UI y el pipeline de vision se siguen
+   validando a ojo.
 2. **Los venv no aislan** (H-04): `packages/elde_core` instalado con `pip -e`
    puede acabar en el user-site global y afectar a los 4 clientes a la vez.
-   Conviene resolver H-04 antes del paso 2.
-3. **El paso 6** (reconciliar casi-duplicados) puede revelar que dos clientes
+   Conviene resolver H-04 antes del paso 6.
+3. **El paso 8** (reconciliar casi-duplicados) puede revelar que dos clientes
    tienen comportamientos deliberadamente distintos en el mismo archivo.
-4. **`camera_id`** (H-11) condiciona los hitos 8 y 9.
+4. **La absorcion (paso 1) depende de ti**: hay que crear el repositorio vacio
+   en GitHub. Hasta entonces el monorepo vive solo en local.
+5. **Los datos historicos actuales no sobreviven a H-11.** Los heatmaps y
+   conteos acumulados bajo los `uuid4()` viejos no se pueden reasignar a la
+   camara real: al estabilizar el `device_id` se empieza a acumular de cero.
+   Conviene asumirlo antes del paso 3, no despues.
