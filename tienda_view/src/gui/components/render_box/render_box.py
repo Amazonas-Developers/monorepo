@@ -349,13 +349,6 @@ class Render_box(QFrame):
         self._sync_worker   = None
         self._ask_worker    = None
 
-        # ── Analitica de supermercado (menu "Tienda") ──
-        # Se alimentan de metadata['retail'] / ['retail_report'] de cada frame.
-        self._retail_stats  = {}     # resumen liviano (llega en cada frame)
-        self._retail_report = {}     # reporte de marketing (throttled)
-        self._retail_panel  = None   # ventana del panel, si esta abierta
-        self._retail_worker = None   # worker de calibracion
-        self._layout_worker = None   # worker de subida del planograma
 
         # Al cerrar la app hay que parar los QThread ANTES de que Qt destruya
         # este widget: un QThread destruido mientras corre hace que Qt aborte
@@ -364,16 +357,6 @@ class Render_box(QFrame):
         _app = QApplication.instance()
         if _app is not None:
             _app.aboutToQuit.connect(self._stop_all_workers)
-        # Lienzo de zonas sobre el video: se enciende al definir zonas y se
-        # apaga solo cuando el guardado confirma (ver _on_layout_saved).
-        self._show_store_zones = False
-        self._store_zones = {}        # planograma que se esta viendo/editando
-        self._store_zones_saved = {}  # ultimo confirmado por el servidor
-        self._planogram_dlg = None    # editor abierto (no modal), si lo hay
-        # Ya avisados, para no repetir la misma alerta cada frame.
-        self._stock_avisados = set()     # anaqueles vacios
-        self._box_avisados = set()       # cajas obstruyendo
-        self._restock_avisados = set()   # empleados reponiendo
         self._eval_avisados = set()      # personas evaluando producto
 
         # ── Grupo Clases (selector de qué trackear) ──
@@ -417,14 +400,13 @@ class Render_box(QFrame):
             s.setFixedHeight(20)
             return s
 
-        # ── Barra de TIENDA: lo primero y mas visible es el menu Tienda
-        # (definir zonas, calibrar, panel). Le sigue el area de conteo,
-        # la vista, el asistente IA (VLM) y el selector de clases. ──
-        self._menu_tienda = self._make_menu_button(
-            "🛒 Tienda ▾",
-            "Analitica de supermercado: definir zonas, calibrar anaqueles, "
-            "panel de analitica, ver zonas",
-            self._build_tienda_menu)
+        # ── Barra de TIENDA: area de conteo, vista, asistente IA (VLM) y
+        # selector de clases.
+        # El menu "Tienda" (definir zonas, calibrar anaqueles, panel de
+        # analitica) se retiro en el HITO 5: el servidor dejo de exponer
+        # /retail/* y de emitir metadata['retail'] en la simplificacion del
+        # 27-jul, asi que abria dialogos que no llevaban a ninguna parte. El
+        # codigo esta en _legacy/tienda_view/. ──
         self._menu_roi = self._make_menu_button(
             "Area ▾",
             "Area de conteo (ROI) de la camara: activar, mostrar puntos, "
@@ -442,7 +424,6 @@ class Render_box(QFrame):
         # Layout: [IA | Tienda | Area | Vista | IA/VLM | Clases] --- [Captura ▶ ⏸ ⏹ DVR]
         bar_opt_layout.addWidget(self.btn_smart)
         bar_opt_layout.addWidget(_sep())
-        bar_opt_layout.addWidget(self._menu_tienda)
         bar_opt_layout.addWidget(self._menu_roi)
         bar_opt_layout.addWidget(self._menu_vista)
         bar_opt_layout.addWidget(self._menu_ia)
@@ -691,7 +672,7 @@ class Render_box(QFrame):
             # Sin IA: mostrar frame crudo directamente (con el lienzo de
             # zonas encima si esta activo, para poder revisarlas sin IA).
             self.imagen_label.setPixmap(
-                self._paint_store_zones(pix).scaled(
+                pix.scaled(
                     self.imagen_label.size(), Qt.KeepAspectRatio,
                     Qt.SmoothTransformation)
             )
@@ -732,7 +713,7 @@ class Render_box(QFrame):
         # y, si no acaban, se cortan. Cortarlos al salir es preferible a que Qt
         # aborte el proceso.
         for name in ("_event_worker", "_model_worker", "_sync_worker",
-                     "_ask_worker", "_retail_worker", "_layout_worker"):
+                     "_ask_worker"):
             worker = getattr(self, name, None)
             if worker is None:
                 continue
@@ -1099,172 +1080,12 @@ class Render_box(QFrame):
         self._add_toggle(menu, "Verificador de eventos (Etapa 2)",
                          self.vlm_enabled_boolean, self._toggle_vlm)
 
-    # ── Analitica de supermercado ────────────────────────────────────
 
-    def _build_tienda_menu(self, menu):
-        """Menu 'Tienda': analitica de pasillos, productos y reposicion."""
-        menu.clear()
-        stats = self._retail_stats or {}
-        activo = bool(stats.get("activo"))
 
-        menu.addAction("Panel de analitica de tienda…",
-                       lambda *_: self._show_retail_panel())
-        menu.addAction("Definir zonas de la tienda…",
-                       lambda *_: self._edit_planogram())
-        self._add_toggle(menu, "Ver zonas sobre el video",
-                         self._show_store_zones, self._toggle_store_zones)
-        menu.addSeparator()
 
-        if not activo:
-            a = menu.addAction("Sin planograma definido")
-            a.setEnabled(False)
-            menu.addAction("¿Como defino la tienda?…",
-                           lambda *_: self._retail_help())
-            return
 
-        # Reposicion: lo mas accionable, directo en el menu.
-        anaq = stats.get("anaqueles") or {}
-        vacios = anaq.get("anaqueles_vacios") or []
-        bajos = anaq.get("anaqueles_bajos") or []
-        if vacios:
-            a = menu.addAction(f"⚠ Reponer YA: {', '.join(vacios[:3])}"
-                               + ("…" if len(vacios) > 3 else ""))
-            a.setEnabled(False)
-        if bajos:
-            a = menu.addAction(f"Nivel bajo: {', '.join(bajos[:3])}"
-                               + ("…" if len(bajos) > 3 else ""))
-            a.setEnabled(False)
-        if not vacios and not bajos:
-            a = menu.addAction("Todos los anaqueles con stock")
-            a.setEnabled(False)
 
-        pas = (stats.get("pasillos") or {}).get("resumen") or {}
-        if pas.get("pasillo_mas_transitado"):
-            a = menu.addAction(
-                f"Mas transitado: {pas['pasillo_mas_transitado']}")
-            a.setEnabled(False)
-        if pas.get("mayor_concentracion"):
-            a = menu.addAction(
-                f"Mayor concentracion ahora: {pas['mayor_concentracion']}")
-            a.setEnabled(False)
 
-        menu.addSeparator()
-        cal = anaq.get("con_referencia", 0)
-        tot = anaq.get("total_anaqueles", 0)
-        menu.addAction(f"Calibrar anaqueles ({cal}/{tot} listos)…",
-                       lambda *_: self._calibrate_shelves())
-
-    def _retail_help(self):
-        QMessageBox.information(
-            self, "Analitica de tienda",
-            "Para medir pasillos, anaqueles y comportamiento de compra hace "
-            "falta un PLANOGRAMA: decirle al sistema que es cada zona del "
-            "encuadre.\n\n"
-            "Como hacerlo, en orden:\n\n"
-            "1. Enciende el analisis IA de esta camara (boton rojo) para que "
-            "el servidor la registre.\n\n"
-            "2. Tienda ▾ → 'Definir zonas de la tienda…'. Dibujas sobre la "
-            "imagen: pasillos (poligonos), anaqueles (un rectangulo POR "
-            "PRODUCTO) y la maquina de precios.\n\n"
-            "3. Con los estantes repuestos y SIN clientes delante: "
-            "Tienda ▾ → 'Calibrar anaqueles'. Eso fija el 100% de llenado "
-            "contra el que se miden los faltantes.\n\n"
-            "A partir de ahi el panel de analitica se llena solo.")
-
-    def _edit_planogram(self):
-        """Dibuja las zonas de la tienda sobre el frame ACTUAL y las sube.
-
-        El editor vive en el CLIENTE porque es aqui donde hay imagen: el
-        servidor no se conecta a la camara, recibe los frames de nosotros.
-        """
-        frame = self._current_frame_bytes()
-        if not frame:
-            QMessageBox.information(
-                self, "Definir zonas de la tienda",
-                "No hay imagen disponible. Selecciona la ventana o el canal "
-                "DVR de esta camara y arranca la captura antes de definir "
-                "las zonas.")
-            return
-        if self._planogram_dlg is not None:
-            self._planogram_dlg.raise_()
-            self._planogram_dlg.activateWindow()
-            return
-        from ..planogram_editor import PlanogramEditor
-
-        # Partir del planograma que ya tenga el servidor, para EDITARLO en
-        # vez de empezar de cero cada vez.
-        actual = self._fetch_store_zones() or None
-        # Respaldo: si el operador cancela hay que volver a ESTO, porque el
-        # borrador va sobrescribiendo _store_zones mientras dibuja.
-        self._store_zones_saved = json.loads(json.dumps(actual or {}))
-
-        # Encender el lienzo: a partir de aqui las zonas se ven sobre el
-        # video en vivo, y se van actualizando conforme se dibujan.
-        self._set_store_zones_visible(True, actual or {})
-
-        dlg = PlanogramEditor(frame, self._device_id(),
-                              self._camera_display_name(), actual, self)
-        # NO MODAL: el video sigue corriendo detras con el overlay, que es
-        # justo lo que permite comprobar que las zonas caen donde deben.
-        dlg.setModal(False)
-        dlg.zonas_cambiadas.connect(
-            lambda z: self._set_store_zones_visible(True, z))
-        dlg.accepted.connect(lambda: self._upload_planogram(dlg.resultado))
-        dlg.finished.connect(self._on_planogram_closed)
-        self._planogram_dlg = dlg
-        dlg.show()
-        dlg.raise_()
-        dlg.activateWindow()
-
-    def _upload_planogram(self, layout):
-        """Sube el planograma dibujado -> POST /retail/layout."""
-        if not layout:
-            return
-        self._layout_worker = _PostWorker(
-            self._http_base() + "/retail/layout",
-            {"camera_id": self._device_id(),
-             "layout": json.dumps(layout, ensure_ascii=False)}, self)
-        self._layout_worker.done.connect(self._on_layout_saved)
-        self._layout_worker.start()
-
-    @Slot(int)
-    def _on_planogram_closed(self, result=0):
-        """El editor se cerro.
-
-        Si fue CANCELANDO se apaga el lienzo y se descarta el borrador,
-        restaurando lo que hay guardado en el servidor. Si fue aceptando, el
-        lienzo se queda encendido hasta que llegue la respuesta del guardado
-        (lo apaga _on_layout_saved). Se mira `result` en vez de un flag
-        porque Qt emite `finished` ANTES que `accepted`.
-        """
-        self._planogram_dlg = None
-        if result != QDialog.Accepted:
-            self._set_store_zones_visible(False, self._store_zones_saved or {})
-
-    @Slot(dict)
-    def _on_layout_saved(self, data):
-        if data.get("status") == "ok":
-            # Guardado correcto -> el lienzo desaparece y el video vuelve a
-            # verse limpio. Es la confirmacion visual de que quedo aplicado.
-            self._store_zones_saved = self._store_zones
-            self._set_store_zones_visible(False)
-            QMessageBox.information(
-                self, "Zonas de la tienda",
-                f"Planograma guardado en el servidor:\n{data.get('ruta', '')}\n\n"
-                f"  - {data.get('pasillos', 0)} pasillos\n"
-                f"  - {data.get('anaqueles', 0)} anaqueles\n"
-                f"  - {data.get('mobiliario', 0)} mobiliario\n\n"
-                "Siguiente paso: con los estantes repuestos y sin clientes "
-                "delante, usa 'Calibrar anaqueles'.")
-        else:
-            # Fallo: se DEJA el lienzo encendido para no perder de vista lo
-            # dibujado y poder reintentar.
-            self._set_store_zones_visible(True)
-            QMessageBox.warning(
-                self, "Zonas de la tienda",
-                f"No se pudo guardar: {data.get('message', '?')}\n\n"
-                "Las zonas siguen visibles sobre el video; vuelve a abrir "
-                "'Definir zonas de la tienda…' para reintentar.")
 
     # ── Lienzo de zonas sobre el video en vivo ───────────────────────
 
@@ -1274,133 +1095,11 @@ class Render_box(QFrame):
         "mobiliario": (255, 0, 255),    # magenta
     }
 
-    def _paint_store_zones(self, pixmap):
-        """Devuelve el frame con el planograma superpuesto.
 
-        Solo actua si el lienzo esta activo; si no, devuelve el mismo pixmap
-        sin copiarlo (coste cero en el caso normal). Las zonas vienen en
-        coordenadas normalizadas 0..1, asi que se escalan al tamano real del
-        frame y siguen cuadrando aunque cambie la resolucion.
-        """
-        if not getattr(self, "_show_store_zones", False):
-            return pixmap
-        zonas = getattr(self, "_store_zones", None) or {}
-        if not any(zonas.get(k) for k in self._ZONA_COLORES):
-            return pixmap
-        try:
-            out = pixmap.copy()          # no tocar el pixmap limpio
-            w, h = out.width(), out.height()
-            painter = QPainter(out)
-            font = QFont()
-            font.setPointSize(9)
-            font.setBold(True)
-            painter.setFont(font)
-            fm = painter.fontMetrics()
 
-            def etiqueta(x, y, texto, color):
-                tw, th = fm.horizontalAdvance(texto), fm.height()
-                ty = max(th, y)
-                painter.fillRect(x, ty - th, tw + 6, th, QColor(0, 0, 0, 190))
-                painter.setPen(color)
-                painter.drawText(x + 3, ty - 4, texto)
 
-            def dibuja_poligono(pts_norm, col, nombre):
-                pts = [QPoint(int(px * w), int(py * h)) for px, py in pts_norm]
-                if len(pts) < 2:
-                    return
-                painter.setPen(QPen(col, 2))
-                for i in range(len(pts)):
-                    painter.drawLine(pts[i], pts[(i + 1) % len(pts)])
-                etiqueta(pts[0].x(), pts[0].y(), nombre, col)
 
-            def dibuja_rect(r, col, nombre):
-                x1, y1 = int(r[0] * w), int(r[1] * h)
-                x2, y2 = int(r[2] * w), int(r[3] * h)
-                painter.setPen(QPen(col, 2))
-                painter.drawRect(x1, y1, x2 - x1, y2 - y1)
-                etiqueta(x1, y1, nombre, col)
 
-            # Pasillos (poligonos)
-            col = QColor(*self._ZONA_COLORES["pasillos"])
-            for a in zonas.get("pasillos") or []:
-                dibuja_poligono(a.get("poligono") or [], col, a.get("nombre", ""))
-
-            # Anaqueles: multi-poligono (nuevo), poligono unico o rect (viejos)
-            col = QColor(*self._ZONA_COLORES["anaqueles"])
-            for z in zonas.get("anaqueles") or []:
-                if z.get("poligonos"):
-                    for i, poly in enumerate(z["poligonos"]):
-                        dibuja_poligono(poly, col,
-                                        z.get("nombre", "") if i == 0 else "")
-                elif z.get("poligono"):
-                    dibuja_poligono(z["poligono"], col, z.get("nombre", ""))
-                elif z.get("rect") and len(z["rect"]) >= 4:
-                    dibuja_rect(z["rect"], col, z.get("nombre", ""))
-
-            # Mobiliario (rectangulos)
-            col = QColor(*self._ZONA_COLORES["mobiliario"])
-            for z in zonas.get("mobiliario") or []:
-                if z.get("rect") and len(z["rect"]) >= 4:
-                    dibuja_rect(z["rect"], col, z.get("nombre", ""))
-            painter.end()
-            return out
-        except Exception as e:
-            print(f"_paint_store_zones error: {e}")
-            return pixmap
-
-    def _set_store_zones_visible(self, visible: bool, zonas: dict = None):
-        """Enciende/apaga el lienzo de zonas y repinta ya (sin esperar frame).
-
-        Repintar en el acto importa: con el video pausado o sin IA, el
-        siguiente frame puede no llegar nunca.
-        """
-        self._show_store_zones = bool(visible)
-        if zonas is not None:
-            self._store_zones = zonas
-        if self.current_pixmap:
-            self._apply_label_pixmap(self.current_pixmap)
-
-    def _toggle_store_zones(self):
-        """Item de menu: ver/ocultar las zonas sobre el video."""
-        if not self._show_store_zones and not self._store_zones:
-            self._fetch_store_zones()   # aun no las tenemos: pedirlas
-        self._set_store_zones_visible(not self._show_store_zones)
-
-    def _fetch_store_zones(self) -> dict:
-        """Trae el planograma vigente del servidor. {} si no hay."""
-        try:
-            import requests
-            r = requests.get(self._http_base() + "/retail/layout",
-                             params={"camera_id": self._device_id()},
-                             timeout=10).json()
-            if r.get("status") == "ok":
-                self._store_zones = r.get("layout") or {}
-                return self._store_zones
-        except Exception as e:
-            print(f"_fetch_store_zones: {e}")
-        return {}
-
-    def _show_retail_panel(self):
-        """Abre (o trae al frente) el panel de analitica de esta camara."""
-        from ..retail_panel import RetailPanel
-        if self._retail_panel is None:
-            self._retail_panel = RetailPanel(self._camera_display_name(), self)
-            self._retail_panel.finished.connect(
-                lambda *_: setattr(self, "_retail_panel", None))
-        self._refresh_retail_panel()
-        self._retail_panel.show()
-        self._retail_panel.raise_()
-        self._retail_panel.activateWindow()
-
-    def _refresh_retail_panel(self):
-        """Empuja los ultimos datos al panel, si esta abierto."""
-        if self._retail_panel is None:
-            return
-        try:
-            self._retail_panel.actualizar(self._retail_stats,
-                                          self._retail_report)
-        except Exception as e:
-            print(f"_refresh_retail_panel error: {e}")
 
     def _emit_alert(self, event_type: str, class_name: str, desc: str,
                     screenshot_path: str = ""):
@@ -1420,128 +1119,8 @@ class Render_box(QFrame):
             "screenshot_path": screenshot_path or "",
         })
 
-    def _check_stock_alerts(self):
-        """Emite alertas (sidebar) de operacion de tienda, cada una una sola
-        vez: anaquel vacio, caja obstruyendo el pasillo y empleado reponiendo.
 
-        Reutiliza el canal de alertas que ya existe, para que aparezcan junto
-        al resto de eventos y no haya que mirar el panel.
-        """
-        st = self._retail_stats or {}
 
-        def _foto_de(tipo, campo=None, valor=None):
-            """Foto de evidencia del evento reciente que coincida."""
-            for ev in reversed(st.get("eventos_recientes") or []):
-                if ev.get("evento") != tipo:
-                    continue
-                if campo is not None and ev.get(campo) != valor:
-                    continue
-                return ev.get("foto") or ""
-            return ""
-
-        # 1) Anaqueles agotados
-        vacios = set((st.get("anaqueles") or {}).get("anaqueles_vacios") or [])
-        for nombre in vacios - self._stock_avisados:
-            self._emit_alert("Anaquel vacio", "Reposicion",
-                             f"El anaquel '{nombre}' esta agotado y necesita "
-                             f"reposicion.",
-                             screenshot_path=_foto_de("anaquel_vacio",
-                                                      "anaquel", nombre))
-        self._stock_avisados = vacios
-
-        # 2) Cajas obstruyendo el pasillo (mucho tiempo en el piso)
-        cajas = (st.get("cajas") or {}).get("cajas_activas") or []
-        obstr = {c.get("caja_id") for c in cajas if c.get("obstruccion")}
-        for cid in obstr - self._box_avisados:
-            info = next((c for c in cajas if c.get("caja_id") == cid), {})
-            pas = info.get("pasillo") or "un pasillo"
-            self._emit_alert("Caja obstruyendo", "Obstruccion",
-                             f"Una caja lleva mucho tiempo en el piso de "
-                             f"{pas}. Revisar / retirar.",
-                             screenshot_path=_foto_de("caja_obstruccion",
-                                                      "caja_id", cid))
-        self._box_avisados = obstr
-
-        # 3) Reposicion de mercancia (una alerta por sesion). Solo dice
-        #    "empleado" si la persona esta VERIFICADA contra una foto de
-        #    personal subida (config/personal); sin foto es "persona".
-        rep = (st.get("reposicion") or {}).get("reposiciones_en_curso") or []
-        activos = {r.get("persistent_id") for r in rep}
-        for pid in activos - self._restock_avisados:
-            info = next((r for r in rep if r.get("persistent_id") == pid), {})
-            pas = info.get("pasillo") or "un pasillo"
-            anaqueles = ", ".join(info.get("anaqueles") or []) or "el anaquel"
-            foto_rep = _foto_de("reposicion_iniciada", "persistent_id", pid)
-            if info.get("empleado_verificado"):
-                quien = info.get("empleado_nombre") or "un empleado"
-                self._emit_alert(
-                    "Empleado reponiendo", "Reposicion",
-                    f"{quien} esta reponiendo mercancia en {pas} "
-                    f"({anaqueles}).", screenshot_path=foto_rep)
-            else:
-                self._emit_alert(
-                    "Reposicion de mercancia", "Reposicion",
-                    f"Una persona (sin foto de personal registrada) esta "
-                    f"reponiendo mercancia en {pas} ({anaqueles}).",
-                    screenshot_path=foto_rep)
-        self._restock_avisados = activos
-
-        # 4) Eventos puntuales del servidor (en 'eventos_recientes'): una
-        #    alerta por cada uno, con dedup por (pid, anaquel, timestamp).
-        for ev in st.get("eventos_recientes") or []:
-            tipo = ev.get("evento")
-            if tipo not in ("persona_evaluando", "cliente_agarra_producto"):
-                continue
-            clave = (tipo, ev.get("persistent_id"), ev.get("anaquel"),
-                     ev.get("timestamp"))
-            if clave in self._eval_avisados:
-                continue
-            self._eval_avisados.add(clave)
-            prod = ev.get("producto") or ev.get("anaquel") or "un producto"
-            foto = ev.get("foto") or ""
-            if tipo == "cliente_agarra_producto":
-                self._emit_alert(
-                    "Cliente agarra producto", "Agarre",
-                    f"Un cliente agarro un producto en '{prod}'.",
-                    screenshot_path=foto)
-            else:
-                det = "agarro el producto" if ev.get("agarro_producto") else (
-                    f"lleva {int(ev.get('segundos_frente', 0))}s frente al "
-                    f"estante")
-                self._emit_alert("Persona evaluando producto", "Evaluacion",
-                                 f"Cliente evaluando '{prod}' ({det}).",
-                                 screenshot_path=foto)
-        # Acotar el set de dedup para que no crezca sin limite.
-        if len(self._eval_avisados) > 400:
-            self._eval_avisados = set(list(self._eval_avisados)[-200:])
-
-    def _calibrate_shelves(self):
-        """Fija el 100% de llenado de los anaqueles -> POST /retail/calibrate."""
-        if QMessageBox.question(
-                self, "Calibrar anaqueles",
-                "Se tomara el frame actual como referencia de ESTANTE LLENO "
-                "para todos los anaqueles de esta camara.\n\n"
-                "Asegurate de que los estantes esten repuestos y de que NO "
-                "haya clientes delante tapandolos.\n\n¿Calibrar ahora?",
-                QMessageBox.Yes | QMessageBox.No) != QMessageBox.Yes:
-            return
-        self._retail_worker = _PostWorker(
-            self._http_base() + "/retail/calibrate",
-            {"camera_id": self._device_id()}, self)
-        self._retail_worker.done.connect(self._on_calibrate_result)
-        self._retail_worker.start()
-
-    @Slot(dict)
-    def _on_calibrate_result(self, data):
-        if data.get("status") == "ok":
-            QMessageBox.information(
-                self, "Calibrar anaqueles",
-                f"Calibrados {data.get('anaqueles_calibrados', 0)} anaqueles.\n"
-                "A partir de ahora ese es su nivel 100% de llenado.")
-        else:
-            QMessageBox.warning(
-                self, "Calibrar anaqueles",
-                f"No se pudo calibrar: {data.get('message', '?')}")
 
     def _select_vlm_model(self, key):
         """Cambia el modelo VLM del servidor (3b/7b) -> POST /vlm/model."""
@@ -1886,7 +1465,7 @@ class Render_box(QFrame):
             return
         self.current_pixmap = pixmap
         self.imagen_label.setPixmap(
-            self._paint_store_zones(pixmap).scaled(
+            pixmap.scaled(
                 self.imagen_label.size(), Qt.IgnoreAspectRatio,
                 Qt.SmoothTransformation))
 
@@ -2035,17 +1614,6 @@ class Render_box(QFrame):
                 return
             metadata  = message.get("data", {}).get("metadata", {})
             if metadata:
-                # ── Analitica de supermercado ──
-                # 'retail' viene en cada frame (resumen liviano);
-                # 'retail_report' solo cuando el servidor lo regenera
-                # (throttled) -> se conserva el ultimo recibido.
-                if "retail" in metadata:
-                    self._retail_stats = metadata.get("retail") or {}
-                    rep = metadata.get("retail_report")
-                    if rep:
-                        self._retail_report = rep
-                    self._refresh_retail_panel()
-                    self._check_stock_alerts()
 
                 list_alert = metadata.get("alerts", []) or []
                 for iteration in list_alert:

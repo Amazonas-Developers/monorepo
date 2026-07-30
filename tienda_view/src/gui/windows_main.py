@@ -170,9 +170,16 @@ class MainWindow(QMainWindow):
     # ── Socket ────────────────────────────────────────────────
 
     def socket_init(self, parameter):
-        # URL del servidor de IA: configurable por entorno/.env (server_ws_url),
-        # que el selector fija segun el servidor elegido. Fallback: .171 local.
-        self.socket.url            = os.getenv("server_ws_url", "ws://72.68.60.171:9000/ws")
+        # La URL sale de config/, no de un literal: antes la IP del servidor
+        # estaba escrita a mano aqui Y en window_bar.py, con el riesgo de que
+        # apuntaran a servidores distintos (regla 6 del refactor).
+        from config import cargar
+        ajustes = cargar()
+        self.socket.url            = ajustes.server_ws_url
+        # Contrato del HITO 3: el cliente DECLARA quien es y desde donde habla,
+        # en vez de que el servidor lo deduzca del modo de inferencia.
+        self.socket.client_type    = ajustes.client_type
+        self.socket.site_id        = ajustes.site_id
         self.socket.type_inference = parameter
         self.socket.conect_server()
         self.data_model_gui.set("last_inference", parameter)

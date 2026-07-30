@@ -89,11 +89,11 @@ class CustomTitleBar(QWidget):
         forced = (os.getenv("DASHBOARD_URL") or "").strip()
         if forced:
             return forced
-        ws = os.getenv("server_ws_url", "ws://72.68.60.171:9000/ws")
-        base = ws.replace("wss://", "https://").replace("ws://", "http://")
-        if "/ws" in base:
-            base = base.rsplit("/ws", 1)[0]
-        return (base or "http://127.0.0.1:9000").rstrip("/") + "/dashboard"
+        # La URL la calcula config/ a partir del MISMO `server_ws_url` que usa
+        # la conexion, asi que el boton no puede apuntar a un servidor distinto
+        # del que esta analizando — que es lo que pasaba con dos literales.
+        from config import cargar
+        return cargar().dashboard_url
 
     def open_dashboard(self):
         """Abre el dashboard de analitica de visitantes en el navegador."""

@@ -94,9 +94,24 @@ def desde_antiguo(mensaje: Dict[str, Any],
             if viejo in datos:
                 datos[nuevo] = datos.pop(viejo)
 
+        # Si el cliente YA declara quien es, se le cree. Deducirlo del pipeline
+        # (CLIENTE_POR_PIPELINE) solo es una aproximacion para los clientes que
+        # todavia no lo mandan: falla, por ejemplo, con un cliente multimodo
+        # que pida `Perimetrales`. A partir del HITO 5 tienda lo declara.
+        declarado = str(mensaje.get('client_type') or '').strip().lower()
+        try:
+            tipo = (ClientType(declarado) if declarado
+                    else CLIENTE_POR_PIPELINE.get(pipeline, ClientType.TIENDA))
+        except ValueError:
+            tipo = CLIENTE_POR_PIPELINE.get(pipeline, ClientType.TIENDA)
+
+        # Lo mismo con el sitio: el del cliente manda sobre el del servidor,
+        # porque un servidor puede atender varias sucursales a la vez.
+        sitio = str(mensaje.get('site_id') or '').strip() or site_id
+
         env = Envelope(
-            client_type=CLIENTE_POR_PIPELINE.get(pipeline, ClientType.TIENDA),
-            site_id=site_id,
+            client_type=tipo,
+            site_id=sitio,
             device_id=device,
             event_type=EventType.FRAME_INFERENCE,
             event_version=1,

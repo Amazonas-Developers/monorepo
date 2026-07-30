@@ -134,6 +134,15 @@ class Socket_services(QObject):
                 'component_key': component_key,
                 'data': frame_data
             }
+            # Campos del contrato (HITO 3). Se anaden SIN quitar nada, asi que
+            # el mensaje sigue siendo valido para el servidor antiguo y la capa
+            # de compatibilidad puede dejar de ADIVINAR quien habla: hasta
+            # ahora deducia el client_type a partir del pipeline, que es una
+            # aproximacion. Los clientes que aun no los fijen siguen igual.
+            if getattr(self, 'client_type', None):
+                data_to_send['client_type'] = self.client_type
+            if getattr(self, 'site_id', None):
+                data_to_send['site_id'] = self.site_id
 
             self.client.sendTextMessage(json.dumps(data_to_send))
         except Exception as e:
@@ -155,6 +164,15 @@ class Socket_services(QObject):
                 'component_key': component_key,
                 'data': frame_data
             }
+            # Campos del contrato (HITO 3). Se anaden SIN quitar nada, asi que
+            # el mensaje sigue siendo valido para el servidor antiguo y la capa
+            # de compatibilidad puede dejar de ADIVINAR quien habla: hasta
+            # ahora deducia el client_type a partir del pipeline, que es una
+            # aproximacion. Los clientes que aun no los fijen siguen igual.
+            if getattr(self, 'client_type', None):
+                data_to_send['client_type'] = self.client_type
+            if getattr(self, 'site_id', None):
+                data_to_send['site_id'] = self.site_id
          
             binary_data = msgpack.packb(data_to_send)
             self.client.sendBinaryMessage(binary_data)
