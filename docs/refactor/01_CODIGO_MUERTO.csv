@@ -1,0 +1,931 @@
+proyecto,ruta,elemento,clasificacion,referencias,justificacion
+tienda_view,src\__init__.py,[modulo] __init__,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+tienda_view,src\core\__init__.py,[modulo] core,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\core\api_client.py,[modulo] core.api_client,MUERTO,0,NO alcanzable y 0 modulos lo importan
+tienda_view,src\core\app_singleton.py,[modulo] core.app_singleton,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\core\capture_exaple.py,[modulo] core.capture_exaple,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+tienda_view,src\core\dvr\__init__.py,[modulo] core.dvr,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+tienda_view,src\core\dvr\base.py,[modulo] core.dvr.base,ACTIVO,6,alcanzable desde main; 6 modulo(s) lo importan
+tienda_view,src\core\dvr\context.py,[modulo] core.dvr.context,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+tienda_view,src\core\dvr\dahua_http.py,[modulo] core.dvr.dahua_http,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+tienda_view,src\core\dvr\dahua_sdk.py,[modulo] core.dvr.dahua_sdk,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+tienda_view,src\core\dvr\hikconnect.py,[modulo] core.dvr.hikconnect,ACTIVO,4,alcanzable desde main; 4 modulo(s) lo importan
+tienda_view,src\core\dvr\hikconnect_channel_encoder.py,[modulo] core.dvr.hikconnect_channel_encoder,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+tienda_view,src\core\dvr\hikvision_http.py,[modulo] core.dvr.hikvision_http,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+tienda_view,src\core\dvr\hikvision_sdk.py,[modulo] core.dvr.hikvision_sdk,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+tienda_view,src\core\locking_windows.py,[modulo] core.locking_windows,MUERTO,0,NO alcanzable y 0 modulos lo importan
+tienda_view,src\core\network\__init__.py,[modulo] core.network,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+tienda_view,src\core\network\api_client.py,[modulo] core.network.api_client,MUERTO,0,NO alcanzable y 0 modulos lo importan
+tienda_view,src\core\network\jarvis_api.py,[modulo] core.network.jarvis_api,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\core\network\socket_client.py,[modulo] core.network.socket_client,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\core\run_controller.py,[modulo] core.run_controller,MUERTO,0,NO alcanzable y 0 modulos lo importan
+tienda_view,src\core\state_global\__init__.py,[modulo] core.state_global,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+tienda_view,src\core\state_global\hwnd.py,[modulo] core.state_global.hwnd,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+tienda_view,src\core\window_capture.py,[modulo] core.window_capture,MUERTO,0,NO alcanzable y 0 modulos lo importan
+tienda_view,src\core\window_controller.py,[modulo] core.window_controller,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+tienda_view,src\core\window_global.py,[modulo] core.window_global,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+tienda_view,src\core\windows_detector.py,[modulo] core.windows_detector,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,get_and_test.py,[modulo] get_and_test,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+tienda_view,get_url.py,[modulo] get_url,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+tienda_view,src\gui\__init__.py,[modulo] gui,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+tienda_view,src\gui\components\__init__.py,[modulo] gui.components,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+tienda_view,src\gui\components\SplashScreen.py,[modulo] gui.components.SplashScreen,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\add_device_dialog.py,[modulo] gui.components.add_device_dialog,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: gui.components.device_list"
+tienda_view,src\gui\components\box_image.py,[modulo] gui.components.box_image,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\channel_row.py,[modulo] gui.components.channel_row,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\custom_status_bar.py,[modulo] gui.components.custom_status_bar,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\custon_btn\__init__.py,[modulo] gui.components.custon_btn,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+tienda_view,src\gui\components\custon_btn\btn_footer.py,[modulo] gui.components.custon_btn.btn_footer,ACTIVO,3,alcanzable desde main; 3 modulo(s) lo importan
+tienda_view,src\gui\components\custon_label\interactive_imageLabel.py,[modulo] gui.components.custon_label.interactive_imageLabel,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\device_list.py,[modulo] gui.components.device_list,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+tienda_view,src\gui\components\device_panel.py,[modulo] gui.components.device_panel,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\modal_msm.py,[modulo] gui.components.modal_msm,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+tienda_view,src\gui\components\planogram_editor.py,[modulo] gui.components.planogram_editor,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\render_box\render_box.py,[modulo] gui.components.render_box.render_box,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+tienda_view,src\gui\components\render_box\sv_overlay.py,[modulo] gui.components.render_box.sv_overlay,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\retail_panel.py,[modulo] gui.components.retail_panel,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\sidebar\alerts_sidebar.py,[modulo] gui.components.sidebar.alerts_sidebar,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\sidebar\dvr_tree.py,[modulo] gui.components.sidebar.dvr_tree,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\components\sidebar\sidebar_dock.py,[modulo] gui.components.sidebar.sidebar_dock,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+tienda_view,src\gui\components\title_bar\window_bar.py,[modulo] gui.components.title_bar.window_bar,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\gui\windows_main.py,[modulo] gui.windows_main,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\main.py,[modulo] main,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+tienda_view,src\model\__init__.py,[modulo] model,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+tienda_view,src\model\settings_model.py,[modulo] model.settings_model,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\model\windows\__init__.py,[modulo] model.windows,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+tienda_view,src\model\windows\list_windows.py,[modulo] model.windows.list_windows,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,test\test.py,[modulo] test.test,DUDOSO,0,NO alcanzable; es script/herramienta independiente (entrada propia)
+tienda_view,src\utils\files\print_png.py,[modulo] utils.files.print_png,MUERTO,0,NO alcanzable y 0 modulos lo importan
+tienda_view,src\workers\__init__.py,[modulo] workers,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+tienda_view,src\workers\capture_woker.py,[modulo] workers.capture_woker,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+tienda_view,src\workers\dvr_connect_worker.py,[modulo] workers.dvr_connect_worker,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\workers\rtsp_worker.py,[modulo] workers.rtsp_worker,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+tienda_view,src\main.py,[funcion] load_stylesheet:47,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\main.py,[funcion] main:60,ACTIVO,4,"usado en 4 modulo(s): core.app_singleton, core.window_global, workers.capture_woker"
+tienda_view,src\core\app_singleton.py,[clase] AppSingleton:11,ACTIVO,1,usado en 1 modulo(s): main
+tienda_view,src\core\capture_exaple.py,[funcion] capture_window_by_hwnd:17,ACTIVO,4,"usado en 4 modulo(s): core.window_capture, gui.components.box_image, gui.components.render_box.render_box"
+tienda_view,src\core\capture_exaple.py,[funcion] window_exists:101,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+tienda_view,src\core\capture_exaple.py,[funcion] get_title:111,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+tienda_view,src\core\capture_exaple.py,[funcion] pil_image_to_png_bytes:116,ACTIVO,3,"usado en 3 modulo(s): gui.components.box_image, gui.components.render_box.render_box, workers.capture_woker"
+tienda_view,src\core\locking_windows.py,[clase] WindowLocker:8,MUERTO,0,modulo no alcanzable y 0 referencias externas
+tienda_view,src\core\run_controller.py,[funcion] check_admin_privileges:6,MUERTO,0,modulo no alcanzable y 0 referencias externas
+tienda_view,src\core\windows_detector.py,[clase] WindowScannerThread:28,ACTIVO,1,usado en 1 modulo(s): core.window_global
+tienda_view,src\core\window_capture.py,[clase] WindowCapture:10,MUERTO,0,modulo no alcanzable y 0 referencias externas
+tienda_view,src\core\window_controller.py,[funcion] list_windows:22,ACTIVO,2,"usado en 2 modulo(s): main, gui.components.sidebar.sidebar_dock"
+tienda_view,src\core\window_controller.py,[funcion] activate_window:38,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+tienda_view,src\core\window_controller.py,[funcion] close_window:51,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+tienda_view,src\core\window_controller.py,[funcion] minimize_window:62,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+tienda_view,src\core\window_controller.py,[funcion] maximize_window:73,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+tienda_view,src\core\window_controller.py,[funcion] send_text_to_window:83,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+tienda_view,src\core\window_controller.py,[funcion] send_enter_to_window:92,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+tienda_view,src\core\window_controller.py,[funcion] send_text_and_enter:102,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+tienda_view,src\core\window_controller.py,[funcion] set_window_always_on_top:114,ACTIVO,3,"usado en 3 modulo(s): core.locking_windows, gui.components.box_image, gui.components.render_box.render_box"
+tienda_view,src\core\window_controller.py,[funcion] lock_window_position:184,ACTIVO,1,usado en 1 modulo(s): core.locking_windows
+tienda_view,src\core\window_global.py,[clase] Windows_monitor:12,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\core\dvr\base.py,[clase] ChannelInfo:11,ACTIVO,6,"usado en 6 modulo(s): core.dvr.dahua_http, core.dvr.dahua_sdk, core.dvr.hikconnect"
+tienda_view,src\core\dvr\base.py,[clase] DeviceInfo:35,ACTIVO,9,"usado en 9 modulo(s): core.dvr.context, core.dvr.dahua_http, core.dvr.dahua_sdk"
+tienda_view,src\core\dvr\base.py,[clase] DVRStrategy:62,ACTIVO,7,"usado en 7 modulo(s): core.dvr.context, core.dvr.dahua_http, core.dvr.dahua_sdk"
+tienda_view,src\core\dvr\context.py,[clase] DVRContext:34,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+tienda_view,src\core\dvr\dahua_http.py,[clase] DahuaHTTPStrategy:21,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+tienda_view,src\core\dvr\dahua_sdk.py,[clase] NET_DEVICEINFO_Ex:25,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\core\dvr\dahua_sdk.py,[clase] DHDEV_CHANNEL_CFG:44,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\core\dvr\dahua_sdk.py,[clase] DahuaSDKStrategy:56,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+tienda_view,src\core\dvr\hikconnect.py,[clase] HikConnectStrategy:39,ACTIVO,5,"usado en 5 modulo(s): get_and_test, get_url, core.dvr.context"
+tienda_view,src\core\dvr\hikconnect_channel_encoder.py,[clase] HikConnectChannelEncoder:14,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+tienda_view,src\core\dvr\hikconnect_channel_encoder.py,[clase] ChannelTypeDetector:107,ACTIVO,2,"usado en 2 modulo(s): gui.components.device_panel, gui.components.render_box.render_box"
+tienda_view,src\core\dvr\hikvision_http.py,[clase] HikvisionHTTPStrategy:26,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+tienda_view,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_DEVICEINFO_V30:26,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_USER_LOGIN_INFO:61,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_DEVICECFG_V40:82,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\core\dvr\hikvision_sdk.py,[clase] HikvisionSDKStrategy:114,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+tienda_view,src\core\network\jarvis_api.py,[clase] Jarvis_api:8,ACTIVO,1,usado en 1 modulo(s): main
+tienda_view,src\core\network\socket_client.py,[clase] Socket_services:8,ACTIVO,1,usado en 1 modulo(s): main
+tienda_view,src\core\state_global\hwnd.py,[clase] HwndState:5,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+tienda_view,src\gui\windows_main.py,[clase] MainWindow:23,ACTIVO,1,usado en 1 modulo(s): main
+tienda_view,src\gui\components\add_device_dialog.py,[clase] AddDeviceDialog:6,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+tienda_view,src\gui\components\box_image.py,[clase] Box_cap:11,ACTIVO,1,usado en 1 modulo(s): gui.components.sidebar.sidebar_dock
+tienda_view,src\gui\components\channel_row.py,[clase] ChannelRow:16,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+tienda_view,src\gui\components\custom_status_bar.py,[clase] CustomStatusBar:8,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+tienda_view,src\gui\components\device_list.py,[clase] ConnectionCheckThread:10,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\gui\components\device_list.py,[clase] DeviceListWidget:35,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\gui\components\device_panel.py,[clase] DevicePanel:92,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+tienda_view,src\gui\components\modal_msm.py,[clase] ModalDialog:9,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+tienda_view,src\gui\components\planogram_editor.py,[clase] PlanogramEditor:286,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+tienda_view,src\gui\components\retail_panel.py,[clase] RetailPanel:96,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+tienda_view,src\gui\components\SplashScreen.py,[clase] SplashScreen:8,ACTIVO,1,usado en 1 modulo(s): main
+tienda_view,src\gui\components\custon_btn\btn_footer.py,[clase] BtnIco:6,ACTIVO,3,"usado en 3 modulo(s): gui.windows_main, gui.components.custom_status_bar, gui.components.render_box.render_box"
+tienda_view,src\gui\components\custon_label\interactive_imageLabel.py,[clase] Interactive_imageLabel:11,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+tienda_view,src\gui\components\render_box\render_box.py,[clase] Render_box:130,ACTIVO,2,"usado en 2 modulo(s): main, gui.windows_main"
+tienda_view,src\gui\components\render_box\sv_overlay.py,[clase] SupervisionOverlay:33,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+tienda_view,src\gui\components\sidebar\alerts_sidebar.py,[clase] AlertItemWidget:65,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+tienda_view,src\gui\components\sidebar\alerts_sidebar.py,[clase] AlertsSidebar:359,ACTIVO,1,usado en 1 modulo(s): main
+tienda_view,src\gui\components\sidebar\dvr_tree.py,[clase] ChannelItem:20,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\gui\components\sidebar\dvr_tree.py,[clase] DVRGroupItem:104,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+tienda_view,src\gui\components\sidebar\dvr_tree.py,[clase] DVRTree:164,ACTIVO,2,"usado en 2 modulo(s): gui.windows_main, gui.components.sidebar.sidebar_dock"
+tienda_view,src\gui\components\sidebar\sidebar_dock.py,[clase] Sidebar_Dock:20,ACTIVO,2,"usado en 2 modulo(s): main, gui.windows_main"
+tienda_view,src\gui\components\title_bar\window_bar.py,[clase] CustomTitleBar:16,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+tienda_view,src\model\settings_model.py,[clase] SettingsModel:9,ACTIVO,2,"usado en 2 modulo(s): main, model"
+tienda_view,src\model\windows\list_windows.py,[funcion] open_windows_windows:10,ACTIVO,1,usado en 1 modulo(s): main
+tienda_view,src\utils\files\print_png.py,[funcion] buffer_to_png:5,MUERTO,0,modulo no alcanzable y 0 referencias externas
+tienda_view,src\workers\capture_woker.py,[funcion] capture_window_by_hwnd:40,DUDOSO,4,"modulo no alcanzable, pero el simbolo se cita en 4 modulo(s)"
+tienda_view,src\workers\capture_woker.py,[funcion] pil_image_to_png_bytes:101,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+tienda_view,src\workers\dvr_connect_worker.py,[clase] DVRConnectWorker:9,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+tienda_view,src\workers\rtsp_worker.py,[clase] RTSPWorker:14,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+tienda_view,test\test.py,[funcion] main:5,DUDOSO,4,"modulo no alcanzable, pero el simbolo se cita en 4 modulo(s)"
+perimetrales-view,src\__init__.py,[modulo] __init__,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,src\core\__init__.py,[modulo] core,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\core\app_singleton.py,[modulo] core.app_singleton,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\core\capture_exaple.py,[modulo] core.capture_exaple,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\core\capture_store.py,[modulo] core.capture_store,ACTIVO,3,alcanzable desde main; 3 modulo(s) lo importan
+perimetrales-view,src\core\dashboard_url.py,[modulo] core.dashboard_url,ACTIVO,3,alcanzable desde main; 3 modulo(s) lo importan
+perimetrales-view,src\core\dvr\__init__.py,[modulo] core.dvr,ACTIVO,3,alcanzable desde main; 3 modulo(s) lo importan
+perimetrales-view,src\core\dvr\base.py,[modulo] core.dvr.base,ACTIVO,7,alcanzable desde main; 7 modulo(s) lo importan
+perimetrales-view,src\core\dvr\context.py,[modulo] core.dvr.context,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,src\core\dvr\dahua_http.py,[modulo] core.dvr.dahua_http,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+perimetrales-view,src\core\dvr\dahua_sdk.py,[modulo] core.dvr.dahua_sdk,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+perimetrales-view,src\core\dvr\discovery.py,[modulo] core.dvr.discovery,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\core\dvr\ezviz.py,[modulo] core.dvr.ezviz,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\core\dvr\hikconnect.py,[modulo] core.dvr.hikconnect,ACTIVO,4,alcanzable desde main; 4 modulo(s) lo importan
+perimetrales-view,src\core\dvr\hikconnect_channel_encoder.py,[modulo] core.dvr.hikconnect_channel_encoder,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\core\dvr\hikvision_http.py,[modulo] core.dvr.hikvision_http,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+perimetrales-view,src\core\dvr\hikvision_sdk.py,[modulo] core.dvr.hikvision_sdk,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+perimetrales-view,src\core\network\__init__.py,[modulo] core.network,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+perimetrales-view,src\core\network\jarvis_alert_forwarder.py,[modulo] core.network.jarvis_alert_forwarder,ACTIVO,5,alcanzable desde main; 5 modulo(s) lo importan
+perimetrales-view,src\core\network\jarvis_api.py,[modulo] core.network.jarvis_api,ACTIVO,3,alcanzable desde main; 3 modulo(s) lo importan
+perimetrales-view,src\core\network\socket_client.py,[modulo] core.network.socket_client,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\core\state_global\__init__.py,[modulo] core.state_global,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+perimetrales-view,src\core\state_global\hwnd.py,[modulo] core.state_global.hwnd,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\core\window_controller.py,[modulo] core.window_controller,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\core\window_global.py,[modulo] core.window_global,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\core\windows_detector.py,[modulo] core.windows_detector,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,generar_icono_persona.py,[modulo] generar_icono_persona,MUERTO,0,NO alcanzable y 0 modulos lo importan
+perimetrales-view,get_and_test.py,[modulo] get_and_test,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,get_url.py,[modulo] get_url,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,src\gui\__init__.py,[modulo] gui,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+perimetrales-view,src\gui\components\__init__.py,[modulo] gui.components,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+perimetrales-view,src\gui\components\SplashScreen.py,[modulo] gui.components.SplashScreen,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\gui\components\box_image.py,[modulo] gui.components.box_image,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\gui\components\channel_row.py,[modulo] gui.components.channel_row,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\gui\components\custom_status_bar.py,[modulo] gui.components.custom_status_bar,ACTIVO,4,alcanzable desde main; 4 modulo(s) lo importan
+perimetrales-view,src\gui\components\custon_btn\__init__.py,[modulo] gui.components.custon_btn,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+perimetrales-view,src\gui\components\custon_btn\btn_footer.py,[modulo] gui.components.custon_btn.btn_footer,ACTIVO,3,alcanzable desde main; 3 modulo(s) lo importan
+perimetrales-view,src\gui\components\custon_label\interactive_imageLabel.py,[modulo] gui.components.custon_label.interactive_imageLabel,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\gui\components\device_panel.py,[modulo] gui.components.device_panel,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\gui\components\discovery_dialog.py,[modulo] gui.components.discovery_dialog,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\gui\components\render_box\render_box.py,[modulo] gui.components.render_box.render_box,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\gui\components\render_box\sv_overlay.py,[modulo] gui.components.render_box.sv_overlay,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\gui\components\sidebar\alerts_sidebar.py,[modulo] gui.components.sidebar.alerts_sidebar,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\gui\components\sidebar\dvr_tree.py,[modulo] gui.components.sidebar.dvr_tree,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\gui\components\sidebar\sidebar_dock.py,[modulo] gui.components.sidebar.sidebar_dock,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\gui\components\title_bar\window_bar.py,[modulo] gui.components.title_bar.window_bar,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\gui\styles\__init__.py,[modulo] gui.styles,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\gui\styles\tema.py,[modulo] gui.styles.tema,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+perimetrales-view,src\gui\windows_main.py,[modulo] gui.windows_main,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\main.py,[modulo] main,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+perimetrales-view,src\model\__init__.py,[modulo] model,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+perimetrales-view,src\model\settings_model.py,[modulo] model.settings_model,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\model\windows\__init__.py,[modulo] model.windows,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+perimetrales-view,src\model\windows\list_windows.py,[modulo] model.windows.list_windows,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,test\test.py,[modulo] test.test,DUDOSO,0,NO alcanzable; es script/herramienta independiente (entrada propia)
+perimetrales-view,test_alerta_con_nombre.py,[modulo] test_alerta_con_nombre,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,test_boton_dashboard.py,[modulo] test_boton_dashboard,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,test_capture_store.py,[modulo] test_capture_store,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,test_flujo_captura_sidebar.py,[modulo] test_flujo_captura_sidebar,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,test_jarvis_conexion.py,[modulo] test_jarvis_conexion,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,test_jarvis_forwarder.py,[modulo] test_jarvis_forwarder,DUDOSO,0,NO alcanzable; es script/herramienta independiente (entrada propia)
+perimetrales-view,test_selector_establecimiento.py,[modulo] test_selector_establecimiento,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,test_toggle_envio_jarvis.py,[modulo] test_toggle_envio_jarvis,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+perimetrales-view,src\workers\__init__.py,[modulo] workers,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+perimetrales-view,src\workers\capture_woker.py,[modulo] workers.capture_woker,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\workers\dvr_connect_worker.py,[modulo] workers.dvr_connect_worker,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,src\workers\rtsp_worker.py,[modulo] workers.rtsp_worker,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+perimetrales-view,generar_icono_persona.py,[funcion] main:19,DUDOSO,16,"modulo no alcanzable, pero el simbolo se cita en 16 modulo(s)"
+perimetrales-view,test_alerta_con_nombre.py,[funcion] main:43,DUDOSO,16,"modulo no alcanzable, pero el simbolo se cita en 16 modulo(s)"
+perimetrales-view,test_boton_dashboard.py,[funcion] main:32,DUDOSO,16,"modulo no alcanzable, pero el simbolo se cita en 16 modulo(s)"
+perimetrales-view,test_capture_store.py,[funcion] main:35,DUDOSO,16,"modulo no alcanzable, pero el simbolo se cita en 16 modulo(s)"
+perimetrales-view,test_flujo_captura_sidebar.py,[funcion] main:40,DUDOSO,16,"modulo no alcanzable, pero el simbolo se cita en 16 modulo(s)"
+perimetrales-view,test_jarvis_conexion.py,[funcion] main:28,DUDOSO,16,"modulo no alcanzable, pero el simbolo se cita en 16 modulo(s)"
+perimetrales-view,test_jarvis_forwarder.py,[funcion] main:44,DUDOSO,16,"modulo no alcanzable, pero el simbolo se cita en 16 modulo(s)"
+perimetrales-view,test_selector_establecimiento.py,[funcion] main:31,DUDOSO,16,"modulo no alcanzable, pero el simbolo se cita en 16 modulo(s)"
+perimetrales-view,test_toggle_envio_jarvis.py,[funcion] main:44,DUDOSO,16,"modulo no alcanzable, pero el simbolo se cita en 16 modulo(s)"
+perimetrales-view,src\main.py,[funcion] load_stylesheet:80,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\main.py,[funcion] main:93,ACTIVO,16,"usado en 16 modulo(s): generar_icono_persona, test_alerta_con_nombre, test_boton_dashboard"
+perimetrales-view,src\core\app_singleton.py,[clase] AppSingleton:11,ACTIVO,1,usado en 1 modulo(s): main
+perimetrales-view,src\core\capture_exaple.py,[funcion] capture_window_by_hwnd:17,ACTIVO,3,"usado en 3 modulo(s): gui.components.box_image, gui.components.render_box.render_box, workers.capture_woker"
+perimetrales-view,src\core\capture_exaple.py,[funcion] window_exists:101,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+perimetrales-view,src\core\capture_exaple.py,[funcion] get_title:111,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+perimetrales-view,src\core\capture_exaple.py,[funcion] pil_image_to_png_bytes:116,ACTIVO,3,"usado en 3 modulo(s): gui.components.box_image, gui.components.render_box.render_box, workers.capture_woker"
+perimetrales-view,src\core\capture_store.py,[funcion] carpeta_capturas:37,ACTIVO,1,usado en 1 modulo(s): test_capture_store
+perimetrales-view,src\core\capture_store.py,[funcion] clase_gruesa:52,ACTIVO,3,"usado en 3 modulo(s): test_flujo_captura_sidebar, gui.components.render_box.render_box, gui.components.sidebar.alerts_sidebar"
+perimetrales-view,src\core\capture_store.py,[funcion] guardar_captura:61,ACTIVO,3,"usado en 3 modulo(s): test_capture_store, test_flujo_captura_sidebar, gui.components.render_box.render_box"
+perimetrales-view,src\core\capture_store.py,[funcion] leer_meta:109,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\core\dashboard_url.py,[funcion] url_dashboard:24,ACTIVO,3,"usado en 3 modulo(s): test_alerta_con_nombre, test_boton_dashboard, gui.components.custom_status_bar"
+perimetrales-view,src\core\windows_detector.py,[clase] WindowScannerThread:28,ACTIVO,1,usado en 1 modulo(s): core.window_global
+perimetrales-view,src\core\window_controller.py,[funcion] list_windows:22,ACTIVO,2,"usado en 2 modulo(s): main, gui.components.sidebar.sidebar_dock"
+perimetrales-view,src\core\window_controller.py,[funcion] activate_window:38,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\core\window_controller.py,[funcion] close_window:51,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\core\window_controller.py,[funcion] minimize_window:62,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\core\window_controller.py,[funcion] maximize_window:73,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\core\window_controller.py,[funcion] send_text_to_window:83,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\core\window_controller.py,[funcion] send_enter_to_window:92,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\core\window_controller.py,[funcion] send_text_and_enter:102,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\core\window_controller.py,[funcion] set_window_always_on_top:114,ACTIVO,2,"usado en 2 modulo(s): gui.components.box_image, gui.components.render_box.render_box"
+perimetrales-view,src\core\window_controller.py,[funcion] lock_window_position:184,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\core\window_global.py,[clase] Windows_monitor:12,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\base.py,[clase] ChannelInfo:11,ACTIVO,7,"usado en 7 modulo(s): core.dvr.dahua_http, core.dvr.dahua_sdk, core.dvr.ezviz"
+perimetrales-view,src\core\dvr\base.py,[clase] DeviceInfo:35,ACTIVO,10,"usado en 10 modulo(s): core.dvr.context, core.dvr.dahua_http, core.dvr.dahua_sdk"
+perimetrales-view,src\core\dvr\base.py,[clase] DVRStrategy:62,ACTIVO,8,"usado en 8 modulo(s): core.dvr.context, core.dvr.dahua_http, core.dvr.dahua_sdk"
+perimetrales-view,src\core\dvr\context.py,[clase] DVRContext:35,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+perimetrales-view,src\core\dvr\dahua_http.py,[clase] DahuaHTTPStrategy:21,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+perimetrales-view,src\core\dvr\dahua_sdk.py,[clase] NET_DEVICEINFO_Ex:25,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\dahua_sdk.py,[clase] DHDEV_CHANNEL_CFG:44,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\dahua_sdk.py,[clase] DahuaSDKStrategy:56,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+perimetrales-view,src\core\dvr\discovery.py,[clase] DispositivoRed:61,ACTIVO,1,usado en 1 modulo(s): gui.components.discovery_dialog
+perimetrales-view,src\core\dvr\discovery.py,[funcion] ips_locales:122,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\discovery.py,[funcion] rango_de_ip:146,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\discovery.py,[funcion] sondear_sadp:179,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\discovery.py,[funcion] sondear_onvif:294,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\discovery.py,[funcion] barrer_rango:388,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\discovery.py,[funcion] descubrir:460,ACTIVO,1,usado en 1 modulo(s): gui.components.discovery_dialog
+perimetrales-view,src\core\dvr\ezviz.py,[clase] EzvizStrategy:87,ACTIVO,1,usado en 1 modulo(s): core.dvr.context
+perimetrales-view,src\core\dvr\hikconnect.py,[clase] HikConnectStrategy:39,ACTIVO,6,"usado en 6 modulo(s): get_and_test, get_url, core.dvr.context"
+perimetrales-view,src\core\dvr\hikconnect_channel_encoder.py,[clase] HikConnectChannelEncoder:14,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+perimetrales-view,src\core\dvr\hikconnect_channel_encoder.py,[clase] ChannelTypeDetector:107,ACTIVO,2,"usado en 2 modulo(s): gui.components.device_panel, gui.components.render_box.render_box"
+perimetrales-view,src\core\dvr\hikvision_http.py,[clase] HikvisionHTTPStrategy:26,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+perimetrales-view,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_DEVICEINFO_V30:26,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_USER_LOGIN_INFO:61,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_DEVICECFG_V40:82,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\core\dvr\hikvision_sdk.py,[clase] HikvisionSDKStrategy:114,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+perimetrales-view,src\core\network\jarvis_alert_forwarder.py,[clase] JarvisAlertForwarder:42,ACTIVO,5,"usado en 5 modulo(s): test_alerta_con_nombre, test_flujo_captura_sidebar, test_jarvis_forwarder"
+perimetrales-view,src\core\network\jarvis_api.py,[clase] Jarvis_api:8,ACTIVO,6,"usado en 6 modulo(s): test_jarvis_conexion, test_jarvis_forwarder, test_selector_establecimiento"
+perimetrales-view,src\core\network\socket_client.py,[clase] Socket_services:8,ACTIVO,1,usado en 1 modulo(s): main
+perimetrales-view,src\core\state_global\hwnd.py,[clase] HwndState:5,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\gui\windows_main.py,[clase] MainWindow:23,ACTIVO,1,usado en 1 modulo(s): main
+perimetrales-view,src\gui\components\box_image.py,[clase] Box_cap:11,ACTIVO,1,usado en 1 modulo(s): gui.components.sidebar.sidebar_dock
+perimetrales-view,src\gui\components\channel_row.py,[clase] ChannelRow:16,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+perimetrales-view,src\gui\components\custom_status_bar.py,[clase] CustomStatusBar:27,ACTIVO,4,"usado en 4 modulo(s): test_boton_dashboard, test_selector_establecimiento, test_toggle_envio_jarvis"
+perimetrales-view,src\gui\components\device_panel.py,[clase] DevicePanel:92,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+perimetrales-view,src\gui\components\discovery_dialog.py,[clase] DiscoveryDialog:51,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+perimetrales-view,src\gui\components\SplashScreen.py,[clase] SplashScreen:8,ACTIVO,1,usado en 1 modulo(s): main
+perimetrales-view,src\gui\components\custon_btn\btn_footer.py,[clase] BtnIco:6,ACTIVO,3,"usado en 3 modulo(s): gui.windows_main, gui.components.custom_status_bar, gui.components.render_box.render_box"
+perimetrales-view,src\gui\components\custon_label\interactive_imageLabel.py,[clase] Interactive_imageLabel:11,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+perimetrales-view,src\gui\components\render_box\render_box.py,[clase] Render_box:122,ACTIVO,2,"usado en 2 modulo(s): main, gui.windows_main"
+perimetrales-view,src\gui\components\render_box\sv_overlay.py,[clase] SupervisionOverlay:33,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+perimetrales-view,src\gui\components\sidebar\alerts_sidebar.py,[clase] AlertItemWidget:146,ACTIVO,1,usado en 1 modulo(s): test_flujo_captura_sidebar
+perimetrales-view,src\gui\components\sidebar\alerts_sidebar.py,[clase] AlertsSidebar:418,ACTIVO,3,"usado en 3 modulo(s): test_flujo_captura_sidebar, main, core.network.jarvis_alert_forwarder"
+perimetrales-view,src\gui\components\sidebar\dvr_tree.py,[clase] ChannelItem:20,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\gui\components\sidebar\dvr_tree.py,[clase] DVRGroupItem:104,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+perimetrales-view,src\gui\components\sidebar\dvr_tree.py,[clase] DVRTree:164,ACTIVO,2,"usado en 2 modulo(s): gui.windows_main, gui.components.sidebar.sidebar_dock"
+perimetrales-view,src\gui\components\sidebar\sidebar_dock.py,[clase] Sidebar_Dock:20,ACTIVO,2,"usado en 2 modulo(s): main, gui.windows_main"
+perimetrales-view,src\gui\components\title_bar\window_bar.py,[clase] CustomTitleBar:16,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+perimetrales-view,src\gui\styles\tema.py,[funcion] color_clase:68,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\gui\styles\tema.py,[funcion] color_evento:75,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+perimetrales-view,src\gui\styles\tema.py,[funcion] tarjeta:83,ACTIVO,5,"usado en 5 modulo(s): test_flujo_captura_sidebar, core.capture_store, core.network.jarvis_alert_forwarder"
+perimetrales-view,src\gui\styles\tema.py,[funcion] boton:94,ACTIVO,4,"usado en 4 modulo(s): gui.components.custom_status_bar, gui.components.custon_label.interactive_imageLabel, gui.components.render_box.render_box"
+perimetrales-view,src\model\settings_model.py,[clase] SettingsModel:9,ACTIVO,2,"usado en 2 modulo(s): main, model"
+perimetrales-view,src\model\windows\list_windows.py,[funcion] open_windows_windows:10,ACTIVO,1,usado en 1 modulo(s): main
+perimetrales-view,src\workers\capture_woker.py,[funcion] capture_window_by_hwnd:40,ACTIVO,3,"usado en 3 modulo(s): core.capture_exaple, gui.components.box_image, gui.components.render_box.render_box"
+perimetrales-view,src\workers\capture_woker.py,[funcion] pil_image_to_png_bytes:101,ACTIVO,3,"usado en 3 modulo(s): core.capture_exaple, gui.components.box_image, gui.components.render_box.render_box"
+perimetrales-view,src\workers\capture_woker.py,[funcion] ejecutar_worker:144,ACTIVO,1,usado en 1 modulo(s): main
+perimetrales-view,src\workers\dvr_connect_worker.py,[clase] DVRConnectWorker:9,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+perimetrales-view,src\workers\rtsp_worker.py,[clase] RTSPWorker:14,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+perimetrales-view,test\test.py,[funcion] main:5,DUDOSO,16,"modulo no alcanzable, pero el simbolo se cita en 16 modulo(s)"
+windows_managers_view,src\__init__.py,[modulo] __init__,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+windows_managers_view,src\core\__init__.py,[modulo] core,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\core\api_client.py,[modulo] core.api_client,MUERTO,0,NO alcanzable y 0 modulos lo importan
+windows_managers_view,src\core\app_singleton.py,[modulo] core.app_singleton,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\core\capture_exaple.py,[modulo] core.capture_exaple,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+windows_managers_view,src\core\dvr\__init__.py,[modulo] core.dvr,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+windows_managers_view,src\core\dvr\base.py,[modulo] core.dvr.base,ACTIVO,6,alcanzable desde main; 6 modulo(s) lo importan
+windows_managers_view,src\core\dvr\context.py,[modulo] core.dvr.context,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+windows_managers_view,src\core\dvr\dahua_http.py,[modulo] core.dvr.dahua_http,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+windows_managers_view,src\core\dvr\dahua_sdk.py,[modulo] core.dvr.dahua_sdk,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+windows_managers_view,src\core\dvr\hikconnect.py,[modulo] core.dvr.hikconnect,ACTIVO,4,alcanzable desde main; 4 modulo(s) lo importan
+windows_managers_view,src\core\dvr\hikconnect_channel_encoder.py,[modulo] core.dvr.hikconnect_channel_encoder,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+windows_managers_view,src\core\dvr\hikvision_http.py,[modulo] core.dvr.hikvision_http,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+windows_managers_view,src\core\dvr\hikvision_sdk.py,[modulo] core.dvr.hikvision_sdk,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+windows_managers_view,src\core\locking_windows.py,[modulo] core.locking_windows,MUERTO,0,NO alcanzable y 0 modulos lo importan
+windows_managers_view,src\core\network\__init__.py,[modulo] core.network,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+windows_managers_view,src\core\network\api_client.py,[modulo] core.network.api_client,MUERTO,0,NO alcanzable y 0 modulos lo importan
+windows_managers_view,src\core\network\jarvis_api.py,[modulo] core.network.jarvis_api,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\core\network\socket_client.py,[modulo] core.network.socket_client,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\core\run_controller.py,[modulo] core.run_controller,MUERTO,0,NO alcanzable y 0 modulos lo importan
+windows_managers_view,src\core\state_global\__init__.py,[modulo] core.state_global,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+windows_managers_view,src\core\state_global\hwnd.py,[modulo] core.state_global.hwnd,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+windows_managers_view,src\core\window_capture.py,[modulo] core.window_capture,MUERTO,0,NO alcanzable y 0 modulos lo importan
+windows_managers_view,src\core\window_controller.py,[modulo] core.window_controller,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+windows_managers_view,src\core\window_global.py,[modulo] core.window_global,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+windows_managers_view,src\core\windows_detector.py,[modulo] core.windows_detector,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,get_and_test.py,[modulo] get_and_test,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+windows_managers_view,get_url.py,[modulo] get_url,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+windows_managers_view,src\gui\__init__.py,[modulo] gui,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+windows_managers_view,src\gui\components\__init__.py,[modulo] gui.components,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+windows_managers_view,src\gui\components\SplashScreen.py,[modulo] gui.components.SplashScreen,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\gui\components\add_device_dialog.py,[modulo] gui.components.add_device_dialog,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: gui.components.device_list"
+windows_managers_view,src\gui\components\box_image.py,[modulo] gui.components.box_image,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\gui\components\channel_row.py,[modulo] gui.components.channel_row,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\gui\components\custom_status_bar.py,[modulo] gui.components.custom_status_bar,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\gui\components\custon_btn\__init__.py,[modulo] gui.components.custon_btn,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+windows_managers_view,src\gui\components\custon_btn\btn_footer.py,[modulo] gui.components.custon_btn.btn_footer,ACTIVO,3,alcanzable desde main; 3 modulo(s) lo importan
+windows_managers_view,src\gui\components\custon_label\interactive_imageLabel.py,[modulo] gui.components.custon_label.interactive_imageLabel,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\gui\components\device_list.py,[modulo] gui.components.device_list,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+windows_managers_view,src\gui\components\device_panel.py,[modulo] gui.components.device_panel,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\gui\components\modal_msm.py,[modulo] gui.components.modal_msm,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+windows_managers_view,src\gui\components\render_box\render_box.py,[modulo] gui.components.render_box.render_box,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+windows_managers_view,src\gui\components\render_box\sv_overlay.py,[modulo] gui.components.render_box.sv_overlay,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\gui\components\sidebar\alerts_sidebar.py,[modulo] gui.components.sidebar.alerts_sidebar,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\gui\components\sidebar\dvr_tree.py,[modulo] gui.components.sidebar.dvr_tree,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\gui\components\sidebar\sidebar_dock.py,[modulo] gui.components.sidebar.sidebar_dock,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+windows_managers_view,src\gui\components\title_bar\window_bar.py,[modulo] gui.components.title_bar.window_bar,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\gui\windows_main.py,[modulo] gui.windows_main,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\main.py,[modulo] main,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+windows_managers_view,src\model\__init__.py,[modulo] model,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+windows_managers_view,src\model\settings_model.py,[modulo] model.settings_model,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\model\windows\__init__.py,[modulo] model.windows,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+windows_managers_view,src\model\windows\list_windows.py,[modulo] model.windows.list_windows,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,test\test.py,[modulo] test.test,DUDOSO,0,NO alcanzable; es script/herramienta independiente (entrada propia)
+windows_managers_view,src\utils\files\print_png.py,[modulo] utils.files.print_png,MUERTO,0,NO alcanzable y 0 modulos lo importan
+windows_managers_view,src\workers\__init__.py,[modulo] workers,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+windows_managers_view,src\workers\capture_woker.py,[modulo] workers.capture_woker,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+windows_managers_view,src\workers\dvr_connect_worker.py,[modulo] workers.dvr_connect_worker,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\workers\rtsp_worker.py,[modulo] workers.rtsp_worker,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+windows_managers_view,src\main.py,[funcion] load_stylesheet:47,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\main.py,[funcion] main:60,ACTIVO,3,"usado en 3 modulo(s): core.app_singleton, workers.capture_woker, test.test"
+windows_managers_view,src\core\app_singleton.py,[clase] AppSingleton:11,ACTIVO,1,usado en 1 modulo(s): main
+windows_managers_view,src\core\capture_exaple.py,[funcion] capture_window_by_hwnd:17,ACTIVO,4,"usado en 4 modulo(s): core.window_capture, gui.components.box_image, gui.components.render_box.render_box"
+windows_managers_view,src\core\capture_exaple.py,[funcion] window_exists:101,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+windows_managers_view,src\core\capture_exaple.py,[funcion] get_title:111,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+windows_managers_view,src\core\capture_exaple.py,[funcion] pil_image_to_png_bytes:116,ACTIVO,3,"usado en 3 modulo(s): gui.components.box_image, gui.components.render_box.render_box, workers.capture_woker"
+windows_managers_view,src\core\locking_windows.py,[clase] WindowLocker:8,MUERTO,0,modulo no alcanzable y 0 referencias externas
+windows_managers_view,src\core\run_controller.py,[funcion] check_admin_privileges:6,MUERTO,0,modulo no alcanzable y 0 referencias externas
+windows_managers_view,src\core\windows_detector.py,[clase] WindowScannerThread:28,ACTIVO,1,usado en 1 modulo(s): core.window_global
+windows_managers_view,src\core\window_capture.py,[clase] WindowCapture:10,MUERTO,0,modulo no alcanzable y 0 referencias externas
+windows_managers_view,src\core\window_controller.py,[funcion] list_windows:22,ACTIVO,2,"usado en 2 modulo(s): main, gui.components.sidebar.sidebar_dock"
+windows_managers_view,src\core\window_controller.py,[funcion] activate_window:38,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+windows_managers_view,src\core\window_controller.py,[funcion] close_window:51,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+windows_managers_view,src\core\window_controller.py,[funcion] minimize_window:62,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+windows_managers_view,src\core\window_controller.py,[funcion] maximize_window:73,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+windows_managers_view,src\core\window_controller.py,[funcion] send_text_to_window:83,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+windows_managers_view,src\core\window_controller.py,[funcion] send_enter_to_window:92,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+windows_managers_view,src\core\window_controller.py,[funcion] send_text_and_enter:102,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+windows_managers_view,src\core\window_controller.py,[funcion] set_window_always_on_top:114,ACTIVO,3,"usado en 3 modulo(s): core.locking_windows, gui.components.box_image, gui.components.render_box.render_box"
+windows_managers_view,src\core\window_controller.py,[funcion] lock_window_position:184,ACTIVO,1,usado en 1 modulo(s): core.locking_windows
+windows_managers_view,src\core\window_global.py,[clase] Windows_monitor:12,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\core\dvr\base.py,[clase] ChannelInfo:11,ACTIVO,6,"usado en 6 modulo(s): core.dvr.dahua_http, core.dvr.dahua_sdk, core.dvr.hikconnect"
+windows_managers_view,src\core\dvr\base.py,[clase] DeviceInfo:35,ACTIVO,9,"usado en 9 modulo(s): core.dvr.context, core.dvr.dahua_http, core.dvr.dahua_sdk"
+windows_managers_view,src\core\dvr\base.py,[clase] DVRStrategy:62,ACTIVO,7,"usado en 7 modulo(s): core.dvr.context, core.dvr.dahua_http, core.dvr.dahua_sdk"
+windows_managers_view,src\core\dvr\context.py,[clase] DVRContext:34,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+windows_managers_view,src\core\dvr\dahua_http.py,[clase] DahuaHTTPStrategy:21,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+windows_managers_view,src\core\dvr\dahua_sdk.py,[clase] NET_DEVICEINFO_Ex:25,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\core\dvr\dahua_sdk.py,[clase] DHDEV_CHANNEL_CFG:44,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\core\dvr\dahua_sdk.py,[clase] DahuaSDKStrategy:56,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+windows_managers_view,src\core\dvr\hikconnect.py,[clase] HikConnectStrategy:39,ACTIVO,5,"usado en 5 modulo(s): get_and_test, get_url, core.dvr.context"
+windows_managers_view,src\core\dvr\hikconnect_channel_encoder.py,[clase] HikConnectChannelEncoder:14,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+windows_managers_view,src\core\dvr\hikconnect_channel_encoder.py,[clase] ChannelTypeDetector:107,ACTIVO,2,"usado en 2 modulo(s): gui.components.device_panel, gui.components.render_box.render_box"
+windows_managers_view,src\core\dvr\hikvision_http.py,[clase] HikvisionHTTPStrategy:26,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+windows_managers_view,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_DEVICEINFO_V30:26,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_USER_LOGIN_INFO:61,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_DEVICECFG_V40:82,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\core\dvr\hikvision_sdk.py,[clase] HikvisionSDKStrategy:114,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+windows_managers_view,src\core\network\jarvis_api.py,[clase] Jarvis_api:8,ACTIVO,1,usado en 1 modulo(s): main
+windows_managers_view,src\core\network\socket_client.py,[clase] Socket_services:8,ACTIVO,1,usado en 1 modulo(s): main
+windows_managers_view,src\core\state_global\hwnd.py,[clase] HwndState:5,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+windows_managers_view,src\gui\windows_main.py,[clase] MainWindow:23,ACTIVO,1,usado en 1 modulo(s): main
+windows_managers_view,src\gui\components\add_device_dialog.py,[clase] AddDeviceDialog:6,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+windows_managers_view,src\gui\components\box_image.py,[clase] Box_cap:11,ACTIVO,1,usado en 1 modulo(s): gui.components.sidebar.sidebar_dock
+windows_managers_view,src\gui\components\channel_row.py,[clase] ChannelRow:16,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+windows_managers_view,src\gui\components\custom_status_bar.py,[clase] CustomStatusBar:8,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+windows_managers_view,src\gui\components\device_list.py,[clase] ConnectionCheckThread:10,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\gui\components\device_list.py,[clase] DeviceListWidget:35,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\gui\components\device_panel.py,[clase] DevicePanel:92,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+windows_managers_view,src\gui\components\modal_msm.py,[clase] ModalDialog:9,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+windows_managers_view,src\gui\components\SplashScreen.py,[clase] SplashScreen:8,ACTIVO,1,usado en 1 modulo(s): main
+windows_managers_view,src\gui\components\custon_btn\btn_footer.py,[clase] BtnIco:6,ACTIVO,3,"usado en 3 modulo(s): gui.windows_main, gui.components.custom_status_bar, gui.components.render_box.render_box"
+windows_managers_view,src\gui\components\custon_label\interactive_imageLabel.py,[clase] Interactive_imageLabel:11,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+windows_managers_view,src\gui\components\render_box\render_box.py,[clase] Render_box:112,ACTIVO,2,"usado en 2 modulo(s): main, gui.windows_main"
+windows_managers_view,src\gui\components\render_box\sv_overlay.py,[clase] SupervisionOverlay:33,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+windows_managers_view,src\gui\components\sidebar\alerts_sidebar.py,[clase] AlertItemWidget:55,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+windows_managers_view,src\gui\components\sidebar\alerts_sidebar.py,[clase] AlertsSidebar:310,ACTIVO,1,usado en 1 modulo(s): main
+windows_managers_view,src\gui\components\sidebar\dvr_tree.py,[clase] ChannelItem:20,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\gui\components\sidebar\dvr_tree.py,[clase] DVRGroupItem:104,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+windows_managers_view,src\gui\components\sidebar\dvr_tree.py,[clase] DVRTree:164,ACTIVO,2,"usado en 2 modulo(s): gui.windows_main, gui.components.sidebar.sidebar_dock"
+windows_managers_view,src\gui\components\sidebar\sidebar_dock.py,[clase] Sidebar_Dock:20,ACTIVO,2,"usado en 2 modulo(s): main, gui.windows_main"
+windows_managers_view,src\gui\components\title_bar\window_bar.py,[clase] CustomTitleBar:16,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+windows_managers_view,src\model\settings_model.py,[clase] SettingsModel:9,ACTIVO,2,"usado en 2 modulo(s): main, model"
+windows_managers_view,src\model\windows\list_windows.py,[funcion] open_windows_windows:10,ACTIVO,1,usado en 1 modulo(s): main
+windows_managers_view,src\utils\files\print_png.py,[funcion] buffer_to_png:5,MUERTO,0,modulo no alcanzable y 0 referencias externas
+windows_managers_view,src\workers\capture_woker.py,[funcion] capture_window_by_hwnd:40,DUDOSO,4,"modulo no alcanzable, pero el simbolo se cita en 4 modulo(s)"
+windows_managers_view,src\workers\capture_woker.py,[funcion] pil_image_to_png_bytes:101,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+windows_managers_view,src\workers\dvr_connect_worker.py,[clase] DVRConnectWorker:9,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+windows_managers_view,src\workers\rtsp_worker.py,[clase] RTSPWorker:14,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+windows_managers_view,test\test.py,[funcion] main:5,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+Amazonas View,src\__init__.py,[modulo] __init__,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+Amazonas View,src\core\__init__.py,[modulo] core,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\core\app_singleton.py,[modulo] core.app_singleton,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\core\capture_exaple.py,[modulo] core.capture_exaple,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+Amazonas View,src\core\dvr\__init__.py,[modulo] core.dvr,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+Amazonas View,src\core\dvr\base.py,[modulo] core.dvr.base,DUDOSO,6,"NO alcanzable, pero 6 modulo(s) lo importan: core.dvr.context, core.dvr.dahua_http, core.dvr.dahua_sdk"
+Amazonas View,src\core\dvr\context.py,[modulo] core.dvr.context,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+Amazonas View,src\core\dvr\dahua_http.py,[modulo] core.dvr.dahua_http,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+Amazonas View,src\core\dvr\dahua_sdk.py,[modulo] core.dvr.dahua_sdk,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+Amazonas View,src\core\dvr\hikconnect.py,[modulo] core.dvr.hikconnect,DUDOSO,3,"NO alcanzable, pero 3 modulo(s) lo importan: get_and_test, get_url, core.dvr.context"
+Amazonas View,src\core\dvr\hikconnect_channel_encoder.py,[modulo] core.dvr.hikconnect_channel_encoder,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+Amazonas View,src\core\dvr\hikvision_http.py,[modulo] core.dvr.hikvision_http,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+Amazonas View,src\core\dvr\hikvision_sdk.py,[modulo] core.dvr.hikvision_sdk,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: core.dvr.context"
+Amazonas View,src\core\network\__init__.py,[modulo] core.network,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+Amazonas View,src\core\network\jarvis_api.py,[modulo] core.network.jarvis_api,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\core\network\socket_client.py,[modulo] core.network.socket_client,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\core\state_global\__init__.py,[modulo] core.state_global,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+Amazonas View,src\core\state_global\hwnd.py,[modulo] core.state_global.hwnd,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+Amazonas View,src\core\window_controller.py,[modulo] core.window_controller,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+Amazonas View,src\core\window_global.py,[modulo] core.window_global,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+Amazonas View,src\core\windows_detector.py,[modulo] core.windows_detector,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,get_and_test.py,[modulo] get_and_test,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+Amazonas View,get_url.py,[modulo] get_url,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+Amazonas View,src\gui\__init__.py,[modulo] gui,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+Amazonas View,src\gui\components\__init__.py,[modulo] gui.components,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+Amazonas View,src\gui\components\SplashScreen.py,[modulo] gui.components.SplashScreen,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\gui\components\add_device_dialog.py,[modulo] gui.components.add_device_dialog,MUERTO,0,NO alcanzable y 0 modulos lo importan
+Amazonas View,src\gui\components\box_image.py,[modulo] gui.components.box_image,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\gui\components\captures_panel.py,[modulo] gui.components.captures_panel,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\gui\components\channel_row.py,[modulo] gui.components.channel_row,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\gui\components\custom_status_bar.py,[modulo] gui.components.custom_status_bar,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\gui\components\custon_btn\__init__.py,[modulo] gui.components.custon_btn,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+Amazonas View,src\gui\components\custon_btn\btn_footer.py,[modulo] gui.components.custon_btn.btn_footer,ACTIVO,3,alcanzable desde main; 3 modulo(s) lo importan
+Amazonas View,src\gui\components\custon_label\interactive_imageLabel.py,[modulo] gui.components.custon_label.interactive_imageLabel,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\gui\components\device_panel.py,[modulo] gui.components.device_panel,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\gui\components\render_box\render_box.py,[modulo] gui.components.render_box.render_box,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\gui\components\sidebar\capturas_sidebar.py,[modulo] gui.components.sidebar.capturas_sidebar,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+Amazonas View,src\gui\components\sidebar\dvr_tree.py,[modulo] gui.components.sidebar.dvr_tree,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\gui\components\sidebar\sidebar_dock.py,[modulo] gui.components.sidebar.sidebar_dock,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+Amazonas View,src\gui\components\title_bar\window_bar.py,[modulo] gui.components.title_bar.window_bar,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\gui\styles\tema.py,[modulo] gui.styles.tema,ACTIVO,2,alcanzable desde main; 2 modulo(s) lo importan
+Amazonas View,src\gui\windows_main.py,[modulo] gui.windows_main,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\main.py,[modulo] main,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+Amazonas View,src\model\__init__.py,[modulo] model,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+Amazonas View,src\model\settings_model.py,[modulo] model.settings_model,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\model\windows\__init__.py,[modulo] model.windows,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+Amazonas View,src\model\windows\list_windows.py,[modulo] model.windows.list_windows,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,test\test.py,[modulo] test.test,DUDOSO,0,NO alcanzable; es script/herramienta independiente (entrada propia)
+Amazonas View,src\workers\__init__.py,[modulo] workers,ACTIVO,0,alcanzable desde main; 0 modulo(s) lo importan
+Amazonas View,src\workers\capture_woker.py,[modulo] workers.capture_woker,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+Amazonas View,src\workers\dvr_connect_worker.py,[modulo] workers.dvr_connect_worker,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\workers\rtsp_worker.py,[modulo] workers.rtsp_worker,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\workers\video_worker.py,[modulo] workers.video_worker,ACTIVO,1,alcanzable desde main; 1 modulo(s) lo importan
+Amazonas View,src\main.py,[funcion] load_stylesheet:30,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+Amazonas View,src\main.py,[funcion] main:43,ACTIVO,3,"usado en 3 modulo(s): core.app_singleton, workers.capture_woker, test.test"
+Amazonas View,src\core\app_singleton.py,[clase] AppSingleton:11,ACTIVO,1,usado en 1 modulo(s): main
+Amazonas View,src\core\capture_exaple.py,[funcion] capture_window_by_hwnd:17,ACTIVO,3,"usado en 3 modulo(s): gui.components.box_image, gui.components.render_box.render_box, workers.capture_woker"
+Amazonas View,src\core\capture_exaple.py,[funcion] window_exists:101,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+Amazonas View,src\core\capture_exaple.py,[funcion] get_title:111,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+Amazonas View,src\core\capture_exaple.py,[funcion] pil_image_to_png_bytes:116,ACTIVO,3,"usado en 3 modulo(s): gui.components.box_image, gui.components.render_box.render_box, workers.capture_woker"
+Amazonas View,src\core\windows_detector.py,[clase] WindowScannerThread:28,ACTIVO,1,usado en 1 modulo(s): core.window_global
+Amazonas View,src\core\window_controller.py,[funcion] list_windows:22,ACTIVO,2,"usado en 2 modulo(s): main, gui.components.sidebar.sidebar_dock"
+Amazonas View,src\core\window_controller.py,[funcion] activate_window:38,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+Amazonas View,src\core\window_controller.py,[funcion] close_window:51,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+Amazonas View,src\core\window_controller.py,[funcion] minimize_window:62,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+Amazonas View,src\core\window_controller.py,[funcion] maximize_window:73,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+Amazonas View,src\core\window_controller.py,[funcion] send_text_to_window:83,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+Amazonas View,src\core\window_controller.py,[funcion] send_enter_to_window:92,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+Amazonas View,src\core\window_controller.py,[funcion] send_text_and_enter:102,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+Amazonas View,src\core\window_controller.py,[funcion] set_window_always_on_top:114,ACTIVO,2,"usado en 2 modulo(s): gui.components.box_image, gui.components.render_box.render_box"
+Amazonas View,src\core\window_controller.py,[funcion] lock_window_position:184,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+Amazonas View,src\core\window_global.py,[clase] Windows_monitor:12,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+Amazonas View,src\core\dvr\base.py,[clase] ChannelInfo:11,DUDOSO,6,"modulo no alcanzable, pero el simbolo se cita en 6 modulo(s)"
+Amazonas View,src\core\dvr\base.py,[clase] DeviceInfo:31,DUDOSO,9,"modulo no alcanzable, pero el simbolo se cita en 9 modulo(s)"
+Amazonas View,src\core\dvr\base.py,[clase] DVRStrategy:58,DUDOSO,7,"modulo no alcanzable, pero el simbolo se cita en 7 modulo(s)"
+Amazonas View,src\core\dvr\context.py,[clase] DVRContext:34,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+Amazonas View,src\core\dvr\dahua_http.py,[clase] DahuaHTTPStrategy:21,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+Amazonas View,src\core\dvr\dahua_sdk.py,[clase] NET_DEVICEINFO_Ex:25,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+Amazonas View,src\core\dvr\dahua_sdk.py,[clase] DHDEV_CHANNEL_CFG:44,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+Amazonas View,src\core\dvr\dahua_sdk.py,[clase] DahuaSDKStrategy:56,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+Amazonas View,src\core\dvr\hikconnect.py,[clase] HikConnectStrategy:31,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+Amazonas View,src\core\dvr\hikconnect_channel_encoder.py,[clase] HikConnectChannelEncoder:14,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+Amazonas View,src\core\dvr\hikconnect_channel_encoder.py,[clase] ChannelTypeDetector:101,ACTIVO,2,"usado en 2 modulo(s): gui.components.device_panel, gui.components.render_box.render_box"
+Amazonas View,src\core\dvr\hikvision_http.py,[clase] HikvisionHTTPStrategy:26,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+Amazonas View,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_DEVICEINFO_V30:26,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+Amazonas View,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_USER_LOGIN_INFO:61,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+Amazonas View,src\core\dvr\hikvision_sdk.py,[clase] NET_DVR_DEVICECFG_V40:82,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+Amazonas View,src\core\dvr\hikvision_sdk.py,[clase] HikvisionSDKStrategy:114,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+Amazonas View,src\core\network\jarvis_api.py,[clase] Jarvis_api:8,ACTIVO,1,usado en 1 modulo(s): main
+Amazonas View,src\core\network\socket_client.py,[clase] Socket_services:8,ACTIVO,1,usado en 1 modulo(s): main
+Amazonas View,src\core\state_global\hwnd.py,[clase] HwndState:5,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+Amazonas View,src\gui\windows_main.py,[clase] MainWindow:26,ACTIVO,1,usado en 1 modulo(s): main
+Amazonas View,src\gui\components\add_device_dialog.py,[clase] AddDeviceDialog:6,MUERTO,0,modulo no alcanzable y 0 referencias externas
+Amazonas View,src\gui\components\box_image.py,[clase] Box_cap:11,ACTIVO,1,usado en 1 modulo(s): gui.components.sidebar.sidebar_dock
+Amazonas View,src\gui\components\captures_panel.py,[clase] CapturesPanel:143,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+Amazonas View,src\gui\components\channel_row.py,[clase] ChannelRow:16,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+Amazonas View,src\gui\components\custom_status_bar.py,[clase] CustomStatusBar:8,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+Amazonas View,src\gui\components\device_panel.py,[clase] DevicePanel:92,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+Amazonas View,src\gui\components\SplashScreen.py,[clase] SplashScreen:8,ACTIVO,1,usado en 1 modulo(s): main
+Amazonas View,src\gui\components\custon_btn\btn_footer.py,[clase] BtnIco:6,ACTIVO,3,"usado en 3 modulo(s): gui.windows_main, gui.components.custom_status_bar, gui.components.render_box.render_box"
+Amazonas View,src\gui\components\custon_label\interactive_imageLabel.py,[clase] Interactive_imageLabel:14,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+Amazonas View,src\gui\components\render_box\render_box.py,[clase] Render_box:122,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+Amazonas View,src\gui\components\sidebar\capturas_sidebar.py,[clase] CapturasSidebar:170,ACTIVO,2,"usado en 2 modulo(s): main, gui.components.captures_panel"
+Amazonas View,src\gui\components\sidebar\dvr_tree.py,[clase] ChannelItem:20,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+Amazonas View,src\gui\components\sidebar\dvr_tree.py,[clase] DVRGroupItem:91,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+Amazonas View,src\gui\components\sidebar\dvr_tree.py,[clase] DVRTree:151,ACTIVO,2,"usado en 2 modulo(s): gui.windows_main, gui.components.sidebar.sidebar_dock"
+Amazonas View,src\gui\components\sidebar\sidebar_dock.py,[clase] Sidebar_Dock:20,ACTIVO,2,"usado en 2 modulo(s): main, gui.windows_main"
+Amazonas View,src\gui\components\title_bar\window_bar.py,[clase] CustomTitleBar:16,ACTIVO,1,usado en 1 modulo(s): gui.windows_main
+Amazonas View,src\gui\styles\tema.py,[funcion] color_genero:58,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+Amazonas View,src\gui\styles\tema.py,[funcion] tarjeta:64,ACTIVO,2,"usado en 2 modulo(s): gui.components.captures_panel, gui.components.sidebar.capturas_sidebar"
+Amazonas View,src\gui\styles\tema.py,[funcion] boton:75,ACTIVO,4,"usado en 4 modulo(s): gui.components.captures_panel, gui.components.custon_label.interactive_imageLabel, gui.components.render_box.render_box"
+Amazonas View,src\model\settings_model.py,[clase] SettingsModel:9,ACTIVO,2,"usado en 2 modulo(s): main, model"
+Amazonas View,src\model\windows\list_windows.py,[funcion] open_windows_windows:10,ACTIVO,1,usado en 1 modulo(s): main
+Amazonas View,src\workers\capture_woker.py,[funcion] capture_window_by_hwnd:28,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+Amazonas View,src\workers\capture_woker.py,[funcion] pil_image_to_png_bytes:89,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+Amazonas View,src\workers\dvr_connect_worker.py,[clase] DVRConnectWorker:9,ACTIVO,1,usado en 1 modulo(s): gui.components.device_panel
+Amazonas View,src\workers\rtsp_worker.py,[clase] RTSPWorker:14,ACTIVO,2,"usado en 2 modulo(s): gui.components.render_box.render_box, workers.video_worker"
+Amazonas View,src\workers\video_worker.py,[funcion] es_archivo_de_video:43,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+Amazonas View,src\workers\video_worker.py,[clase] VideoFileWorker:49,ACTIVO,1,usado en 1 modulo(s): gui.components.render_box.render_box
+Amazonas View,test\test.py,[funcion] main:5,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+SERVER-IA PERIMETRALES,src\__init__.py,[modulo] __init__,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,src\analityc\__init__.py,[modulo] analityc,ACTIVO,0,alcanzable desde iniciar_servidor_headless; 0 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\config\__init__.py,[modulo] analityc.config,ACTIVO,0,alcanzable desde iniciar_servidor_headless; 0 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\config\config.py,[modulo] analityc.config.config,ACTIVO,6,alcanzable desde iniciar_servidor_headless; 6 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\__init__.py,[modulo] analityc.core,ACTIVO,9,alcanzable desde iniciar_servidor_headless; 9 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\Hummus.py,[modulo] analityc.core.Hummus,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\Misters.py,[modulo] analityc.core.Misters,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\__init__.py,[modulo] analityc.core.analytics,ACTIVO,3,alcanzable desde iniciar_servidor_headless; 3 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\agregador_demografico.py,[modulo] analityc.core.analytics.agregador_demografico,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: scripts.test_agregador"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\analizador_pendientes.py,[modulo] analityc.core.analytics.analizador_pendientes,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\body_reidentifier.py,[modulo] analityc.core.analytics.body_reidentifier,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\config.py,[modulo] analityc.core.analytics.config,ACTIVO,14,alcanzable desde iniciar_servidor_headless; 14 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\demographics.py,[modulo] analityc.core.analytics.demographics,ACTIVO,6,alcanzable desde iniciar_servidor_headless; 6 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\estimador_edad_genero.py,[modulo] analityc.core.analytics.estimador_edad_genero,ACTIVO,6,alcanzable desde iniciar_servidor_headless; 6 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\face_reidentifier.py,[modulo] analityc.core.analytics.face_reidentifier,ACTIVO,3,alcanzable desde iniciar_servidor_headless; 3 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\heatmap.py,[modulo] analityc.core.analytics.heatmap,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\__init__.py,[modulo] analityc.core.analytics.mivolo_vendor,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\cross_bottleneck_attn.py,[modulo] analityc.core.analytics.mivolo_vendor.cross_bottleneck_attn,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: analityc.core.analytics.mivolo_vendor.mivolo_model"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[modulo] analityc.core.analytics.mivolo_vendor.mivolo_model,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\people_counter.py,[modulo] analityc.core.analytics.people_counter,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\telemetria_demografica.py,[modulo] analityc.core.analytics.telemetria_demografica,ACTIVO,2,alcanzable desde iniciar_servidor_headless; 2 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\verificador_vlm.py,[modulo] analityc.core.analytics.verificador_vlm,ACTIVO,3,alcanzable desde iniciar_servidor_headless; 3 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\base_perimeter.py,[modulo] analityc.core.base_perimeter,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\botsort_wrapper.py,[modulo] analityc.core.botsort_wrapper,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\car_washed.py,[modulo] analityc.core.car_washed,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\class_base.py,[modulo] analityc.core.class_base,MUERTO,0,NO alcanzable y 0 modulos lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\hardware_available.py,[modulo] analityc.core.hardware_available,ACTIVO,2,alcanzable desde iniciar_servidor_headless; 2 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\multimodal_router.py,[modulo] analityc.core.multimodal_router,ACTIVO,5,alcanzable desde iniciar_servidor_headless; 5 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\person_amazona_inference.py,[modulo] analityc.core.person_amazona_inference,ACTIVO,8,alcanzable desde iniciar_servidor_headless; 8 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\puente_vigilante.py,[modulo] analityc.core.puente_vigilante,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,src\analityc\core\utils\__init__.py,[modulo] analityc.core.utils,ACTIVO,0,alcanzable desde iniciar_servidor_headless; 0 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\utils\logger.py,[modulo] analityc.core.utils.logger,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\analityc\core\utils\overlay.py,[modulo] analityc.core.utils.overlay,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\app\__init__.py,[modulo] app,ACTIVO,0,alcanzable desde iniciar_servidor_headless; 0 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\app\app.py,[modulo] app.app,ACTIVO,3,alcanzable desde iniciar_servidor_headless; 3 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\app\core\__init__.py,[modulo] app.core,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[modulo] app.dashboard,ACTIVO,2,alcanzable desde iniciar_servidor_headless; 2 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\app\dashboard_tienda.py,[modulo] app.dashboard_tienda,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\app\server.py,[modulo] app.server,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: main"
+SERVER-IA PERIMETRALES,demo.py,[modulo] demo,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,src\gui\__init__.py,[modulo] gui,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,src\gui\q_application.py,[modulo] gui.q_application,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: main"
+SERVER-IA PERIMETRALES,src\gui\window_main.py,[modulo] gui.window_main,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: main"
+SERVER-IA PERIMETRALES,iniciar_servidor_headless.py,[modulo] iniciar_servidor_headless,ACTIVO,0,alcanzable desde iniciar_servidor_headless; 0 modulo(s) lo importan
+SERVER-IA PERIMETRALES,src\libs\files_save.py,[modulo] libs.files_save,MUERTO,0,NO alcanzable y 0 modulos lo importan
+SERVER-IA PERIMETRALES,main.py,[modulo] main,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\banco_offline.py,[modulo] scripts.banco_offline,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\benchmark_demografia.py,[modulo] scripts.benchmark_demografia,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\comparar_vlm.py,[modulo] scripts.comparar_vlm,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\convertir_mivolo_onnx.py,[modulo] scripts.convertir_mivolo_onnx,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\evaluar_etiquetado.py,[modulo] scripts.evaluar_etiquetado,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\preparar_etiquetado.py,[modulo] scripts.preparar_etiquetado,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\resumen_telemetria.py,[modulo] scripts.resumen_telemetria,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\setup_buffalo_l_genderage.py,[modulo] scripts.setup_buffalo_l_genderage,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\setup_face_embedding.py,[modulo] scripts.setup_face_embedding,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[modulo] scripts.setup_mivolo,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\setup_modelos.py,[modulo] scripts.setup_modelos,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\test_agregador.py,[modulo] scripts.test_agregador,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\test_delete_sync.py,[modulo] scripts.test_delete_sync,DUDOSO,0,NO alcanzable; es script/herramienta independiente (entrada propia)
+SERVER-IA PERIMETRALES,scripts\test_demographics_diagnostico.py,[modulo] scripts.test_demographics_diagnostico,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\test_reidentification.py,[modulo] scripts.test_reidentification,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\test_verificador_vlm.py,[modulo] scripts.test_verificador_vlm,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,scripts\verificar_entorno.py,[modulo] scripts.verificar_entorno,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,tools\bench_qwen_vlm.py,[modulo] tools.bench_qwen_vlm,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,tools\benchmark.py,[modulo] tools.benchmark,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,tools\eval_demografia.py,[modulo] tools.eval_demografia,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,tools\multicam_grid_test.py,[modulo] tools.multicam_grid_test,DUDOSO,0,NO alcanzable; es script/herramienta independiente (entrada propia)
+SERVER-IA PERIMETRALES,tools\multicam_test.py,[modulo] tools.multicam_test,DUDOSO,0,NO alcanzable; es script/herramienta independiente (entrada propia)
+SERVER-IA PERIMETRALES,tools\send_test_ws.py,[modulo] tools.send_test_ws,DUDOSO,0,NO alcanzable; es script/herramienta independiente (entrada propia)
+SERVER-IA PERIMETRALES,vigilante_amazonas\__init__.py,[modulo] vigilante_amazonas,ACTIVO,26,alcanzable desde iniciar_servidor_headless; 26 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\adaptador_websocket.py,[modulo] vigilante_amazonas.adaptador_websocket,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\captura\__init__.py,[modulo] vigilante_amazonas.captura,ACTIVO,0,alcanzable desde iniciar_servidor_headless; 0 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\captura\fuente_rtsp.py,[modulo] vigilante_amazonas.captura.fuente_rtsp,ACTIVO,7,alcanzable desde iniciar_servidor_headless; 7 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\config.py,[modulo] vigilante_amazonas.config,ACTIVO,26,alcanzable desde iniciar_servidor_headless; 26 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\__init__.py,[modulo] vigilante_amazonas.deteccion,ACTIVO,0,alcanzable desde iniciar_servidor_headless; 0 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\clasificador_vehiculos.py,[modulo] vigilante_amazonas.deteccion.clasificador_vehiculos,ACTIVO,2,alcanzable desde iniciar_servidor_headless; 2 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\detector.py,[modulo] vigilante_amazonas.deteccion.detector,ACTIVO,3,alcanzable desde iniciar_servidor_headless; 3 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\mapeo_clases.py,[modulo] vigilante_amazonas.deteccion.mapeo_clases,ACTIVO,4,alcanzable desde iniciar_servidor_headless; 4 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\motor.py,[modulo] vigilante_amazonas.deteccion.motor,ACTIVO,2,alcanzable desde iniciar_servidor_headless; 2 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\rastreador.py,[modulo] vigilante_amazonas.deteccion.rastreador,ACTIVO,8,alcanzable desde iniciar_servidor_headless; 8 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\ejemplo_cliente\consumo_alertas.py,[modulo] vigilante_amazonas.ejemplo_cliente.consumo_alertas,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,vigilante_amazonas\main.py,[modulo] vigilante_amazonas.main,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\__init__.py,[modulo] vigilante_amazonas.servicios,ACTIVO,4,alcanzable desde iniciar_servidor_headless; 4 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\analizador_asincrono.py,[modulo] vigilante_amazonas.servicios.analizador_asincrono,DUDOSO,1,"NO alcanzable, pero 1 modulo(s) lo importan: vigilante_amazonas.main"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\clasificador_seguridad.py,[modulo] vigilante_amazonas.servicios.clasificador_seguridad,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\clip_compartido.py,[modulo] vigilante_amazonas.servicios.clip_compartido,ACTIVO,3,alcanzable desde iniciar_servidor_headless; 3 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\detector_merodeo.py,[modulo] vigilante_amazonas.servicios.detector_merodeo,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\embebedor_rostro.py,[modulo] vigilante_amazonas.servicios.embebedor_rostro,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\embebedor_vestimenta.py,[modulo] vigilante_amazonas.servicios.embebedor_vestimenta,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\emisor_alertas.py,[modulo] vigilante_amazonas.servicios.emisor_alertas,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\emisor_whatsapp.py,[modulo] vigilante_amazonas.servicios.emisor_whatsapp,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\galeria.py,[modulo] vigilante_amazonas.servicios.galeria,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\motor_reid.py,[modulo] vigilante_amazonas.servicios.motor_reid,ACTIVO,3,alcanzable desde iniciar_servidor_headless; 3 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\nucleo_servicios.py,[modulo] vigilante_amazonas.servicios.nucleo_servicios,ACTIVO,2,alcanzable desde iniciar_servidor_headless; 2 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\rastreador_area.py,[modulo] vigilante_amazonas.servicios.rastreador_area,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\verificador_vlm.py,[modulo] vigilante_amazonas.servicios.verificador_vlm,ACTIVO,2,alcanzable desde iniciar_servidor_headless; 2 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\utilidades\__init__.py,[modulo] vigilante_amazonas.utilidades,ACTIVO,0,alcanzable desde iniciar_servidor_headless; 0 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\utilidades\registro.py,[modulo] vigilante_amazonas.utilidades.registro,ACTIVO,23,alcanzable desde iniciar_servidor_headless; 23 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[modulo] vigilante_amazonas.verificar_entorno,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\__init__.py,[modulo] vigilante_amazonas.web,ACTIVO,0,alcanzable desde iniciar_servidor_headless; 0 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\base_datos.py,[modulo] vigilante_amazonas.web.base_datos,ACTIVO,5,alcanzable desde iniciar_servidor_headless; 5 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\dashboard.py,[modulo] vigilante_amazonas.web.dashboard,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\lanzador.py,[modulo] vigilante_amazonas.web.lanzador,ACTIVO,3,alcanzable desde iniciar_servidor_headless; 3 modulo(s) lo importan
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\panel.py,[modulo] vigilante_amazonas.web.panel,ACTIVO,1,alcanzable desde iniciar_servidor_headless; 1 modulo(s) lo importan
+SERVER-IA PERIMETRALES,webapp\app.py,[modulo] webapp.app,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,webapp\deep_analyzer.py,[modulo] webapp.deep_analyzer,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,webapp\report_generator.py,[modulo] webapp.report_generator,DUDOSO,0,NO alcanzable; su nombre aparece en una cadena de texto (posible carga dinamica)
+SERVER-IA PERIMETRALES,demo.py,[funcion] parse_args:55,DUDOSO,11,"modulo no alcanzable, pero el simbolo se cita en 11 modulo(s)"
+SERVER-IA PERIMETRALES,demo.py,[funcion] main:128,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,iniciar_servidor_headless.py,[funcion] main:75,ACTIVO,30,"usado en 30 modulo(s): demo, main, scripts.banco_offline"
+SERVER-IA PERIMETRALES,main.py,[funcion] main:16,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\banco_offline.py,[funcion] cargar_modelos:61,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\banco_offline.py,[funcion] analizar_crop:109,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\banco_offline.py,[funcion] dibujar_ficha:264,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\banco_offline.py,[funcion] construir_contact_sheet:303,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\banco_offline.py,[funcion] imprimir_informe:323,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\banco_offline.py,[funcion] main:392,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\benchmark_demografia.py,[funcion] construir_escena:62,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\benchmark_demografia.py,[funcion] medir:88,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\benchmark_demografia.py,[funcion] main:108,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\comparar_vlm.py,[funcion] cargar_muestras:43,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\comparar_vlm.py,[funcion] probar:69,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\comparar_vlm.py,[funcion] main:134,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\convertir_mivolo_onnx.py,[funcion] parche_timm:28,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\convertir_mivolo_onnx.py,[funcion] main:44,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\evaluar_etiquetado.py,[funcion] wilson:39,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\evaluar_etiquetado.py,[funcion] pct:55,DUDOSO,6,"modulo no alcanzable, pero el simbolo se cita en 6 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\evaluar_etiquetado.py,[funcion] cargar_etiquetas:64,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\evaluar_etiquetado.py,[funcion] main:85,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\preparar_etiquetado.py,[funcion] dibujar_celda:49,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\preparar_etiquetado.py,[funcion] main:68,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\resumen_telemetria.py,[funcion] cargar:47,DUDOSO,17,"modulo no alcanzable, pero el simbolo se cita en 17 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\resumen_telemetria.py,[funcion] imprimir_resumen:74,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\resumen_telemetria.py,[funcion] main:145,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_buffalo_l_genderage.py,[funcion] step:36,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_buffalo_l_genderage.py,[funcion] ok:40,DUDOSO,26,"modulo no alcanzable, pero el simbolo se cita en 26 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_buffalo_l_genderage.py,[funcion] err:44,DUDOSO,2,"modulo no alcanzable, pero el simbolo se cita en 2 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_buffalo_l_genderage.py,[funcion] download_with_progress:48,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_buffalo_l_genderage.py,[funcion] main:63,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_face_embedding.py,[funcion] step:26,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_face_embedding.py,[funcion] ok:27,DUDOSO,26,"modulo no alcanzable, pero el simbolo se cita en 26 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_face_embedding.py,[funcion] err:28,DUDOSO,2,"modulo no alcanzable, pero el simbolo se cita en 2 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_face_embedding.py,[funcion] download_with_progress:31,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_face_embedding.py,[funcion] main:42,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] step:50,DUDOSO,3,"modulo no alcanzable, pero el simbolo se cita en 3 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] ok:54,DUDOSO,26,"modulo no alcanzable, pero el simbolo se cita en 26 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] err:58,DUDOSO,2,"modulo no alcanzable, pero el simbolo se cita en 2 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] run:62,DUDOSO,25,"modulo no alcanzable, pero el simbolo se cita en 25 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] step1_clone_repo:73,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] step2_install_deps:87,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] step3_download_checkpoint:98,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] step4_convert_to_onnx:123,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] step5_verify:185,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] cleanup:210,DUDOSO,2,"modulo no alcanzable, pero el simbolo se cita en 2 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_mivolo.py,[funcion] main:217,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\setup_modelos.py,[funcion] main:125,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\test_agregador.py,[funcion] comprobar:34,DUDOSO,2,"modulo no alcanzable, pero el simbolo se cita en 2 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\test_agregador.py,[funcion] muestra:40,DUDOSO,13,"modulo no alcanzable, pero el simbolo se cita en 13 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\test_delete_sync.py,[funcion] main:35,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\test_demographics_diagnostico.py,[funcion] banner:48,DUDOSO,6,"modulo no alcanzable, pero el simbolo se cita en 6 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\test_demographics_diagnostico.py,[funcion] load_all_classifiers:52,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\test_demographics_diagnostico.py,[funcion] detect_persons:115,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\test_demographics_diagnostico.py,[funcion] diagnose_one_image:132,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,scripts\test_demographics_diagnostico.py,[funcion] main:300,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\test_reidentification.py,[funcion] banner:36,DUDOSO,6,"modulo no alcanzable, pero el simbolo se cita en 6 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\test_reidentification.py,[funcion] main:40,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\test_verificador_vlm.py,[funcion] comprobar:33,DUDOSO,2,"modulo no alcanzable, pero el simbolo se cita en 2 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\verificar_entorno.py,[funcion] titulo:33,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\verificar_entorno.py,[funcion] linea:40,DUDOSO,5,"modulo no alcanzable, pero el simbolo se cita en 5 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\verificar_entorno.py,[funcion] verificar_sistema:58,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\verificar_entorno.py,[funcion] verificar_driver_nvidia:77,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\verificar_entorno.py,[funcion] verificar_torch:110,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\verificar_entorno.py,[funcion] verificar_onnxruntime:151,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,scripts\verificar_entorno.py,[funcion] benchmark_matmul:205,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,scripts\verificar_entorno.py,[funcion] main:258,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,src\analityc\config\config.py,[funcion] aspect_ratio_min_for_angle:70,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,src\analityc\config\config.py,[funcion] get_config:266,ACTIVO,3,"usado en 3 modulo(s): demo, analityc.core.person_amazona_inference, app.app"
+SERVER-IA PERIMETRALES,src\analityc\config\config.py,[funcion] reload_config:295,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,src\analityc\core\base_perimeter.py,[clase] BasePerimeter:42,ACTIVO,2,"usado en 2 modulo(s): analityc.core.puente_vigilante, app.app"
+SERVER-IA PERIMETRALES,src\analityc\core\botsort_wrapper.py,[clase] BoTSORTWrapper:17,ACTIVO,1,usado en 1 modulo(s): app.app
+SERVER-IA PERIMETRALES,src\analityc\core\car_washed.py,[clase] VehicleProcessor:21,ACTIVO,1,usado en 1 modulo(s): app.app
+SERVER-IA PERIMETRALES,src\analityc\core\car_washed.py,[funcion] create_vehicle_processor:1159,ACTIVO,1,usado en 1 modulo(s): analityc.core.Hummus
+SERVER-IA PERIMETRALES,src\analityc\core\class_base.py,[clase] ObjectDetector:21,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,src\analityc\core\hardware_available.py,[clase] Device_hardware:6,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,src\analityc\core\Hummus.py,[clase] EventConfirmationBuffer:51,ACTIVO,1,usado en 1 modulo(s): analityc.core.Misters
+SERVER-IA PERIMETRALES,src\analityc\core\Hummus.py,[clase] HummusProcess:88,ACTIVO,2,"usado en 2 modulo(s): analityc.core.base_perimeter, app.app"
+SERVER-IA PERIMETRALES,src\analityc\core\Hummus.py,[funcion] create_vehicle_processor:2013,ACTIVO,1,usado en 1 modulo(s): analityc.core.car_washed
+SERVER-IA PERIMETRALES,src\analityc\core\Hummus.py,[clase] Recepcion_Marcador:2022,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\Hummus.py,[clase] Entrega_Marcador:2093,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\Misters.py,[clase] EventConfirmationBuffer:38,ACTIVO,1,usado en 1 modulo(s): analityc.core.Hummus
+SERVER-IA PERIMETRALES,src\analityc\core\Misters.py,[clase] MistersProcess:69,ACTIVO,1,usado en 1 modulo(s): app.app
+SERVER-IA PERIMETRALES,src\analityc\core\Misters.py,[funcion] create_misters_processor:1481,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,src\analityc\core\multimodal_router.py,[clase] MultimodalRouter:35,ACTIVO,1,usado en 1 modulo(s): scripts.comparar_vlm
+SERVER-IA PERIMETRALES,src\analityc\core\multimodal_router.py,[clase] EventMonitor:337,ACTIVO,1,usado en 1 modulo(s): analityc.core.Hummus
+SERVER-IA PERIMETRALES,src\analityc\core\multimodal_router.py,[funcion] get_multimodal_router:401,ACTIVO,5,"usado en 5 modulo(s): scripts.test_verificador_vlm, analityc.core.Hummus, analityc.core.analytics.analizador_pendientes"
+SERVER-IA PERIMETRALES,src\analityc\core\person_amazona_inference.py,[clase] PersonAmazonas:308,ACTIVO,6,"usado en 6 modulo(s): scripts.benchmark_demografia, analityc.config.config, analityc.core.analytics.analizador_pendientes"
+SERVER-IA PERIMETRALES,src\analityc\core\person_amazona_inference.py,[funcion] create_staff_processor:3518,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\puente_vigilante.py,[clase] PuenteVigilante:48,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,src\analityc\core\puente_vigilante.py,[funcion] get_puente:207,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\agregador_demografico.py,[clase] VeredictoDemografico:64,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\agregador_demografico.py,[clase] AgregadorDemografico:101,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\analizador_pendientes.py,[funcion] vlm_activo:75,ACTIVO,3,"usado en 3 modulo(s): app.dashboard, vigilante_amazonas.servicios.verificador_vlm, vigilante_amazonas.web.panel"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\analizador_pendientes.py,[funcion] fijar_vlm:89,ACTIVO,3,"usado en 3 modulo(s): app.dashboard, vigilante_amazonas.servicios.verificador_vlm, vigilante_amazonas.web.panel"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\analizador_pendientes.py,[clase] AnalizadorPendientes:100,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\analizador_pendientes.py,[funcion] obtener_analizador:571,ACTIVO,1,usado en 1 modulo(s): app.dashboard
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\body_reidentifier.py,[clase] BodyReidentifier:42,ACTIVO,2,"usado en 2 modulo(s): analityc.core.person_amazona_inference, analityc.core.analytics"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\config.py,[clase] AnalyticsConfig:6,ACTIVO,16,"usado en 16 modulo(s): scripts.banco_offline, scripts.test_demographics_diagnostico, scripts.test_reidentification"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\demographics.py,[clase] DemographicsClassifier:639,ACTIVO,7,"usado en 7 modulo(s): scripts.banco_offline, scripts.evaluar_etiquetado, scripts.test_delete_sync"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\estimador_edad_genero.py,[funcion] crop_es_persona_plausible:63,ACTIVO,2,"usado en 2 modulo(s): scripts.evaluar_etiquetado, analityc.core.analytics.analizador_pendientes"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\estimador_edad_genero.py,[funcion] bucket_de_edad:106,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\estimador_edad_genero.py,[clase] MuestraDemografica:119,ACTIVO,2,"usado en 2 modulo(s): scripts.test_agregador, analityc.core.analytics.agregador_demografico"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\estimador_edad_genero.py,[clase] EstimadorEdadGenero:192,ACTIVO,2,"usado en 2 modulo(s): scripts.banco_offline, scripts.evaluar_etiquetado"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\estimador_edad_genero.py,[funcion] obtener_estimador:436,ACTIVO,2,"usado en 2 modulo(s): analityc.core.analytics.analizador_pendientes, analityc.core.analytics.demographics"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\face_reidentifier.py,[clase] FaceReidentifier:98,ACTIVO,8,"usado en 8 modulo(s): scripts.test_delete_sync, scripts.test_reidentification, analityc.core.person_amazona_inference"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\heatmap.py,[clase] HeatmapAccumulator:44,ACTIVO,3,"usado en 3 modulo(s): analityc.core.person_amazona_inference, analityc.core.analytics, webapp.app"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\people_counter.py,[clase] PeopleCounter:15,ACTIVO,2,"usado en 2 modulo(s): analityc.core.person_amazona_inference, analityc.core.analytics"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\telemetria_demografica.py,[clase] MotivoFinal:32,ACTIVO,1,usado en 1 modulo(s): analityc.core.analytics.demographics
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\telemetria_demografica.py,[clase] TelemetriaDemografica:81,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\telemetria_demografica.py,[funcion] obtener_telemetria:258,ACTIVO,2,"usado en 2 modulo(s): analityc.core.analytics.demographics, app.dashboard"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\verificador_vlm.py,[clase] ResultadoVLM:57,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\verificador_vlm.py,[clase] VerificadorVLM:105,ACTIVO,4,"usado en 4 modulo(s): scripts.test_verificador_vlm, analityc.core.puente_vigilante, vigilante_amazonas.servicios.nucleo_servicios"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\verificador_vlm.py,[funcion] obtener_verificador:255,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\cross_bottleneck_attn.py,[clase] CrossBottleneckAttn:16,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] get_output_size:85,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] get_output_size_module:97,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[clase] PatchEmbed:114,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[clase] MiVOLOModel:193,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d1_224:315,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d1_384:322,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d2_224:329,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d2_384:336,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d3_224:343,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d3_448:350,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d4_224:357,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d4_448:364,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d5_224:372,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d5_448:386,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\analytics\mivolo_vendor\mivolo_model.py,[funcion] mivolo_d5_512:400,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\analityc\core\utils\logger.py,[clase] AnalyticsLogger:24,ACTIVO,1,usado en 1 modulo(s): analityc.core.person_amazona_inference
+SERVER-IA PERIMETRALES,src\analityc\core\utils\overlay.py,[funcion] draw_demographics_panel:50,ACTIVO,1,usado en 1 modulo(s): analityc.core.person_amazona_inference
+SERVER-IA PERIMETRALES,src\analityc\core\utils\overlay.py,[funcion] draw_people_total:94,ACTIVO,1,usado en 1 modulo(s): analityc.core.person_amazona_inference
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] lifespan:82,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] process_image_sync:321,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[clase] ClientWorker:528,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] websocket_endpoint:616,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] init_server:829,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] health_check:834,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] vlm_ask:873,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] vlm_detect:888,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] vlm_route:903,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] vlm_events:917,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] vlm_set_model:932,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] vlm_get_model:945,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] vlm_set_context:953,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\app.py,[funcion] vlm_get_context:966,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_summary:208,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_persons:272,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_captures:292,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_analizar_pendientes:303,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_vlm_estado:327,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_vaciar_detecciones:344,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_vlm_cambiar:439,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_analisis_estado:459,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_analisis_cancelar:472,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_telemetria:484,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_heatmaps:515,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] img_capture:546,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] img_capture_face:552,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] img_face:558,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] img_heatmap:564,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard.py,[funcion] dashboard_page:902,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,src\app\dashboard_tienda.py,[funcion] crear_app:279,ACTIVO,2,"usado en 2 modulo(s): vigilante_amazonas.web.dashboard, vigilante_amazonas.web.panel"
+SERVER-IA PERIMETRALES,src\app\dashboard_tienda.py,[funcion] iniciar_dashboard_tienda:317,ACTIVO,1,usado en 1 modulo(s): iniciar_servidor_headless
+SERVER-IA PERIMETRALES,src\app\server.py,[clase] Server_services:10,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,src\gui\q_application.py,[clase] AppSingletonGui:7,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,src\gui\window_main.py,[clase] Main_Window:12,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,src\libs\files_save.py,[funcion] save_frame_png:13,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,tools\benchmark.py,[funcion] main:97,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,tools\bench_qwen_vlm.py,[funcion] main:54,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,tools\eval_demografia.py,[funcion] main:109,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,tools\multicam_grid_test.py,[funcion] find_videos:21,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,tools\multicam_grid_test.py,[funcion] run_once:27,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,tools\multicam_grid_test.py,[funcion] main:61,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,tools\multicam_test.py,[funcion] find_videos:13,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,tools\multicam_test.py,[funcion] mean_v_of_crop:19,MUERTO,0,modulo no alcanzable y 0 referencias externas
+SERVER-IA PERIMETRALES,tools\multicam_test.py,[funcion] main:33,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,tools\send_test_ws.py,[funcion] main:8,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\adaptador_websocket.py,[clase] VigilanteWS:60,ACTIVO,6,"usado en 6 modulo(s): app.app, vigilante_amazonas, vigilante_amazonas.servicios.detector_merodeo"
+SERVER-IA PERIMETRALES,vigilante_amazonas\adaptador_websocket.py,[funcion] get_vigilante_ws:365,ACTIVO,2,"usado en 2 modulo(s): app.app, vigilante_amazonas"
+SERVER-IA PERIMETRALES,vigilante_amazonas\config.py,[funcion] resolver_dispositivo:382,ACTIVO,7,"usado en 7 modulo(s): vigilante_amazonas.verificar_entorno, vigilante_amazonas.deteccion.clasificador_vehiculos, vigilante_amazonas.deteccion.detector"
+SERVER-IA PERIMETRALES,vigilante_amazonas\config.py,[funcion] indice_de:405,ACTIVO,5,"usado en 5 modulo(s): vigilante_amazonas.verificar_entorno, vigilante_amazonas.deteccion.detector, vigilante_amazonas.servicios.embebedor_rostro"
+SERVER-IA PERIMETRALES,vigilante_amazonas\config.py,[funcion] crear_directorios:412,ACTIVO,3,"usado en 3 modulo(s): vigilante_amazonas.main, vigilante_amazonas.verificar_entorno, vigilante_amazonas.utilidades.registro"
+SERVER-IA PERIMETRALES,vigilante_amazonas\main.py,[funcion] main:47,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[clase] Resultado:40,DUDOSO,5,"modulo no alcanzable, pero el simbolo se cita en 5 modulo(s)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[clase] Reporte:48,DUDOSO,4,"modulo no alcanzable, pero el simbolo se cita en 4 modulo(s)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[funcion] verificar_python:92,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[funcion] verificar_driver:101,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[funcion] verificar_torch_y_gpus:112,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[funcion] verificar_tensorrt:169,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[funcion] verificar_detector:183,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[funcion] verificar_onnxruntime:203,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[funcion] verificar_modelos_reid:215,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[funcion] verificar_paquetes:228,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[funcion] verificar_carpetas:253,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\verificar_entorno.py,[funcion] main:264,DUDOSO,30,"modulo no alcanzable, pero el simbolo se cita en 30 modulo(s)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\captura\fuente_rtsp.py,[clase] FrameCamara:33,ACTIVO,7,"usado en 7 modulo(s): analityc.core.puente_vigilante, vigilante_amazonas.adaptador_websocket, vigilante_amazonas"
+SERVER-IA PERIMETRALES,vigilante_amazonas\captura\fuente_rtsp.py,[clase] FuenteCamara:42,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,vigilante_amazonas\captura\fuente_rtsp.py,[clase] CapturaMulticamara:175,ACTIVO,2,"usado en 2 modulo(s): vigilante_amazonas.main, vigilante_amazonas.deteccion.motor"
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\clasificador_vehiculos.py,[funcion] mapear_imagenet:82,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\clasificador_vehiculos.py,[clase] RefinadorVehiculos:104,ACTIVO,2,"usado en 2 modulo(s): vigilante_amazonas.adaptador_websocket, vigilante_amazonas.deteccion.motor"
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\detector.py,[clase] DeteccionCruda:27,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.deteccion.rastreador
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\detector.py,[clase] DetectorMulticlase:35,ACTIVO,2,"usado en 2 modulo(s): vigilante_amazonas.adaptador_websocket, vigilante_amazonas.deteccion.motor"
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\mapeo_clases.py,[funcion] mapear_clase:40,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.deteccion.detector
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\mapeo_clases.py,[funcion] color_de:72,ACTIVO,2,"usado en 2 modulo(s): vigilante_amazonas.adaptador_websocket, vigilante_amazonas.deteccion.motor"
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\mapeo_clases.py,[funcion] a_ids:77,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\motor.py,[funcion] anotar_frame:38,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.adaptador_websocket
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\motor.py,[clase] MotorVigilante:56,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.main
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\rastreador.py,[clase] DeteccionVig:22,ACTIVO,9,"usado en 9 modulo(s): analityc.core.puente_vigilante, vigilante_amazonas.adaptador_websocket, vigilante_amazonas"
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\rastreador.py,[clase] RastreadorCamara:31,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\deteccion\rastreador.py,[clase] GestorRastreadores:88,ACTIVO,2,"usado en 2 modulo(s): vigilante_amazonas.adaptador_websocket, vigilante_amazonas.deteccion.motor"
+SERVER-IA PERIMETRALES,vigilante_amazonas\ejemplo_cliente\consumo_alertas.py,[funcion] connect:45,DUDOSO,4,"modulo no alcanzable, pero el simbolo se cita en 4 modulo(s)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\ejemplo_cliente\consumo_alertas.py,[funcion] disconnect:50,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\ejemplo_cliente\consumo_alertas.py,[funcion] alerta_persona:55,DUDOSO,2,"modulo no alcanzable, pero el simbolo se cita en 2 modulo(s)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\analizador_asincrono.py,[clase] AnalizadorAsincrono:27,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\clasificador_seguridad.py,[clase] ClasificadorSeguridad:31,ACTIVO,2,"usado en 2 modulo(s): analityc.core.puente_vigilante, vigilante_amazonas.servicios.nucleo_servicios"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\clip_compartido.py,[clase] ClipCompartido:26,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\clip_compartido.py,[funcion] get_clip:76,ACTIVO,3,"usado en 3 modulo(s): vigilante_amazonas.servicios.clasificador_seguridad, vigilante_amazonas.servicios.detector_merodeo, vigilante_amazonas.servicios.embebedor_vestimenta"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\detector_merodeo.py,[clase] DetectorMerodeo:48,ACTIVO,2,"usado en 2 modulo(s): vigilante_amazonas.adaptador_websocket, vigilante_amazonas.servicios.rastreador_area"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\embebedor_rostro.py,[clase] EmbebedorRostro:34,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.servicios.motor_reid
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\embebedor_vestimenta.py,[clase] EmbebedorVestimenta:32,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.servicios.motor_reid
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\emisor_alertas.py,[clase] EmisorAlertas:44,ACTIVO,2,"usado en 2 modulo(s): analityc.core.puente_vigilante, vigilante_amazonas.servicios.nucleo_servicios"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\emisor_whatsapp.py,[clase] EmisorWhatsApp:39,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\emisor_whatsapp.py,[funcion] get_emisor_whatsapp:157,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.adaptador_websocket
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\galeria.py,[clase] ResultadoBusqueda:27,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.servicios.motor_reid
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\galeria.py,[clase] Galeria:55,ACTIVO,3,"usado en 3 modulo(s): analityc.core.analytics.body_reidentifier, app.dashboard, vigilante_amazonas.servicios.motor_reid"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\motor_reid.py,[clase] EventoReID:43,ACTIVO,3,"usado en 3 modulo(s): analityc.core.puente_vigilante, vigilante_amazonas.adaptador_websocket, vigilante_amazonas.servicios.emisor_alertas"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\motor_reid.py,[clase] MotorReID:60,ACTIVO,4,"usado en 4 modulo(s): analityc.core.puente_vigilante, vigilante_amazonas.servicios.emisor_alertas, vigilante_amazonas.servicios.nucleo_servicios"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\nucleo_servicios.py,[clase] Servicios:30,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.servicios
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\nucleo_servicios.py,[funcion] get_servicios:38,ACTIVO,6,"usado en 6 modulo(s): analityc.core.puente_vigilante, vigilante_amazonas.adaptador_websocket, vigilante_amazonas.main"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\rastreador_area.py,[clase] RastreadorArea:64,ACTIVO,2,"usado en 2 modulo(s): vigilante_amazonas.adaptador_websocket, vigilante_amazonas.servicios.detector_merodeo"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\verificador_vlm.py,[clase] ConsultaVLM:48,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\verificador_vlm.py,[funcion] vlm_activo:71,ACTIVO,3,"usado en 3 modulo(s): analityc.core.analytics.analizador_pendientes, app.dashboard, vigilante_amazonas.web.panel"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\verificador_vlm.py,[funcion] fijar_vlm:80,ACTIVO,3,"usado en 3 modulo(s): analityc.core.analytics.analizador_pendientes, app.dashboard, vigilante_amazonas.web.panel"
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\verificador_vlm.py,[funcion] obtener_vlm:106,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.web.panel
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\verificador_vlm.py,[funcion] crear_vlm:111,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.servicios.nucleo_servicios
+SERVER-IA PERIMETRALES,vigilante_amazonas\servicios\verificador_vlm.py,[clase] VerificadorVLM:138,ACTIVO,4,"usado en 4 modulo(s): scripts.test_verificador_vlm, analityc.core.puente_vigilante, analityc.core.analytics.verificador_vlm"
+SERVER-IA PERIMETRALES,vigilante_amazonas\utilidades\registro.py,[clase] FormateadorJSON:29,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\utilidades\registro.py,[funcion] configurar_registro:76,ACTIVO,23,"usado en 23 modulo(s): vigilante_amazonas.adaptador_websocket, vigilante_amazonas.main, vigilante_amazonas.captura.fuente_rtsp"
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\base_datos.py,[clase] BaseDatos:76,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\base_datos.py,[funcion] get_bd:242,ACTIVO,5,"usado en 5 modulo(s): vigilante_amazonas.main, vigilante_amazonas.servicios.emisor_alertas, vigilante_amazonas.servicios.galeria"
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\dashboard.py,[clase] PersonaEntrada:42,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\dashboard.py,[clase] PersonaParche:49,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\dashboard.py,[funcion] crear_app:56,ACTIVO,2,"usado en 2 modulo(s): app.dashboard_tienda, vigilante_amazonas.web.panel"
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\lanzador.py,[funcion] puerto_ocupado:30,DUDOSO,0,modulo alcanzable pero el simbolo no se referencia fuera (puede ser API publica o slot de Qt)
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\lanzador.py,[funcion] iniciar_dashboard:37,ACTIVO,3,"usado en 3 modulo(s): iniciar_servidor_headless, vigilante_amazonas.adaptador_websocket, vigilante_amazonas.main"
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\panel.py,[funcion] carpeta_screenshots:47,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,vigilante_amazonas\web\panel.py,[funcion] crear_panel:97,ACTIVO,1,usado en 1 modulo(s): vigilante_amazonas.web.lanzador
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] index:147,DUDOSO,6,"modulo no alcanzable, pero el simbolo se cita en 6 modulo(s)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_persons:158,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_stats:197,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_face_image:246,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_find_duplicates:269,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_auto_merge:329,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_person_detail:469,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_patch_person:486,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_delete_person:551,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_delete_batch:568,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_merge_persons:645,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_delete_all:731,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_deep_analyze_one:836,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_deep_analyze_unknown:878,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_report_pdf:949,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmaps:993,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmap_history:1039,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmap_history_image:1080,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmap_image:1094,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmap_calendar:1223,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmap_get_areas:1238,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmap_put_areas:1246,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmap_aggregate:1276,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmap_aggregate_all:1355,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmaps_delete_all:1398,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_heatmap_delete_one:1419,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_captures:1469,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_capture_person:1511,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_capture_face:1522,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] api_captures_delete:1533,DUDOSO,0,"sin referencias externas, pero su modulo usa invocacion dinamica (getattr/eval/importlib)"
+SERVER-IA PERIMETRALES,webapp\app.py,[funcion] health:1547,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,webapp\deep_analyzer.py,[clase] DeepGenderAgeAnalyzer:56,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
+SERVER-IA PERIMETRALES,webapp\report_generator.py,[funcion] generate_report:514,DUDOSO,1,"modulo no alcanzable, pero el simbolo se cita en 1 modulo(s)"
