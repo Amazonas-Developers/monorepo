@@ -1,9 +1,13 @@
 """
 src/app/dashboard_tienda.py — Dashboard de TIENDA (marketing y consumo).
 
-App FastAPI propia servida en el puerto 9030 desde el MISMO proceso del
-servidor de inferencia (igual que el panel de VIGILANTE en 5333). Se levanta
-desde iniciar_servidor_headless.py con iniciar_dashboard_tienda().
+**RETIRADO el 31-jul-2026** (decision del cierre del refactor, HITO 11): ya
+NADIE lo levanta. Lo sustituye la pagina de dominio `/dashboards/tienda/`,
+que lee de /api/v1. El modulo se conserva como rollback: revivirlo es volver
+a llamar `iniciar_dashboard_tienda()` en iniciar_servidor_headless.py.
+
+Era una app FastAPI propia servida en el puerto 9030 desde el MISMO proceso
+del servidor de inferencia (igual que el panel de VIGILANTE en 5333).
 
 Que muestra:
   - Personas en el area (aforo en vivo), trafico, visitantes unicos.

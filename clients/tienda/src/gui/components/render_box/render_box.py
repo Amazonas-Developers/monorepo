@@ -414,7 +414,8 @@ class Render_box(CapturaDVRMixin, QFrame):
         # analitica) se retiro en el HITO 5: el servidor dejo de exponer
         # /retail/* y de emitir metadata['retail'] en la simplificacion del
         # 27-jul, asi que abria dialogos que no llevaban a ninguna parte. El
-        # codigo esta en _legacy/tienda_view/. ──
+        # codigo estuvo en cuarentena en _legacy/ hasta el HITO 10 (31-jul);
+        # hoy vive solo en el historial (tag pre-hito10-legacy). ──
         self._menu_roi = self._make_menu_button(
             "Area ▾",
             "Area de conteo (ROI) de la camara: activar, mostrar puntos, "

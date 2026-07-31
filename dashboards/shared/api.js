@@ -3,9 +3,8 @@
  * Regla del HITO 9: estas paginas leen exclusivamente de /api/v1 con rutas
  * RELATIVAS. Ni un host, ni un puerto escrito: las sirve el mismo servidor que
  * responde la API, asi que el origen del navegador ya es el correcto. Los
- * enlaces a paneles en otros puertos (tienda :9030, VIGILANTE :5333) tampoco
- * se escriben: se preguntan a /api/v1/paneles y se montan sobre el hostname
- * actual.
+ * enlaces a paneles en otros puertos (VIGILANTE :5333) tampoco se escriben:
+ * se preguntan a /api/v1/paneles y se montan sobre el hostname actual.
  */
 'use strict';
 
