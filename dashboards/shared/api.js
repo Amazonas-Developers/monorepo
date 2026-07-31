@@ -91,6 +91,19 @@ const UI = {
     return String(v).replace(/[&<>"']/g,
       c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   },
+
+  /** Segundos -> "1m51s" (las permanencias de las alertas). */
+  duracion(s) {
+    if (s === null || s === undefined || isNaN(s)) return '';
+    const n = Math.round(Number(s));
+    return n < 60 ? `${n}s` : `${Math.floor(n / 60)}m${String(n % 60).padStart(2, '0')}s`;
+  },
+
+  /** Espera `ms` sin nuevas llamadas antes de ejecutar (buscadores). */
+  debounce(fn, ms = 350) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  },
 };
 
 /** Bucle de refresco: pinta ya, y despues cada `segundos`. Un fallo de red no

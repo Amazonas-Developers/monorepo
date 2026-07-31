@@ -17,68 +17,52 @@
 <nav class="paneles" id="paneles"></nav>
 
 <div class="kpis">
-  <div class="kpi"><div class="valor" data-kpi="camaras">—</div><div class="nombre">cámaras del dominio</div></div>
-  <div class="kpi"><div class="valor" data-kpi="frames">—</div><div class="nombre">frames recibidos</div></div>
-  <div class="kpi"><div class="valor" data-kpi="modo">—</div><div class="nombre">validación</div></div>
-  <div class="kpi"><div class="valor" data-kpi="problemas">—</div><div class="nombre">mensajes con problema</div></div>
+  <div class="kpi"><div class="valor" data-kpi="personas">—</div><div class="nombre">personas detectadas</div></div>
+  <div class="kpi"><div class="valor" data-kpi="carros">—</div><div class="nombre">carros</div></div>
+  <div class="kpi"><div class="valor" data-kpi="motos">—</div><div class="nombre">motos</div></div>
+  <div class="kpi"><div class="valor" data-kpi="total">—</div><div class="nombre">alertas totales</div></div>
+  <div class="kpi"><div class="valor" data-kpi="hoy">—</div><div class="nombre">alertas de hoy</div></div>
 </div>
+
+<section>
+  <h2>Buscador de alertas</h2>
+  <div class="filtros">
+    <input id="f-q" type="search" placeholder="texto libre: clase, cámara, descripción, id…" size="34">
+    <select id="f-evento"><option value="">evento: todos</option></select>
+    <select id="f-clase"><option value="">clase: todas</option></select>
+    <select id="f-camara"><option value="">cámara: todas</option></select>
+    <label>desde <input id="f-desde" type="date"></label>
+    <label>hasta <input id="f-hasta" type="date"></label>
+    <button id="f-limpiar" class="boton">Limpiar</button>
+    <span class="cuenta" id="f-cuenta"></span>
+  </div>
+  <div class="rejilla2">
+    <div class="tarjeta"><h2>Desglose por detección</h2><div class="barras" id="d-clase"></div></div>
+    <div class="tarjeta"><h2>Desglose por evento</h2><div class="barras" id="d-evento"></div></div>
+    <div class="tarjeta"><h2>Desglose por cámara</h2><div class="barras" id="d-camara"></div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Fotos de las alertas</h2>
+  <div class="galeria" id="galeria"></div>
+  <div class="paginacion">
+    <button id="mas" class="boton">Cargar más</button>
+    <span class="vacio" id="mas-nota"></span>
+  </div>
+</section>
+
+<section>
+  <h2>Mapas de calor</h2>
+  <div class="heatmaps" id="heatmaps"></div>
+</section>
 
 <section>
   <h2>Cámaras perimetrales</h2>
   <div class="tarjeta" id="dispositivos"></div>
 </section>
 
-<section>
-  <h2>Pipelines del contrato</h2>
-  <div class="tarjeta" id="pipelines"></div>
-</section>
-
 <script src="/dashboards/shared/api.js"></script>
-<script>
-async function pintarPaneles() {
-  const enlaces = await API.paneles();
-  const nav = document.getElementById('paneles');
-  const partes = [];
-  if (enlaces.vigilante) partes.push(`<a href="${enlaces.vigilante}" target="_blank">🚨 Panel de VIGILANTE (alertas y galería)</a>`);
-  nav.innerHTML = partes.join('');
-}
-pintarPaneles().catch(console.error);
-
-// Los pipelines de este dominio, para separar "validado" de "pendiente".
-const DEL_DOMINIO = ['perimetrales', 'perimetrales_botsort',
-                     'perimetrales_multicam', 'vigilante_amazonas'];
-
-refrescar(async () => {
-  const [dispositivos, { contrato }] = await Promise.all([
-    API.leer('dispositivos?client_type=perimetrales'),
-    API.leer('estado'),
-  ]);
-
-  const filas = dispositivos.dispositivos;
-  UI.kpis({
-    camaras: dispositivos.total,
-    frames: filas.reduce((s, d) => s + (d.frames || 0), 0),
-    modo: contrato.modo,
-    problemas: `${contrato.mensajes_con_problema_pct ?? '—'} %`,
-  });
-
-  UI.tabla('dispositivos', filas, [
-    ['device_id', 'dispositivo'],
-    ['camera_name', 'cámara'],
-    ['pipelines', 'pipelines', v => UI.esc((v || []).join(', ') || '—')],
-    ['frames', 'frames'],
-    ['primera_vez', 'primera vez', v => UI.fecha(v)],
-    ['ultima_vez', 'última vez', v => UI.fecha(v)],
-  ]);
-
-  const vistos = new Set(contrato.pipelines_observados || []);
-  UI.tabla('pipelines', DEL_DOMINIO.map(p => ({ pipeline: p, visto: vistos.has(p) })), [
-    ['pipeline', 'pipeline'],
-    ['visto', 'estado', v => v
-      ? '<span class="pill ok">validado</span>'
-      : '<span class="pill aviso">sin tráfico aún</span>'],
-  ]);
-}, 15);
-</script>
+<script src="/dashboards/perimetrales/app.js"></script>
 </body>
 </html>
