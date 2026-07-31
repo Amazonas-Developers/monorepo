@@ -150,7 +150,7 @@ servidor en otra maquina a partir del repositorio.
 
 `iniciar_servidor_headless.py` —el arranque real que usa
 `INICIAR_TIENDA.bat`— estaba **sin versionar**, junto con el paquete
-`vigilante_amazonas` completo. Recuperados en el commit de respaldo `6181b67`.
+`vigilante_amazonas` completo. Recuperados en el commit de respaldo `6181b67` — hash del historial pre-absorcion, que hoy vive en los bundles de `ELDE_backup_git/`; en el monorepo el archivo entra con la absorcion (`7f2d492`).
 
 ---
 

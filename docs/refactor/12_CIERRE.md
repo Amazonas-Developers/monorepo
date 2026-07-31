@@ -43,6 +43,11 @@ de verdad: ~24.000 LOC de copias divergentes, 1.492 de código muerto
    con tráfico en los dos modos.
 4. **Publicado en el monorepo de GitHub** al cerrar (tras revisar que ningún
    commit lleva secretos).
+5. **Historial reescrito el 31-jul** (auditoría): los 6 primeros caracteres de
+   las claves de H-13 aparecían en `HALLAZGOS.md`; se purgaron de TODO el
+   historial con `git-filter-repo` y force push. Los hashes anteriores a esa
+   fecha cambiaron; los bundles de `ELDE_backup_git/` conservan los viejos
+   (incluido `monorepo_pre_reescritura.bundle`).
 
 ## 3. Los hitos, de una vez
 

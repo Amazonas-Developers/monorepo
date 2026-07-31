@@ -37,7 +37,7 @@ endpoint `/retail/layout` que ya no existe.
 
 Doble red:
 
-- **Tag `pre-hito10-legacy`** (`5b6aadc`): el árbol completo con la carpeta
+- **Tag `pre-hito10-legacy`** (`4c7032d` tras la reescritura del 31-jul): el árbol completo con la carpeta
   llena. `git checkout pre-hito10-legacy -- _legacy/` la restaura entera.
 - Los 16 archivos estaban **versionados**, así que también viven en el
   historial de cualquier commit anterior.
