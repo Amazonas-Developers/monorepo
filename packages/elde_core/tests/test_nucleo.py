@@ -266,3 +266,24 @@ def test_base_http_sin_configuracion_no_inventa_localhost():
         os.environ.pop('server_ws_url', None)
         if previo is not None:
             os.environ['server_ws_url'] = previo
+
+
+def test_jarvis_api_conserva_el_superconjunto_de_perimetrales():
+    """La regresion del 31-jul: el HITO 4 extrajo la version identica en 3
+    clientes y ENTERRO la de perimetrales, que habia divergido por razones
+    reales. El cliente crasheo al arrancar (`establecimiento`) y habria
+    vuelto a fallar en la primera alerta (`enviar_novedad_async`).
+
+    Importar no lo detectaba: hizo falta CONSTRUIR. Esta prueba fija la
+    firma y los metodos para que ninguna reconciliacion futura los pierda."""
+    import inspect
+    from elde_core.transport.jarvis_api import Jarvis_api
+    firma = inspect.signature(Jarvis_api.__init__)
+    assert 'establecimiento' in firma.parameters, \
+        'perimetrales pasa establecimiento= desde su .env'
+    assert firma.parameters['establecimiento'].default is None, \
+        'debe ser opcional: los otros 3 clientes no lo mandan'
+    for metodo in ('enviar_novedad_async', 'subir_imagen_async',
+                   'selection_establishment'):
+        assert hasattr(Jarvis_api, metodo), \
+            f'{metodo} lo usa jarvis_alert_forwarder de perimetrales'

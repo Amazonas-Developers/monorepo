@@ -672,3 +672,40 @@ con una rama generica que asume una firma es fragil — cada procesador nuevo
 que no la comparta falla en silencio hacia el log. Si aparece un tercer
 caso, la correccion de fondo es una interfaz comun de procesador, no otra
 rama.
+
+
+---
+
+## H-22 · La reconciliacion del HITO 4 enterro el `Jarvis_api` de perimetrales · `CORREGIDO`
+
+El primer arranque REAL tras los venv aislados lo destapo:
+
+```
+TypeError: Jarvis_api.__init__() got an unexpected keyword argument
+'establecimiento'
+```
+
+**Causa.** El HITO 4 extrajo al nucleo la version identica en
+tienda/managers/amazonas. La de perimetrales habia DIVERGIDO por razones
+reales —`establecimiento=` preferido del `.env`, la señal
+`establishments_loaded`, el envio asincrono (`enviar_novedad_async` /
+`subir_imagen_async`) y el arreglo de la carrera del login— y su alias la
+enterro bajo la version comun. Es exactamente el riesgo que el paso 8 del
+HITO 2 advertia ("los archivos que divergieron lo hicieron por algo"), y esta
+vez se materializo.
+
+Habia una SEGUNDA rotura latente peor: `jarvis_alert_forwarder` llama a
+`enviar_novedad_async`, que la version del nucleo no tenia — habria fallado
+con AttributeError en la PRIMERA alerta real.
+
+**Correccion.** El nucleo adopta la version de perimetrales, que el analisis
+de metodos confirmo como superconjunto ESTRICTO (la comun no tenia nada
+propio). Para los otros 3 clientes nada cambia: `establecimiento` es opcional
+y ninguno llama a los metodos de envio (verificado: un solo llamante en todo
+el ecosistema).
+
+**Verificado construyendo**, no importando: `Jarvis_api` se instancio con los
+kwargs exactos de cada `main.py` en los 4 venv. Y la leccion queda en la
+prueba nueva de `test_nucleo.py`: **importar no detecta una firma perdida;
+hay que construir**. Es la tercera vez que "compila/importa" no basto
+(plantillas de `ajustes.py`, y ahora esto).
