@@ -312,3 +312,21 @@ def test_el_worker_de_captura_funciona_COMO_SCRIPT():
         assert 'ejecutar_worker' in texto, (
             f'{cliente}: debe llamar a ejecutar_worker() en modo script')
         ast.parse(texto)          # y debe seguir siendo Python valido
+
+
+def test_el_overlay_de_supervision_esta_disponible():
+    """H-24: `sv_overlay` importa `supervision` bajo try/except.
+
+    Si falta, el overlay se apaga EN SILENCIO: no hay error ni traza, pero
+    desaparecen las cajas de deteccion, las zonas del ROI y las estelas. Se
+    percibe como "el cliente no identifica y no activa el ROI".
+
+    Paso al recrear los venv aislados (H-04): antes `supervision` llegaba del
+    user-site global y no estaba declarado en ningun requirements.
+    """
+    from elde_core.ui import sv_overlay
+    assert sv_overlay.sv is not None, (
+        'supervision no esta instalado en este entorno: el overlay del modo '
+        'directo quedaria apagado sin decir nada (H-24). '
+        'pip install supervision==0.28.0')
+    assert sv_overlay.SupervisionOverlay is not None

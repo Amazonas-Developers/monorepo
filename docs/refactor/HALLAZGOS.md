@@ -754,3 +754,42 @@ sirve para lo que se IMPORTA. Si un archivo tambien se ejecuta —worker,
 script, punto de entrada— el alias hay que escribirlo de otra forma. Al
 migrar conviene preguntarse *como se usa este archivo*, no solo *quien lo
 importa*.
+
+
+---
+
+## H-24 · Sin `supervision`, el overlay se apaga EN SILENCIO · `CORREGIDO`
+
+**Sintoma.** "El cliente no esta activando el ROI y tampoco esta
+identificando". Ni error, ni traza: el video se ve, los frames llegan al
+servidor (1.763 validos, 0 rechazos) y el procesador corre sin fallos — pero
+no aparecen las cajas de deteccion ni las zonas del ROI.
+
+**Causa.** `elde_core.ui.sv_overlay` importa `supervision` bajo
+`try/except`, y `render_box` hace lo mismo con el propio overlay:
+
+```python
+try:
+    import supervision as sv
+except Exception:
+    sv = None
+```
+
+En **modo directo** (`_direct_mode = True` en perimetrales) el servidor NO
+dibuja (`draw_server=False`): manda las detecciones y **dibuja el cliente**,
+con Supervision. Sin la libreria, ese camino se desactiva sin decir nada.
+
+Lo introdujo la correccion de H-04: al recrear los venv aislados,
+`supervision` dejo de llegar del user-site global y **no estaba declarado en
+ningun requirements** — el freeze del que se instalaron no lo incluia.
+
+**Correccion.** Instalado `supervision==0.28.0` (la misma version que el
+servidor) en los 4 venv y **declarado en los 4 `requirements.txt`** con el
+motivo escrito al lado. Prueba nueva que falla si el overlay vuelve a quedar
+apagado.
+
+**La leccion.** Un `try/except ImportError` que desactiva una funcion es cómodo
+para arrancar, pero convierte una dependencia ausente en un fallo mudo. Los
+tres hallazgos del rodaje real (H-22, H-23, H-24) comparten raiz: **el codigo
+seguia importando bien; lo que fallaba era el USO**. Ninguna prueba de imports
+los habria visto.

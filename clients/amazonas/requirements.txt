@@ -102,3 +102,10 @@ uvicorn==0.38.0
 websockets==15.0.1
 xml-python==0.4.3
 xmltodict==1.0.2
+
+# Overlay de detecciones del modo directo (cajas, zonas, estelas, heatmap).
+# Lo importa elde_core.ui.sv_overlay bajo try/except: si falta, el overlay se
+# apaga EN SILENCIO y parece que "el cliente no identifica" (H-24). Antes
+# llegaba del user-site global; con los venv aislados (H-04) hay que
+# declararlo.
+supervision==0.28.0
