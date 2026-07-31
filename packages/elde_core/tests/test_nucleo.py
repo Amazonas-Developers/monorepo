@@ -244,3 +244,25 @@ if __name__ == '__main__':
                 print(f'  FALLA {nombre}: {exc}')
     print(f"\n{'TODO OK' if not fallos else f'{fallos} FALLOS'}")
     raise SystemExit(1 if fallos else 0)
+
+
+def test_base_http_sin_configuracion_no_inventa_localhost():
+    """El fallback silencioso a `http://127.0.0.1:9000` era el antipatron de
+    H-02: fallar hacia un servidor que quiza no es el tuyo. Sin URL y sin
+    entorno, la respuesta correcta es vacio (error VISIBLE al usarla)."""
+    import os
+    from elde_core.ui.panel_capturas import base_http_del_websocket
+    previo = os.environ.pop('server_ws_url', None)
+    try:
+        assert base_http_del_websocket('') == ''
+        assert '127.0.0.1' not in base_http_del_websocket('')
+        # Con socket: deriva del socket.
+        assert (base_http_del_websocket('ws://192.0.2.7:9000/ws')
+                == 'http://192.0.2.7:9000')
+        # Sin socket pero con entorno (que ajustes garantiza): deriva de ahi.
+        os.environ['server_ws_url'] = 'ws://192.0.2.9:9000/ws'
+        assert base_http_del_websocket('') == 'http://192.0.2.9:9000'
+    finally:
+        os.environ.pop('server_ws_url', None)
+        if previo is not None:
+            os.environ['server_ws_url'] = previo

@@ -698,11 +698,10 @@ class Render_box(CapturaDVRMixin, QFrame):
         return None
 
     def _http_base(self):
-        ws = getattr(self.socket, "url", "") or ""
-        base = ws.replace("wss://", "https://").replace("ws://", "http://")
-        if "/ws" in base:
-            base = base.rsplit("/ws", 1)[0]
-        return base or "http://127.0.0.1:9000"
+        # Derivacion unica en el nucleo (sin fallback silencioso a localhost,
+        # ver base_http_del_websocket): el mismo criterio de H-02.
+        from elde_core.ui.panel_capturas import base_http_del_websocket
+        return base_http_del_websocket(getattr(self.socket, "url", "") or "")
 
     def _events_url(self):
         return self._http_base() + "/vlm/events"

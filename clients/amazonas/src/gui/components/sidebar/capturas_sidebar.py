@@ -469,16 +469,11 @@ class CapturasSidebar(QWidget):
             self.refrescar(forzar=True)
 
     def _servidor_http(self) -> str:
-        """URL base del servidor, derivada de la del websocket."""
-        host = "127.0.0.1:9000"
-        socket = getattr(self, "_socket", None)
-        try:
-            url = getattr(socket, "url", "") or ""
-            if "://" in url:
-                host = url.split("://", 1)[1].split("/", 1)[0] or host
-        except Exception:  # noqa: BLE001
-            pass
-        return f"http://{host}"
+        """URL base del servidor, derivada de la del websocket (en el nucleo,
+        sin fallback silencioso a localhost: criterio de H-02)."""
+        from elde_core.ui.panel_capturas import base_http_del_websocket
+        return base_http_del_websocket(
+            getattr(getattr(self, "_socket", None), "url", "") or "")
 
     def _abrir_carpeta(self) -> None:
         try:

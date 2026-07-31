@@ -37,15 +37,24 @@ _MINIATURA = 64
 MAX_TARJETAS = 120
 
 
-def base_http_del_websocket(url_ws: str) -> str:
+def base_http_del_websocket(url_ws: str = '') -> str:
     """`ws://host:9000/ws` -> `http://host:9000`.
 
     Se deriva de la URL a la que el cliente YA esta conectado en vez de pedir
-    otra configuracion: si el servidor cambia de sitio, el panel le sigue."""
-    base = (url_ws or '').replace('wss://', 'https://').replace('ws://', 'http://')
+    otra configuracion: si el servidor cambia de sitio, el panel le sigue. Si
+    el socket aun no tiene URL, se cae al `server_ws_url` del entorno, que
+    `config/ajustes.py` garantiza al arrancar.
+
+    Antes habia un ultimo recurso `http://127.0.0.1:9000` escrito aqui (y
+    copiado en cuatro sitios mas de los clientes): el mismo antipatron de
+    H-02 — fallar EN SILENCIO hacia un servidor que quiza no es el tuyo. Si
+    no hay nada configurado, devolver vacio hace que la peticion falle con un
+    error visible, que es lo que se quiere."""
+    origen = (url_ws or '').strip() or (os.getenv('server_ws_url') or '').strip()
+    base = origen.replace('wss://', 'https://').replace('ws://', 'http://')
     if '/ws' in base:
         base = base.rsplit('/ws', 1)[0]
-    return base.rstrip('/') or 'http://127.0.0.1:9000'
+    return base.rstrip('/')
 
 
 class _Descarga(QThread):
