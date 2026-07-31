@@ -49,6 +49,11 @@
 </section>
 
 <section>
+  <h2>Búsqueda con IA (VLM) sobre las capturas</h2>
+  <div id="vlm"></div>
+</section>
+
+<section>
   <h2>Mapas de calor por pasillo</h2>
   <div class="heatmaps" id="heatmaps"></div>
 </section>
@@ -59,6 +64,8 @@
 </section>
 
 <script src="/dashboards/shared/api.js"></script>
+<script src="/dashboards/shared/vlm.js"></script>
 <script src="/dashboards/tienda/app.js"></script>
+<script>montarBuscadorVLM('vlm', 'capturas', 'p. ej. ¿alguien lleva mochila?');</script>
 </body>
 </html>

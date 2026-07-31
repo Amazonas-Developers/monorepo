@@ -123,6 +123,12 @@ app.include_router(dashboard_router)
 from .api_lectura import router as api_lectura_router  # noqa: E402
 app.include_router(api_lectura_router)
 
+# Busqueda VLM de los dashboards de producto ("buscame el carro rojo").
+# Son ACCIONES (encender el buscador, lanzar una busqueda), asi que viven en
+# /dashboard/api y no en /api/v1, que es solo lectura por regla.
+from .busqueda_vlm import router as busqueda_vlm_router  # noqa: E402
+app.include_router(busqueda_vlm_router)
+
 # Dashboards del HITO 9: paginas ESTATICAS en `dashboards/` (hermana de
 # `server/` en la raiz del proyecto) que leen exclusivamente de /api/v1 por
 # HTTP. El servidor solo les hace de fichero: no las importa, no comparte

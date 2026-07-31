@@ -883,3 +883,23 @@ de mas de un minuto del cliente y se ataca alli.
 corriendo como proceso HIJO de la sesion de asistencia; cada reinicio del
 anfitrion lo mataba ("se apaga"). Relanzado desligado y regla anotada: el
 servidor se arranca con INICIAR_*.bat o el SELECTOR.
+
+## H-27 · `extract_terms` del router multimodal no entiende «búscame» ni traduce · `ABIERTO (esquivado)`
+
+**Síntoma.** El extractor de términos de
+`server/src/analityc/core/multimodal_router.py` busca la palabra clave por
+substring SIN normalizar acentos: «búscame el carro rojo» no matchea `busca`
+(la ú lo impide) y caería a VQA; y si matchea («buscame»), el término
+resultante viaja EN ESPAÑOL a YOLO-World, cuyo encoder CLIP entiende mucho
+mejor inglés («carro rojo» rinde peor que «red car»).
+
+**Impacto real.** Ninguno hoy: la búsqueda de los dashboards (FASE 6,
+`src/app/busqueda_vlm.py`) no usa ese extractor — normaliza sin acentos,
+detecta la intención y traduce el vocabulario del dominio (carro→car,
+rojo→red, colores delante). Verificado en vivo: «búscame el carro rojo» →
+término `red car`; control positivo «busca los carros» → 2/12 coincidencias,
+exactamente las dos fotos CARRO.
+
+**Si se corrige el router,** conviene mover allí el extractor de
+`busqueda_vlm.py` (una sola fuente de verdad) y que `route()` lo use; los
+usuarios actuales de `route()` saldrían ganando gratis.

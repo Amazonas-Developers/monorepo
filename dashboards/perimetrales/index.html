@@ -53,6 +53,11 @@
 </section>
 
 <section>
+  <h2>Búsqueda con IA (VLM) sobre las fotos de alertas</h2>
+  <div id="vlm"></div>
+</section>
+
+<section>
   <h2>Mapas de calor</h2>
   <div class="heatmaps" id="heatmaps"></div>
 </section>
@@ -63,6 +68,8 @@
 </section>
 
 <script src="/dashboards/shared/api.js"></script>
+<script src="/dashboards/shared/vlm.js"></script>
 <script src="/dashboards/perimetrales/app.js"></script>
+<script>montarBuscadorVLM('vlm', 'alertas', 'p. ej. búscame el carro rojo');</script>
 </body>
 </html>

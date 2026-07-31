@@ -1,15 +1,17 @@
 # dashboards/
 
-Los tres dashboards de dominio del HITO 9. **Páginas estáticas** que leen
-exclusivamente de la API de lectura (`/api/v1`, HITO 8).
+Los dashboards de producto por cliente (HITO 9 + fase 2 del 31-jul-2026).
+**Páginas estáticas** que leen exclusivamente de la API de lectura
+(`/api/v1`, HITO 8).
 
 | Página | Dominio | Color |
 |---|---|---|
-| `tienda/` | marketing y consumo: visitantes, género, edad, permanencia, heatmaps | `#00c8ff` |
-| `perimetrales/` | cámaras del perímetro, salud del contrato, enlace al panel de VIGILANTE | `#e67e22` |
-| `amazonas/` | cámaras del dominio, analítica por dispositivo, galería | `#9b59b6` |
+| `perimetrales/` | buscador de alertas, galería de fotos, desgloses por detección/evento/cámara, totales, búsqueda VLM | `#e67e22` |
+| `tienda/` | pasillos más/menos concurridos, marketing (visitantes, género, edad, franjas), capturas, búsqueda VLM | `#00c8ff` |
+| `amazonas/` | totales de personas/mujeres/hombres, desglose género×edad, capturas, búsqueda VLM | `#9b59b6` |
+| `managers/` | operación global: salud del servidor, todas las cámaras, últimos eventos | `#2ecc71` |
 | `index.html` | portada con el estado del servidor | — |
-| `shared/` | `estilo.css` + `api.js`, comunes a los tres | — |
+| `shared/` | `estilo.css` + `api.js` + `vlm.js`, comunes a todos | — |
 
 ## Cómo se sirven
 
@@ -23,9 +25,12 @@ servidor arranca igual y lo avisa en el log.
 
 ## Las reglas que cumplen (y hay que conservar)
 
-1. **Solo `/api/v1`.** Ni una página lee un archivo del servidor ni llama a
-   `/dashboard/api/` (los endpoints internos del proceso). Si un dato falta,
-   se añade a la API de lectura, no se puentea.
+1. **Los DATOS, solo de `/api/v1`.** Ni una página lee un archivo del servidor
+   ni consulta datos por `/dashboard/api/`. Si un dato falta, se añade a la API
+   de lectura, no se puentea. La ÚNICA excepción son las ACCIONES del buscador
+   VLM (`shared/vlm.js` → `/dashboard/api/vlm-buscador` y `/vlm-busqueda`):
+   `/api/v1` es solo lectura por regla, así que encender el buscador y lanzar
+   una búsqueda viven donde ya viven las acciones.
 2. **Cero hosts y cero puertos escritos.** Las llamadas son rutas relativas; los
    enlaces a paneles en otros puertos (VIGILANTE :5333) se preguntan a
    `/api/v1/paneles` y se montan sobre el hostname actual.
