@@ -31,10 +31,15 @@ import json
 import logging
 import os
 import re
+import time
+import unicodedata
+from collections import Counter
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import FileResponse
 
 from . import registro_dispositivos as _registro
 from . import validacion_contrato as _validacion
@@ -168,6 +173,287 @@ def listar_heatmaps() -> Dict[str, Any]:
     return {'total': len(fuera),
             'huerfanos': sum(1 for h in fuera if h['huerfano']),
             'heatmaps': fuera}
+
+
+# ── Alertas de perimetrales ──────────────────────────────────────────────
+#
+# Las escribe el CLIENTE perimetral al recibir cada alerta: un .jpg con un
+# sidecar .json al lado (clase, evento, camara, epoch, descripcion...). El
+# panel :5333 ya las muestra; esta capa las expone ademas por /api/v1 para el
+# dashboard de producto, con lo que a aquel le falta: fechas, texto libre y
+# paginacion.
+
+_IMAGENES_ALERTA = ('.jpg', '.jpeg', '.png')
+
+#: Cache incremental del indice de sidecars: releer ~1.300 JSON en cada
+#: peticion castiga al servidor de inferencia, que es quien sirve esto.
+_CACHE_ALERTAS: Dict[str, Any] = {
+    'marca': 0.0, 'carpeta': '', 'por_archivo': {}, 'filas': []}
+
+
+def _carpeta_alertas() -> Path:
+    """La MISMA carpeta que usa el panel :5333 (una sola fuente de verdad).
+
+    Prioridad: `VIGILANTE_SCREENSHOTS` (regla 6, y lo que permite cliente y
+    servidor en maquinas distintas) > el resolutor de vigilante > la ruta del
+    monorepo. El import es perezoso: este modulo debe poder importarse sin el
+    paquete vigilante (pruebas, instalaciones parciales).
+    """
+    explicita = (os.getenv('VIGILANTE_SCREENSHOTS') or '').strip()
+    if explicita:
+        return Path(explicita)
+    try:
+        from vigilante_amazonas.web.panel import carpeta_screenshots
+        return carpeta_screenshots()
+    except Exception:
+        return _RAIZ.parent / 'clients' / 'perimetrales' / 'screenshots'
+
+
+def _llano(texto: Any) -> str:
+    """Minusculas y sin acentos: 'CAMIÓN' y 'camion' deben ser lo mismo."""
+    plano = unicodedata.normalize('NFD', str(texto or ''))
+    return ''.join(c for c in plano if not unicodedata.combining(c)).lower()
+
+
+def _epoch_de(cadena: str, fin_de_dia: bool = False) -> float:
+    """'2026-07-31', '2026-07-31 17:53' o con segundos -> epoch local.
+
+    Con solo la fecha, `fin_de_dia` decide si es el principio (desde) o el
+    final (hasta) del dia: asi `desde=hasta=2026-07-31` cubre el dia entero.
+    """
+    limpia = (cadena or '').strip().replace('T', ' ')
+    for formato in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d'):
+        try:
+            momento = datetime.strptime(limpia, formato)
+            epoch = momento.timestamp()
+            if formato == '%Y-%m-%d' and fin_de_dia:
+                epoch += 86399.0
+            return epoch
+        except ValueError:
+            continue
+    raise HTTPException(
+        status_code=422,
+        detail=f'fecha invalida: {cadena!r} (use AAAA-MM-DD u '
+               'AAAA-MM-DD HH:MM[:SS])')
+
+
+def _fila_alerta(carpeta: Path, nombre: str) -> Dict[str, Any]:
+    ruta = carpeta / nombre
+    try:
+        with open(ruta.with_suffix('.json'), encoding='utf-8') as f:
+            meta = json.load(f) or {}
+    except (OSError, ValueError):
+        meta = {}
+    return {
+        'archivo': nombre,
+        'url': f'/api/v1/alertas/foto/{nombre}',
+        'clase': meta.get('clase') or '',
+        'clase_gruesa': meta.get('clase_gruesa') or '',
+        'evento': meta.get('evento') or '',
+        'camara': meta.get('camara') or '',
+        'timestamp': meta.get('timestamp') or '',
+        'epoch': meta.get('epoch'),
+        'global_id': meta.get('global_id') or '',
+        'permanencia_s': meta.get('permanencia_s'),
+        'descripcion': meta.get('descripcion') or '',
+        # Sin sidecar no hay clase ni fecha fiables; se marca para que la UI
+        # y los totales no lo cuenten como si se supiera.
+        'sin_metadatos': not bool(meta),
+    }
+
+
+def _filas_alertas() -> List[Dict[str, Any]]:
+    """Indice completo, mas recientes primero. Solo reparsea lo que cambio."""
+    ttl = float(os.getenv('ELDE_ALERTAS_CACHE_SEG', '5'))
+    carpeta = _carpeta_alertas()
+    ahora = time.time()
+    if (_CACHE_ALERTAS['carpeta'] == str(carpeta)
+            and ahora - _CACHE_ALERTAS['marca'] < ttl):
+        return _CACHE_ALERTAS['filas']
+    if not carpeta.is_dir():
+        _CACHE_ALERTAS.update(marca=ahora, carpeta=str(carpeta),
+                              por_archivo={}, filas=[])
+        return []
+    try:
+        nombres = [n for n in os.listdir(carpeta)
+                   if n.lower().endswith(_IMAGENES_ALERTA)]
+    except OSError:
+        return _CACHE_ALERTAS['filas']
+    conocidos: Dict[str, Any] = _CACHE_ALERTAS['por_archivo']
+    vigentes: Dict[str, Any] = {}
+    for nombre in nombres:
+        try:
+            mtime = os.path.getmtime(carpeta / nombre)
+        except OSError:
+            continue                      # borrado entre el listado y el stat
+        previo = conocidos.get(nombre)
+        if previo and previo[0] == mtime:
+            vigentes[nombre] = previo
+        else:
+            vigentes[nombre] = (mtime, _fila_alerta(carpeta, nombre))
+    # El nombre empieza por AAAAMMDD_HHMMSS: orden lexicografico inverso ==
+    # cronologico inverso, tambien para las filas sin sidecar (sin epoch).
+    filas = [vigentes[n][1] for n in sorted(vigentes, reverse=True)]
+    _CACHE_ALERTAS.update(marca=ahora, carpeta=str(carpeta),
+                          por_archivo=vigentes, filas=filas)
+    return filas
+
+
+@router.get('/alertas')
+def listar_alertas(
+        evento: Optional[str] = Query(
+            None, description='llegada | salida | permanencia | merodeo'),
+        clase: Optional[str] = Query(
+            None, description='CARRO, MOTO, PERSONA... (sin distinguir '
+                              'mayusculas ni acentos)'),
+        clase_gruesa: Optional[str] = Query(
+            None, description='persona | vehiculo'),
+        camara: Optional[str] = Query(None),
+        desde: Optional[str] = Query(
+            None, description='AAAA-MM-DD u AAAA-MM-DD HH:MM[:SS]'),
+        hasta: Optional[str] = Query(None, description='igual que desde'),
+        q: Optional[str] = Query(
+            None, description='texto libre sobre descripcion, clase, camara, '
+                              'evento y global_id'),
+        limite: int = Query(60, ge=1, le=200),
+        offset: int = Query(0, ge=0),
+) -> Dict[str, Any]:
+    """Buscador de alertas del perimetro, con facetas para el desglose.
+
+    Las facetas (`por_clase`, `por_evento`, `por_camara`) se calculan sobre el
+    conjunto FILTRADO: son los numeros que acompañan a lo que se esta viendo.
+    Para los totales globales se llama sin filtros.
+    """
+    filas = _filas_alertas()
+    if evento:
+        buscado = _llano(evento)
+        filas = [f for f in filas if _llano(f['evento']) == buscado]
+    if clase:
+        buscado = _llano(clase)
+        filas = [f for f in filas if _llano(f['clase']) == buscado]
+    if clase_gruesa:
+        buscado = _llano(clase_gruesa)
+        filas = [f for f in filas if _llano(f['clase_gruesa']) == buscado]
+    if camara:
+        buscado = _llano(camara)
+        filas = [f for f in filas if _llano(f['camara']) == buscado]
+    if desde is not None:
+        corte = _epoch_de(desde)
+        filas = [f for f in filas if (f['epoch'] or 0) >= corte]
+    if hasta is not None:
+        corte = _epoch_de(hasta, fin_de_dia=True)
+        filas = [f for f in filas if f['epoch'] is not None
+                 and f['epoch'] <= corte]
+    if q:
+        buscado = _llano(q)
+        filas = [f for f in filas if buscado in _llano(
+            ' '.join((f['descripcion'], f['clase'], f['camara'], f['evento'],
+                      f['global_id'], f['archivo'])))]
+    return {
+        'total': len(filas),
+        'total_capturas': len(_filas_alertas()),
+        'offset': offset,
+        'limite': limite,
+        'facetas': {
+            'por_clase': dict(Counter(
+                f['clase'] for f in filas if f['clase']).most_common()),
+            'por_evento': dict(Counter(
+                f['evento'] for f in filas if f['evento']).most_common()),
+            'por_camara': dict(Counter(
+                f['camara'] for f in filas if f['camara']).most_common()),
+            'por_clase_gruesa': dict(Counter(
+                f['clase_gruesa'] for f in filas
+                if f['clase_gruesa']).most_common()),
+        },
+        'alertas': filas[offset:offset + limite],
+    }
+
+
+@router.get('/alertas/foto/{archivo}')
+def foto_de_alerta(archivo: str):
+    """Sirve la foto de una alerta. Bloquea cualquier salto de directorio."""
+    nombre = _saneado(archivo, 200)
+    if not nombre.lower().endswith(_IMAGENES_ALERTA):
+        raise HTTPException(status_code=404, detail='no encontrada')
+    carpeta = _carpeta_alertas().resolve()
+    destino = (carpeta / nombre).resolve()
+    if carpeta not in destino.parents or not destino.is_file():
+        raise HTTPException(status_code=404, detail='no encontrada')
+    return FileResponse(str(destino))
+
+
+# ── Capturas de personas (tienda / amazonas) ─────────────────────────────
+
+@router.get('/capturas')
+def listar_capturas(
+        limite: int = Query(60, ge=1, le=500)) -> Dict[str, Any]:
+    """Capturas de personas con genero/edad, mas recientes primero.
+
+    Delega en el MISMO calculo que `/dashboard/api/captures` (una sola fuente
+    de verdad) y añade las URL de imagen para que la pagina no tenga que
+    conocer las rutas del dashboard viejo.
+    """
+    from .dashboard import dashboard_captures
+    datos = dashboard_captures(limit=limite)
+    for c in datos.get('capturas') or []:
+        stem = _saneado(c.get('stem') or '')
+        c['url'] = f'/dashboard/img/capture/{stem}.jpg'
+        c['url_miniatura'] = (f'/dashboard/img/capface/{stem}.jpg'
+                              if c.get('has_face') else c['url'])
+    return datos
+
+
+# ── Ranking de pasillos (trafico por camara) ─────────────────────────────
+
+@router.get('/ranking-pasillos')
+def ranking_pasillos(
+        site_id: Optional[str] = Query(None),
+        client_type: Optional[str] = Query(
+            None, description='tienda | perimetrales | amazonas | managers'),
+) -> Dict[str, Any]:
+    """Que camara (pasillo) ve mas trafico y cual menos.
+
+    Cruza el registro de dispositivos con el informe de analitica mas
+    reciente de cada uno. Las camaras sin analitica van al final con
+    `entradas: null`: existir existen, pero aun no midieron nada.
+    """
+    filas: List[Dict[str, Any]] = []
+    for disp in _registro.dispositivos(site_id=site_id,
+                                       client_type=client_type):
+        ident = disp['device_id']
+        entradas = visitantes = permanencia = None
+        informes = _informes(ident)
+        if informes:
+            try:
+                with open(informes[0], encoding='utf-8') as f:
+                    datos = json.load(f) or {}
+                entradas = int(datos.get('total_entradas') or 0)
+                visitantes = int(datos.get('visitantes_unicos') or 0)
+                permanencia = float(datos.get('permanencia_media_s') or 0.0)
+            except (OSError, ValueError):
+                logger.warning('informe ilegible para %s', ident)
+        filas.append({
+            'device_id': ident,
+            'camera_name': disp.get('camera_name'),
+            'site_id': disp.get('site_id'),
+            'client_type': disp.get('client_type'),
+            'frames': disp.get('frames'),
+            'entradas': entradas,
+            'visitantes_unicos': visitantes,
+            'permanencia_media_s': permanencia,
+            'heatmap': _hay_heatmap(ident),
+        })
+    con_datos = [f for f in filas if f['entradas'] is not None]
+    con_datos.sort(key=lambda f: (f['entradas'], f['visitantes_unicos'] or 0),
+                   reverse=True)
+    sin_datos = [f for f in filas if f['entradas'] is None]
+    return {
+        'total': len(filas),
+        'ranking': con_datos + sin_datos,
+        'mas_concurrido': con_datos[0] if con_datos else None,
+        # Con una sola camara medida no hay "menos concurrido": seria la misma.
+        'menos_concurrido': con_datos[-1] if len(con_datos) > 1 else None,
+    }
 
 
 # ── Estado ───────────────────────────────────────────────────────────────
