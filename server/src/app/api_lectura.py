@@ -179,3 +179,47 @@ def estado() -> Dict[str, Any]:
         'contrato': _validacion.resumen(),
         'registro': _registro.resumen(),
     }
+
+
+# ── Resumen para los dashboards (HITO 9) ─────────────────────────────────
+
+@router.get('/resumen')
+def resumen() -> Dict[str, Any]:
+    """KPIs y distribuciones (visitantes, genero, edad, permanencia).
+
+    Delega en el MISMO calculo que `/dashboard/api/summary` en vez de
+    reimplementarlo: una sola fuente de verdad para los numeros, dos puertas
+    para leerlos. El import es perezoso porque `dashboard.py` arrastra la
+    configuracion de analitica y este modulo debe poder importarse solo.
+    """
+    from .dashboard import dashboard_summary
+    datos = dashboard_summary()
+    return {'resumen': datos, 'registro': _registro.resumen()}
+
+
+@router.get('/paneles')
+def paneles() -> Dict[str, Any]:
+    """Donde viven los paneles auxiliares, para que NINGUNA pagina estatica
+    lleve un puerto escrito (regla 6): el navegador pregunta aqui y construye
+    los enlaces con el host por el que ya esta hablando.
+
+    Cada entrada se resuelve con tolerancia: si un panel no esta disponible en
+    esta instalacion, aparece con `puerto: None` y el dashboard lo oculta.
+    """
+    fuera: Dict[str, Any] = {
+        # El dashboard general de visitantes vive en ESTE mismo proceso.
+        'visitantes': {'ruta': '/dashboard', 'puerto': None},
+    }
+    try:
+        from .dashboard_tienda import PUERTO_TIENDA
+        fuera['tienda'] = {'ruta': '/', 'puerto': PUERTO_TIENDA}
+    except Exception:
+        fuera['tienda'] = {'ruta': '/', 'puerto': None}
+    try:
+        # Importable sin tocar sys.path: app.py ya importa este paquete, asi
+        # que en el proceso del servidor esta resuelto o no existe.
+        from vigilante_amazonas import config as _vigilante
+        fuera['vigilante'] = {'ruta': '/', 'puerto': _vigilante.PUERTO_API}
+    except Exception:
+        fuera['vigilante'] = {'ruta': '/', 'puerto': None}
+    return {'paneles': fuera}

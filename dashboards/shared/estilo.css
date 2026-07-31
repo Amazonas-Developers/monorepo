@@ -1,0 +1,133 @@
+/* dashboards/shared/estilo.css — tema comun de los tres dashboards (HITO 9).
+   Un solo archivo: si un color cambia, cambia en los tres a la vez. */
+
+:root {
+  --fondo: #0d1117;
+  --panel: #161b22;
+  --borde: #30363d;
+  --texto: #e6edf3;
+  --apagado: #8b949e;
+  --acento: #58a6ff;       /* lo pisa cada dashboard con su color de dominio */
+  --ok: #3fb950;
+  --aviso: #d29922;
+  --error: #f85149;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  padding: 1.2rem 1.5rem 3rem;
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--acento);
+  padding-bottom: .7rem;
+  margin-bottom: 1.2rem;
+}
+header h1 { font-size: 1.35rem; }
+header .sub { color: var(--apagado); font-size: .9rem; }
+header .refresco { margin-left: auto; color: var(--apagado); font-size: .8rem; }
+
+nav.paneles { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+nav.paneles a {
+  color: var(--acento);
+  text-decoration: none;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: .35rem .8rem;
+  font-size: .85rem;
+  background: var(--panel);
+}
+nav.paneles a:hover { border-color: var(--acento); }
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: .8rem;
+  margin-bottom: 1.2rem;
+}
+.kpi {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: .8rem 1rem;
+}
+.kpi .valor { font-size: 1.7rem; font-weight: 600; color: var(--acento); }
+.kpi .nombre { color: var(--apagado); font-size: .8rem; margin-top: .2rem; }
+
+section { margin-bottom: 1.4rem; }
+section > h2 {
+  font-size: 1rem;
+  color: var(--apagado);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: .6rem;
+}
+
+.tarjeta {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: .9rem 1.1rem;
+  overflow-x: auto;
+}
+
+table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--borde); }
+th { color: var(--apagado); font-weight: 600; }
+tr:last-child td { border-bottom: none; }
+
+.pill {
+  display: inline-block;
+  border-radius: 999px;
+  padding: .1rem .55rem;
+  font-size: .75rem;
+  border: 1px solid var(--borde);
+  color: var(--apagado);
+}
+.pill.ok    { color: var(--ok);    border-color: var(--ok); }
+.pill.aviso { color: var(--aviso); border-color: var(--aviso); }
+.pill.error { color: var(--error); border-color: var(--error); }
+
+.barras { display: grid; gap: .45rem; }
+.barra { display: grid; grid-template-columns: 7.5rem 1fr 3rem; gap: .6rem; align-items: center; font-size: .85rem; }
+.barra .pista { background: var(--fondo); border-radius: 6px; height: 14px; overflow: hidden; }
+.barra .relleno { background: var(--acento); height: 100%; border-radius: 6px; min-width: 2px; }
+.barra .cifra { color: var(--apagado); text-align: right; }
+
+.heatmaps { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .8rem; }
+.heatmaps figure {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.heatmaps img { width: 100%; display: block; }
+.heatmaps figcaption { padding: .45rem .6rem; font-size: .78rem; color: var(--apagado); }
+
+.vacio { color: var(--apagado); font-size: .88rem; padding: .4rem 0; }
+.error-carga { color: var(--error); font-size: .88rem; }
+
+/* Portada */
+.portada { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.portada a {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 1.3rem;
+  text-decoration: none;
+  color: var(--texto);
+  transition: border-color .15s;
+}
+.portada a:hover { border-color: var(--acento); }
+.portada .icono { font-size: 2rem; }
+.portada h3 { margin: .5rem 0 .3rem; }
+.portada p { color: var(--apagado); font-size: .85rem; }

@@ -91,6 +91,7 @@ def main() -> int:
     from src.app.app import app
     _iniciar_dashboard_vigilante()
     _iniciar_dashboard_tienda()
+    print(f"Dashboards por dominio: http://localhost:{puerto}/dashboards/")
     print(f"Servidor de inferencia SIN GUI en ws://0.0.0.0:{puerto}/ws "
           f"(Ctrl+C para detener)")
     uvicorn.run(app, host="0.0.0.0", port=puerto, log_level="info")

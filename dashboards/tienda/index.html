@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tienda · Dashboards ELDE</title>
+<link rel="stylesheet" href="/dashboards/shared/estilo.css">
+<style>:root { --acento: #00c8ff; }</style>
+</head>
+<body>
+<header>
+  <h1>🛒 Tienda — marketing y consumo</h1>
+  <span class="sub"><a href="/dashboards/" style="color:var(--apagado)">← todos los dashboards</a></span>
+  <span class="refresco"></span>
+</header>
+
+<nav class="paneles" id="paneles"></nav>
+
+<div class="kpis">
+  <div class="kpi"><div class="valor" data-kpi="visitantes">—</div><div class="nombre">visitantes únicos</div></div>
+  <div class="kpi"><div class="valor" data-kpi="entradas">—</div><div class="nombre">entradas totales</div></div>
+  <div class="kpi"><div class="valor" data-kpi="aforo">—</div><div class="nombre">aforo actual</div></div>
+  <div class="kpi"><div class="valor" data-kpi="permanencia">—</div><div class="nombre">permanencia media</div></div>
+  <div class="kpi"><div class="valor" data-kpi="capturas">—</div><div class="nombre">capturas</div></div>
+</div>
+
+<section>
+  <h2>Género</h2>
+  <div class="tarjeta"><div class="barras" id="genero"></div></div>
+</section>
+
+<section>
+  <h2>Edad</h2>
+  <div class="tarjeta"><div class="barras" id="edad"></div></div>
+</section>
+
+<section>
+  <h2>Cámaras de tienda</h2>
+  <div class="tarjeta" id="dispositivos"></div>
+</section>
+
+<section>
+  <h2>Mapas de calor por pasillo</h2>
+  <div class="heatmaps" id="heatmaps"></div>
+</section>
+
+<script src="/dashboards/shared/api.js"></script>
+<script>
+async function pintarPaneles() {
+  const enlaces = await API.paneles();
+  const nav = document.getElementById('paneles');
+  const partes = [];
+  if (enlaces.tienda) partes.push(`<a href="${enlaces.tienda}" target="_blank">📈 Dashboard completo de tienda</a>`);
+  if (enlaces.visitantes) partes.push(`<a href="${enlaces.visitantes}" target="_blank">👥 Analítica de visitantes</a>`);
+  nav.innerHTML = partes.join('');
+}
+pintarPaneles().catch(console.error);
+
+refrescar(async () => {
+  const [{ resumen }, dispositivos, heatmaps] = await Promise.all([
+    API.leer('resumen'),
+    API.leer('dispositivos?client_type=tienda'),
+    API.leer('heatmaps'),
+  ]);
+
+  UI.kpis({
+    visitantes: resumen.visitantes_unicos,
+    entradas: resumen.trafico_total_entradas ?? resumen.total_entradas,
+    aforo: resumen.aforo_actual,
+    permanencia: resumen.permanencia_media_s != null
+      ? `${Number(resumen.permanencia_media_s).toFixed(1)} s` : null,
+    capturas: resumen.total_capturas,
+  });
+  UI.barras('genero', resumen.distribucion_genero);
+  UI.barras('edad', resumen.distribucion_edad);
+
+  UI.tabla('dispositivos', dispositivos.dispositivos, [
+    ['device_id', 'dispositivo'],
+    ['camera_name', 'cámara'],
+    ['pipelines', 'pipelines', v => UI.esc((v || []).join(', ') || '—')],
+    ['frames', 'frames'],
+    ['ultima_vez', 'última vez', v => UI.fecha(v)],
+  ]);
+
+  const cont = document.getElementById('heatmaps');
+  const filas = heatmaps.heatmaps.filter(h => !h.huerfano || heatmaps.total === heatmaps.huerfanos);
+  cont.innerHTML = filas.length ? filas.map(h => `
+    <figure>
+      <img src="${h.url}" alt="mapa de calor ${UI.esc(h.device_id)}" loading="lazy">
+      <figcaption>${UI.esc(h.camera_name || h.device_id)}${h.huerfano ? ' <span class="pill aviso">huérfano</span>' : ''}</figcaption>
+    </figure>`).join('')
+    : '<div class="vacio">sin mapas de calor todavía</div>';
+}, 15);
+</script>
+</body>
+</html>

@@ -1,37 +1,40 @@
 # dashboards/
 
-Carpeta reservada para el **HITO 9**. Hoy está vacía a propósito.
+Los tres dashboards de dominio del HITO 9. **Páginas estáticas** que leen
+exclusivamente de la API de lectura (`/api/v1`, HITO 8).
 
-## Por qué está vacía
+| Página | Dominio | Color |
+|---|---|---|
+| `tienda/` | marketing y consumo: visitantes, género, edad, permanencia, heatmaps | `#00c8ff` |
+| `perimetrales/` | cámaras del perímetro, salud del contrato, enlace al panel de VIGILANTE | `#e67e22` |
+| `amazonas/` | cámaras del dominio, analítica por dispositivo, galería | `#9b59b6` |
+| `index.html` | portada con el estado del servidor | — |
+| `shared/` | `estilo.css` + `api.js`, comunes a los tres | — |
 
-Los dashboards existen y funcionan, pero **los sirve el propio servidor**, no
-un proceso aparte:
+## Cómo se sirven
 
-| Dashboard | Módulo | Puerto | Cómo arranca |
-|---|---|---:|---|
-| Visitantes / general | `server/src/app/dashboard.py` | 9000 (`/dashboard`) | Rutas montadas en la app principal de FastAPI |
-| Tienda (marketing y consumo) | `server/src/app/dashboard_tienda.py` | 9030 | App FastAPI propia, en un hilo del **mismo** proceso, desde `iniciar_servidor_headless.py` |
+El servidor las monta como archivos estáticos en `/dashboards` (puerto 9000).
+**No las importa ni comparte estado con ellas**: solo les hace de fichero. Por
+eso el día que deban vivir en otro proceso basta con servir esta misma carpeta
+desde allí — las páginas no cambian, porque ya hablan con el servidor por HTTP.
 
-Mover esos dos archivos aquí sin cambiar nada más sería **cosmético y peor**:
-el servidor seguiría importándolos, así que solo añadiría un import cruzado
-entre dos carpetas de primer nivel.
+La carpeta se puede recolocar con `ELDE_DASHBOARDS_DIR`; si no existe, el
+servidor arranca igual y lo avisa en el log.
 
-## Qué tiene que pasar antes
+## Las reglas que cumplen (y hay que conservar)
 
-Sacarlos del proceso del servidor es una decisión de arquitectura, no un
-movimiento de archivos. Depende de algo que todavía no existe:
+1. **Solo `/api/v1`.** Ni una página lee un archivo del servidor ni llama a
+   `/dashboard/api/` (los endpoints internos del proceso). Si un dato falta,
+   se añade a la API de lectura, no se puentea.
+2. **Cero hosts y cero puertos escritos.** Las llamadas son rutas relativas; los
+   enlaces a paneles en otros puertos (tienda :9030, VIGILANTE :5333) se
+   preguntan a `/api/v1/paneles` y se montan sobre el hostname actual.
+3. **Un fallo de red no rompe el bucle**: se muestra en la cabecera y se
+   reintenta en el siguiente refresco.
 
-1. **La API de lectura del HITO 8.** Hoy los dashboards leen el estado del
-   servidor por dentro (mismo proceso, mismas estructuras en memoria). Para
-   vivir aparte necesitan leerlo por HTTP.
-2. **Decidir si son uno o tres.** El HITO 9 pide tres dashboards; hoy hay dos,
-   y el de visitantes mezcla dominios que el contrato del HITO 3 ya separa
-   (`client_type`).
+## Relación con los dashboards anteriores
 
-Hasta entonces, los dashboards se quedan donde están y funcionando.
-
-## Regla al llenar esta carpeta
-
-Lo mismo que rige en el resto del refactor: cero valores incrustados. Los
-puertos 9000 y 9030 de la tabla de arriba son los que hay **hoy**; cuando el
-código se mueva aquí, tienen que salir de configuración, no del código.
+Los dashboards previos (`/dashboard` en el 9000 y el de tienda en el 9030)
+**siguen vivos**, como manda el plan del HITO 2 (paso 12: «los actuales siguen
+vivos» es el rollback). Estos tres no los sustituyen: son la vista por dominio
+sobre la API, y enlazan a aquellos para el detalle.

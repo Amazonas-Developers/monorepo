@@ -2,6 +2,7 @@ import asyncio
 import base64
 import json
 import logging
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
@@ -121,6 +122,23 @@ app.include_router(dashboard_router)
 # modifica algo se queda en /dashboard/api/.
 from .api_lectura import router as api_lectura_router  # noqa: E402
 app.include_router(api_lectura_router)
+
+# Dashboards del HITO 9: paginas ESTATICAS en `dashboards/` (hermana de
+# `server/` en la raiz del proyecto) que leen exclusivamente de /api/v1 por
+# HTTP. El servidor solo les hace de fichero: no las importa, no comparte
+# estado con ellas, y el dia que vivan en otro proceso basta con servir la
+# misma carpeta desde alli. Si la carpeta no existe, el servidor arranca igual.
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+
+_dashboards_dir = (os.getenv('ELDE_DASHBOARDS_DIR', '').strip()
+                   or str(Path(__file__).resolve().parents[3] / 'dashboards'))
+if os.path.isdir(_dashboards_dir):
+    app.mount('/dashboards',
+              StaticFiles(directory=_dashboards_dir, html=True),
+              name='dashboards')
+else:
+    logger.warning('carpeta de dashboards no encontrada (%s); /dashboards '
+                   'queda sin montar', _dashboards_dir)
 
 
 # -----------------------------------------------------------------------------

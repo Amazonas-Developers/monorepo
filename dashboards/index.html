@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboards ELDE</title>
+<link rel="stylesheet" href="/dashboards/shared/estilo.css">
+</head>
+<body>
+<header>
+  <h1>📊 Dashboards ELDE</h1>
+  <span class="sub">un panel por dominio, todos leyendo de <code>/api/v1</code></span>
+  <span class="refresco"></span>
+</header>
+
+<div class="portada">
+  <a href="/dashboards/tienda/">
+    <div class="icono">🛒</div>
+    <h3>Tienda</h3>
+    <p>Marketing y consumo: visitantes, género, edad, permanencia y mapas de calor por pasillo.</p>
+  </a>
+  <a href="/dashboards/perimetrales/">
+    <div class="icono">🛡️</div>
+    <h3>Perimetrales</h3>
+    <p>Vigilancia del perímetro: cámaras del dominio, salud del contrato y acceso al panel de VIGILANTE.</p>
+  </a>
+  <a href="/dashboards/amazonas/">
+    <div class="icono">📹</div>
+    <h3>Amazonas</h3>
+    <p>Personal de Amazonas: cámaras, analítica por dispositivo y galería de personas.</p>
+  </a>
+</div>
+
+<section style="margin-top:1.6rem">
+  <h2>Estado del servidor</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="valor" data-kpi="dispositivos">—</div><div class="nombre">dispositivos conocidos</div></div>
+    <div class="kpi"><div class="valor" data-kpi="sitios">—</div><div class="nombre">sitios</div></div>
+    <div class="kpi"><div class="valor" data-kpi="modo">—</div><div class="nombre">validación del contrato</div></div>
+    <div class="kpi"><div class="valor" data-kpi="pipelines">—</div><div class="nombre">pipelines validados</div></div>
+  </div>
+</section>
+
+<script src="/dashboards/shared/api.js"></script>
+<script>
+refrescar(async () => {
+  const { contrato, registro } = await API.leer('estado');
+  UI.kpis({
+    dispositivos: registro.dispositivos,
+    sitios: registro.sitios,
+    modo: contrato.modo,
+    pipelines: `${(contrato.pipelines_observados || []).length} / ${contrato.pipelines_totales}`,
+  });
+}, 15);
+</script>
+</body>
+</html>
