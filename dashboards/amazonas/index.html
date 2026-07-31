@@ -9,7 +9,7 @@
 </head>
 <body>
 <header>
-  <h1>📹 Amazonas — personal y visitantes</h1>
+  <h1>📹 Amazonas — personas, género y edad</h1>
   <span class="sub"><a href="/dashboards/" style="color:var(--apagado)">← todos los dashboards</a></span>
   <span class="refresco"></span>
 </header>
@@ -17,11 +17,39 @@
 <nav class="paneles" id="paneles"></nav>
 
 <div class="kpis">
-  <div class="kpi"><div class="valor" data-kpi="camaras">—</div><div class="nombre">cámaras del dominio</div></div>
-  <div class="kpi"><div class="valor" data-kpi="frames">—</div><div class="nombre">frames recibidos</div></div>
-  <div class="kpi"><div class="valor" data-kpi="galeria">—</div><div class="nombre">personas en galería</div></div>
-  <div class="kpi"><div class="valor" data-kpi="visitantes">—</div><div class="nombre">visitantes únicos</div></div>
+  <div class="kpi"><div class="valor" data-kpi="personas">—</div><div class="nombre">personas detectadas</div></div>
+  <div class="kpi"><div class="valor" data-kpi="mujeres">—</div><div class="nombre">mujeres</div></div>
+  <div class="kpi"><div class="valor" data-kpi="hombres">—</div><div class="nombre">hombres</div></div>
+  <div class="kpi"><div class="valor" data-kpi="sinIdentificar">—</div><div class="nombre">sin género conocido</div></div>
+  <div class="kpi"><div class="valor" data-kpi="capturas">—</div><div class="nombre">capturas</div></div>
 </div>
+
+<section>
+  <h2>Desglose por género y edad</h2>
+  <div class="rejilla2">
+    <div class="tarjeta"><h2>Género</h2><div class="barras" id="genero"></div></div>
+    <div class="tarjeta"><h2>Edad</h2><div class="barras" id="edad"></div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Capturas por género y edad</h2>
+  <div class="tarjeta" id="cruce"></div>
+</section>
+
+<section>
+  <h2>Detección de personas</h2>
+  <div class="galeria" id="capturas"></div>
+  <div class="paginacion">
+    <button id="mas" class="boton">Cargar más</button>
+    <span class="vacio" id="mas-nota"></span>
+  </div>
+</section>
+
+<section>
+  <h2>Mapas de calor</h2>
+  <div class="heatmaps" id="heatmaps"></div>
+</section>
 
 <section>
   <h2>Cámaras de Amazonas</h2>
@@ -34,67 +62,6 @@
 </section>
 
 <script src="/dashboards/shared/api.js"></script>
-<script>
-async function pintarPaneles() {
-  const enlaces = await API.paneles();
-  const nav = document.getElementById('paneles');
-  const partes = [];
-  if (enlaces.vigilante) partes.push(`<a href="${enlaces.vigilante}" target="_blank">🖼️ Galería de personas de interés</a>`);
-  if (enlaces.visitantes) partes.push(`<a href="${enlaces.visitantes}" target="_blank">👥 Analítica de visitantes</a>`);
-  nav.innerHTML = partes.join('');
-}
-pintarPaneles().catch(console.error);
-
-refrescar(async () => {
-  const [dispositivos, { resumen }] = await Promise.all([
-    API.leer('dispositivos?client_type=amazonas'),
-    API.leer('resumen'),
-  ]);
-
-  const filas = dispositivos.dispositivos;
-  UI.kpis({
-    camaras: dispositivos.total,
-    frames: filas.reduce((s, d) => s + (d.frames || 0), 0),
-    galeria: resumen.galeria_total,
-    visitantes: resumen.visitantes_unicos,
-  });
-
-  UI.tabla('dispositivos', filas, [
-    ['device_id', 'dispositivo'],
-    ['camera_name', 'cámara'],
-    ['pipelines', 'pipelines', v => UI.esc((v || []).join(', ') || '—')],
-    ['frames', 'frames'],
-    ['ultima_vez', 'última vez', v => UI.fecha(v)],
-  ]);
-
-  // Analitica por camara: se pide SOLO para las camaras del dominio, y una
-  // que aun no tenga informe no es un error, es "todavia no".
-  const cont = document.getElementById('analitica');
-  const partes = [];
-  for (const d of filas.slice(0, 8)) {
-    try {
-      const a = await API.leer(`analitica/${encodeURIComponent(d.device_id)}`);
-      const x = a.datos || {};
-      partes.push({
-        device_id: d.device_id,
-        visitantes: x.visitantes_unicos ?? '—',
-        entradas: x.total_entradas ?? '—',
-        permanencia: x.permanencia_media_s != null ? `${Number(x.permanencia_media_s).toFixed(1)} s` : '—',
-        sesiones: a.sesiones_disponibles,
-      });
-    } catch (e) {
-      partes.push({ device_id: d.device_id, visitantes: '—', entradas: '—',
-                    permanencia: 'sin informe todavía', sesiones: 0 });
-    }
-  }
-  UI.tabla(cont, partes, [
-    ['device_id', 'dispositivo'],
-    ['visitantes', 'visitantes'],
-    ['entradas', 'entradas'],
-    ['permanencia', 'permanencia media'],
-    ['sesiones', 'sesiones'],
-  ]);
-}, 20);
-</script>
+<script src="/dashboards/amazonas/app.js"></script>
 </body>
 </html>
