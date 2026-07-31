@@ -172,12 +172,33 @@ def listar_heatmaps() -> Dict[str, Any]:
 
 # ── Estado ───────────────────────────────────────────────────────────────
 
+def _resumen_whatsapp() -> Dict[str, Any]:
+    """Contadores del reenvio a WhatsApp.
+
+    El envio era una CAJA NEGRA: si no llegaba un mensaje no habia forma de
+    distinguir "el interruptor esta apagado" de "no hubo alertas" o "el bot
+    fallo". Los tres casos se ven aqui (H-25).
+    """
+    try:
+        from vigilante_amazonas.servicios.emisor_whatsapp import get_emisor_whatsapp
+        em = get_emisor_whatsapp()
+        return {
+            'disponible': True,
+            'enviados': em.enviados,
+            'descartados_antiflood': em.descartados,
+            'fallidos': em.fallidos,
+        }
+    except Exception as exc:
+        return {'disponible': False, 'motivo': str(exc)[:120]}
+
+
 @router.get('/estado')
 def estado() -> Dict[str, Any]:
     """Lo que un dashboard necesita saber del servidor sin estar dentro de el."""
     return {
         'contrato': _validacion.resumen(),
         'registro': _registro.resumen(),
+        'whatsapp': _resumen_whatsapp(),
     }
 
 

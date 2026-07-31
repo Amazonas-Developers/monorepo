@@ -799,3 +799,43 @@ para arrancar, pero convierte una dependencia ausente en un fallo mudo. Los
 tres hallazgos del rodaje real (H-22, H-23, H-24) comparten raiz: **el codigo
 seguia importando bien; lo que fallaba era el USO**. Ninguna prueba de imports
 los habria visto.
+
+
+---
+
+## H-25 · El reenvio a WhatsApp era una caja negra · `CORREGIDO` (observabilidad)
+
+**Sintoma reportado.** "El envio a WhatsApp no esta funcionando".
+
+**Lo que el diagnostico SI pudo confirmar** (todo verificado, no supuesto):
+
+| Eslabon | Estado |
+|---|---|
+| El cliente manda `enviar_whatsapp` | **SI** — capturado de una sesion real: `True` |
+| El interruptor esta guardado activo | **SI** — `whatsapp_envio_activo: True` |
+| Se generan alertas del tipo correcto | **SI** — 90 de `llegada` solo hoy |
+| Las claves de la tarjeta coinciden | **SI** — `event_type`, `clase_gruesa`, `image_base64` |
+| Los filtros dejan pasar una alerta REAL | **SI** — reproducido con una tarjeta de hoy, interceptando el envio |
+| El bot recibio algun intento | **NO** — cero lineas en el log |
+
+**El problema de fondo.** Con todos los eslabones correctos sobre el papel y
+cero intentos reales, el diagnostico se quedo sin siguiente paso: el reenvio
+**no dejaba rastro de nada**. Ni de que el interruptor llegara, ni de cuantos
+mensajes salieron, ni de si el bot rechazo alguno. Tres causas muy distintas
+—interruptor apagado, sin alertas, bot caido— eran indistinguibles desde
+fuera.
+
+**Correccion.** El camino se hace observable:
+
+1. El servidor **registra cada CAMBIO del interruptor** por cliente (una linea,
+   no por frame): `WhatsApp: interruptor ACTIVADO para client=... `.
+2. `/api/v1/estado` publica los contadores del emisor: `enviados`,
+   `descartados_antiflood`, `fallidos`.
+
+Con eso, la proxima vez la respuesta se lee de un vistazo: si el interruptor no
+aparece en el log, no esta llegando; si `enviados` sube y no ves el mensaje, el
+problema esta en el bot; si `fallidos` sube, el bot responde mal; si todo esta
+a cero con alertas, el flag no llego al procesador.
+
+**Nota.** No se envio ningun mensaje de prueba a WhatsApp a proposito: seria
+una accion hacia fuera, a un grupo real, y esa decision es del usuario.

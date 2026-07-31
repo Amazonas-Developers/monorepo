@@ -838,7 +838,18 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
             # procesador (mismo patrón que _draw_server); solo VigilanteWS lo
             # consume — inofensivo para el resto de procesadores.
             try:
-                processor._enviar_whatsapp = bool(data.get("enviar_whatsapp", False))
+                _wa = bool(data.get("enviar_whatsapp", False))
+                # Se registra cada CAMBIO del interruptor, una sola vez. Sin
+                # esto el reenvio es una caja negra: si el flag no llega, no
+                # hay forma de distinguirlo de "no hubo alertas" ni de un fallo
+                # del bot, que es justo donde se atasco el diagnostico del
+                # 31-jul (H-25).
+                if getattr(processor, "_enviar_whatsapp", None) != _wa:
+                    logger.info("WhatsApp: interruptor %s para client=%s "
+                                "(pipeline=%s)",
+                                "ACTIVADO" if _wa else "desactivado",
+                                client_id, type_inference)
+                processor._enviar_whatsapp = _wa
             except Exception:
                 pass
 
