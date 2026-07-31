@@ -84,7 +84,20 @@ def main() -> int:
     print(f"Dashboards por dominio: http://localhost:{puerto}/dashboards/")
     print(f"Servidor de inferencia SIN GUI en ws://0.0.0.0:{puerto}/ws "
           f"(Ctrl+C para detener)")
-    uvicorn.run(app, host="0.0.0.0", port=puerto, log_level="info")
+    # Keepalive del websocket (H-26). Uvicorn manda un PING de protocolo y
+    # si el PONG no vuelve a tiempo cierra con 1011 "keepalive ping timeout".
+    # Con los valores por defecto (20s/20s) mataba conexiones VIVAS cada
+    # 40-100s: el pong se retrasa cuando la GUI del cliente se congela unos
+    # segundos (AppHangB1) o cuando hay contrapresion (el cliente escribe mas
+    # rapido de lo que el servidor drena y el pong queda en cola tras los
+    # frames). Reproducido sinteticamente: closeCode=1011 a los 51s con
+    # 427 frames enviados y 3 respuestas. Un timeout de 60s tolera esos
+    # baches y sigue detectando peers realmente muertos; el cliente ademas
+    # se reconecta solo a los 5s si aun asi se corta.
+    ping_cada = float(os.getenv("ELDE_WS_PING_INTERVALO_SEG", "20"))
+    ping_timeout = float(os.getenv("ELDE_WS_PING_TIMEOUT_SEG", "60"))
+    uvicorn.run(app, host="0.0.0.0", port=puerto, log_level="info",
+                ws_ping_interval=ping_cada, ws_ping_timeout=ping_timeout)
     return 0
 
 

@@ -839,3 +839,47 @@ a cero con alertas, el flag no llego al procesador.
 
 **Nota.** No se envio ningun mensaje de prueba a WhatsApp a proposito: seria
 una accion hacia fuera, a un grupo real, y esa decision es del usuario.
+
+
+---
+
+## H-26 · Uvicorn mataba conexiones VIVAS cada 40-100 s (keepalive 1011) · `CORREGIDO`
+
+**Sintoma.** "El servidor de vez en cuando se desconecta y despues vuelve a
+conectar": el websocket moria cada 43-100 s y el cliente reconectaba a los
+5 s (su `reconnect_timer`). En el log del servidor solo se veia la secuela
+("Error enviando respuesta" vacio + "Error deserializando... char 0").
+
+**Diagnostico en tres capas, cada una con su evidencia:**
+
+1. El transporte del cliente no registraba el MOTIVO del cierre (el
+   `closeCode` solo salia por print, y `errorOccurred` ni estaba conectada).
+   Se hizo observable primero.
+2. Reproduccion sintetica (cliente Qt real, frame real de 152 KB a 12 fps):
+
+   ```
+   [80.5s] ERROR: 'Unable to write'
+   [81.9s] DESCONECTADO tras 51.4s | closeCode=1011
+           reason='keepalive ping timeout' | enviados=427 recibidos=3
+   ```
+
+3. **Causa raiz:** uvicorn manda un PING de protocolo cada 20 s y cierra con
+   1011 si el PONG no vuelve en 20 s. El pong se retrasa por dos vias reales:
+   **contrapresion** (el cliente escribe mas rapido de lo que el servidor
+   drena — 427 enviados vs 3 respuestas — y el pong queda en cola tras los
+   frames) y **congelones de la GUI del cliente** (AppHangB1 de python.exe a
+   las 15:05:58 en el Visor de eventos: el hilo de interfaz dejo de responder).
+
+**Correccion.** `ws_ping_interval=20` / `ws_ping_timeout=60` en uvicorn
+(`ELDE_WS_PING_INTERVALO_SEG` / `ELDE_WS_PING_TIMEOUT_SEG`): tolera baches de
+hasta un minuto y sigue detectando peers muertos.
+
+**Lo que NO cura:** los congelones de la GUI (capa 3b) siguen ahi — ahora
+cada cierre queda explicado en `clients/<x>/logs/<x>.log` con su closeCode,
+asi que si reaparece 1011 con el timeout de 60 s, el problema es un cuelgue
+de mas de un minuto del cliente y se ataca alli.
+
+**Hallazgo operativo de la misma sesion:** el servidor llevaba el dia
+corriendo como proceso HIJO de la sesion de asistencia; cada reinicio del
+anfitrion lo mataba ("se apaga"). Relanzado desligado y regla anotada: el
+servidor se arranca con INICIAR_*.bat o el SELECTOR.
