@@ -50,8 +50,9 @@ async function pintarPaneles() {
   const enlaces = await API.paneles();
   const nav = document.getElementById('paneles');
   const partes = [];
-  if (enlaces.tienda) partes.push(`<a href="${enlaces.tienda}" target="_blank">📈 Dashboard completo de tienda</a>`);
-  if (enlaces.visitantes) partes.push(`<a href="${enlaces.visitantes}" target="_blank">👥 Analítica de visitantes</a>`);
+  // El antiguo dashboard propio de tienda (9030) se retiro el 31-jul-2026:
+  // ESTA pagina es su sustituta, asi que no se enlaza a si misma.
+  if (enlaces.visitantes) partes.push(`<a href="${enlaces.visitantes}" target="_blank">👥 Analítica de visitantes (detalle, capturas, VLM)</a>`);
   nav.innerHTML = partes.join('');
 }
 pintarPaneles().catch(console.error);

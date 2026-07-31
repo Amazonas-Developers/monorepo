@@ -210,11 +210,10 @@ def paneles() -> Dict[str, Any]:
         # El dashboard general de visitantes vive en ESTE mismo proceso.
         'visitantes': {'ruta': '/dashboard', 'puerto': None},
     }
-    try:
-        from .dashboard_tienda import PUERTO_TIENDA
-        fuera['tienda'] = {'ruta': '/', 'puerto': PUERTO_TIENDA}
-    except Exception:
-        fuera['tienda'] = {'ruta': '/', 'puerto': None}
+    # El dashboard propio de tienda (9030) se retiro el 31-jul-2026: lo
+    # sustituye /dashboards/tienda/. Se publica con puerto None para que
+    # ninguna pagina pinte un enlace a un puerto que ya no escucha.
+    fuera['tienda'] = {'ruta': '/dashboards/tienda/', 'puerto': None}
     try:
         # Importable sin tocar sys.path: app.py ya importa este paquete, asi
         # que en el proceso del servidor esta resuelto o no existe.

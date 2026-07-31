@@ -424,6 +424,34 @@ def process_image_sync(
             draw=bool(draw_server),
         )
 
+    # H-21 (gemelo de H-20, salio al verificar aquel): VehicleProcessor
+    # tampoco tenia rama propia y la generica lo llamaba con 8 argumentos
+    # aceptando (image, roi, send_to_server). El modo Autolavado fallaba en
+    # cada frame igual. Devuelve (frame, metadata) directamente.
+    if isinstance(processor, VehicleProcessor):
+        return processor.process_frame(img, roi=roi if roi_activate else None)
+
+    # H-20: BoTSORTWrapper no tenia rama propia y caia en la generica, que lo
+    # llamaba con 5 argumentos cuando su firma acepta (frame, camera_id). El
+    # modo PerimetralesBoTSORT fallaba en CADA frame desde que las firmas
+    # divergieron. Devuelve pistas con la misma forma que PerimetralesMultiCam,
+    # asi que se dibujan igual — salvo `conf`, que aqui puede ser None.
+    if isinstance(processor, BoTSORTWrapper):
+        tracks = processor.process_frame(img, camera_id)
+        for t in tracks:
+            x1, y1, x2, y2 = t.get("bbox", (0, 0, 0, 0))
+            gid = t.get("global_id", 0)
+            conf = t.get("conf")
+            cam = t.get("camera_id", camera_id)
+            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            label = (f"ID:{gid} CAM:{cam} {conf:.2f}" if conf is not None
+                     else f"ID:{gid} CAM:{cam}")
+            y_text = max(10, y1 - 6)
+            (tw, th), bl = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+            cv2.rectangle(img, (x1, max(0, y_text - th - bl)), (x1 + tw, y_text + bl), (0, 255, 255), -1)
+            cv2.putText(img, label, (x1, y_text), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
+        return img, {"tracks": tracks}
+
     if isinstance(processor, PerimetralesMultiCam):
         tracks = processor.process_frame(
             img, camera_id,

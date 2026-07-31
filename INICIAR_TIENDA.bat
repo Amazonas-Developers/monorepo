@@ -76,14 +76,13 @@ echo       Servidor LISTO en ws://localhost:%PUERTO%/ws
 echo [2/4] servidor listo >> "%LOG%"
 echo.
 
-REM -- 3) DASHBOARD DE TIENDA (puerto propio 9030) -----------------
-REM  Cada sistema tiene su dashboard en SU puerto: la tienda en 9030,
-REM  el de visitantes en %PUERTO%/dashboard y el perimetral en 5333.
-REM  Los tres los sirve este mismo proceso del servidor.
-set "PUERTO_DASH=9030"
-echo [3/4] Abriendo DASHBOARD DE TIENDA (http://localhost:%PUERTO_DASH%)...
+REM -- 3) DASHBOARD DE TIENDA (HITO 9/11) --------------------------
+REM  El dashboard propio del 9030 se retiro el 31-jul-2026 (decision
+REM  del cierre del refactor): lo sustituye la pagina de dominio que
+REM  sirve el propio servidor sobre la API de lectura.
+echo [3/4] Abriendo DASHBOARD DE TIENDA (http://localhost:%PUERTO%/dashboards/tienda/)...
 echo [3/4] abrir dashboard tienda >> "%LOG%"
-start "" http://localhost:%PUERTO_DASH%
+start "" http://localhost:%PUERTO%/dashboards/tienda/
 
 REM -- 4) CLIENTE de tienda (clients\tienda) -------------------------
 echo [4/4] Iniciando CLIENTE de tienda...
@@ -94,7 +93,7 @@ echo.
 echo ============================================================
 echo  TODO LISTO
 echo    Servidor  : ws://localhost:%PUERTO%/ws
-echo    Dashboard : http://localhost:%PUERTO_DASH%  (TIENDA: pasillos, calor)
+echo    Dashboard : http://localhost:%PUERTO%/dashboards/tienda/  (TIENDA)
 echo    Visitantes: http://localhost:%PUERTO%/dashboard
 echo    Perimetral: http://localhost:5333
 echo    Cliente   : ventana "ELDE Tienda"

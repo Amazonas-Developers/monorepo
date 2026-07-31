@@ -27,14 +27,18 @@ servidor arranca igual y lo avisa en el log.
    `/dashboard/api/` (los endpoints internos del proceso). Si un dato falta,
    se añade a la API de lectura, no se puentea.
 2. **Cero hosts y cero puertos escritos.** Las llamadas son rutas relativas; los
-   enlaces a paneles en otros puertos (tienda :9030, VIGILANTE :5333) se
-   preguntan a `/api/v1/paneles` y se montan sobre el hostname actual.
+   enlaces a paneles en otros puertos (VIGILANTE :5333) se preguntan a
+   `/api/v1/paneles` y se montan sobre el hostname actual.
 3. **Un fallo de red no rompe el bucle**: se muestra en la cabecera y se
    reintenta en el siguiente refresco.
 
 ## Relación con los dashboards anteriores
 
-Los dashboards previos (`/dashboard` en el 9000 y el de tienda en el 9030)
-**siguen vivos**, como manda el plan del HITO 2 (paso 12: «los actuales siguen
-vivos» es el rollback). Estos tres no los sustituyen: son la vista por dominio
-sobre la API, y enlazan a aquellos para el detalle.
+- **`/dashboard` (9000, analítica de visitantes): vivo.** Tiene el detalle que
+  estas páginas no replican (galería, capturas, VLM, vaciado); la de tienda
+  enlaza a él.
+- **El dashboard propio de tienda (9030): RETIRADO el 31-jul-2026** por
+  decisión del cierre del refactor. Lo sustituye `tienda/` de esta carpeta.
+  Rollback: el módulo `server/src/app/dashboard_tienda.py` sigue en el árbol;
+  revivirlo es volver a llamar a `iniciar_dashboard_tienda()` en
+  `iniciar_servidor_headless.py`.

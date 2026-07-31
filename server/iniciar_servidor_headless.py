@@ -69,20 +69,11 @@ def _iniciar_dashboard_vigilante() -> None:
         print(f"[AVISO] dashboard de VIGILANTE no disponible: {exc}")
 
 
-def _iniciar_dashboard_tienda() -> None:
-    """Levanta el dashboard de TIENDA (:9030) en ESTE mismo proceso.
-
-    Es el que abre el boton "Dashboard" del cliente tienda_view: pasillos
-    (camara) mas y menos frecuentados, mapa de calor, aforo, genero/edad y
-    franja horaria. Comparte los datos del servidor, asi que no cuesta ni
-    VRAM ni un proceso aparte."""
-    try:
-        from src.app.dashboard_tienda import (PUERTO_TIENDA,
-                                              iniciar_dashboard_tienda)
-        iniciar_dashboard_tienda()
-        print(f"Dashboard de TIENDA:   http://localhost:{PUERTO_TIENDA}")
-    except Exception as exc:
-        print(f"[AVISO] dashboard de tienda no disponible: {exc}")
+# El dashboard de TIENDA del 9030 se RETIRO el 31-jul-2026 (decision del
+# cierre del refactor, HITO 11): lo sustituye /dashboards/tienda/, la pagina
+# de dominio que lee de /api/v1. El modulo `src/app/dashboard_tienda.py` sigue
+# en el arbol: revivirlo es volver a llamar a `iniciar_dashboard_tienda()`
+# aqui, y esta anotado como rollback en docs/refactor/12_CIERRE.md.
 
 
 def main() -> int:
@@ -90,7 +81,6 @@ def main() -> int:
     # Import tardío: carga modelos/GPU (tarda ~1 min la primera vez).
     from src.app.app import app
     _iniciar_dashboard_vigilante()
-    _iniciar_dashboard_tienda()
     print(f"Dashboards por dominio: http://localhost:{puerto}/dashboards/")
     print(f"Servidor de inferencia SIN GUI en ws://0.0.0.0:{puerto}/ws "
           f"(Ctrl+C para detener)")

@@ -573,7 +573,14 @@ refactor, asi que queda anotado sin tocar.
 
 ---
 
-## H-20 · `PerimetralesBoTSORT` falla en CADA frame · `ABIERTO` · **critico**
+## H-20 · `PerimetralesBoTSORT` falla en CADA frame · `CORREGIDO` · **critico**
+
+> **Corregido el 31-jul-2026 con aprobacion explicita** (panel del HITO 11).
+> `BoTSORTWrapper` tiene ya su rama propia en el despacho, llamado con la
+> firma que acepta `(frame, camera_id)`; sus pistas se dibujan como las de
+> MultiCam, tolerando `conf=None` (que la etiqueta de MultiCam habria roto
+> con su `:.2f`). Verificado con trafico sintetico: 0 errores de firma.
+
 
 ```
 Error en worker: BoTSORTWrapper.process_frame() takes 3 positional arguments
@@ -609,3 +616,31 @@ le da una rama propia con `(img, camera_id)`, o se amplia su firma para que
 acepte lo mismo que los demas. Lo segundo es lo coherente con el resto, pero
 cambia el comportamiento de un procesador que no puedo probar sin camaras
 reales.
+
+
+---
+
+## H-21 · `Autolavado` fallaba en CADA frame, igual que H-20 · `CORREGIDO`
+
+Salio al VERIFICAR el arreglo de H-20: en el mismo log estaba su gemelo.
+
+```
+Error en worker: VehicleProcessor.process_frame() takes from 2 to 4
+positional arguments but 8 were given
+```
+
+Mismo defecto exacto: `VehicleProcessor` (modo `Autolavado`) tampoco tenia
+rama propia en el despacho y caia en la generica. Su firma es
+`(image, roi=None, send_to_server=True)` y recibia 8 argumentos.
+
+**Por que se corrigio sin panel nuevo:** la aprobacion del HITO 11 fue para
+exactamente esta clase de fallo en exactamente esta funcion; se extendio al
+gemelo y quedo dicho en el informe. Rama propia que le pasa
+`(img, roi si roi_activate)` y devuelve su `(frame, metadata)` tal cual.
+Verificado junto a H-20: 0 errores de firma con trafico en ambos modos.
+
+**La leccion que dejan H-20 y H-21 juntos:** el despacho por `isinstance`
+con una rama generica que asume una firma es fragil — cada procesador nuevo
+que no la comparta falla en silencio hacia el log. Si aparece un tercer
+caso, la correccion de fondo es una interfaz comun de procesador, no otra
+rama.
