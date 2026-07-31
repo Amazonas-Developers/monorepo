@@ -14,6 +14,8 @@ __pycache__/
 
 # ===== Entornos virtuales (cada proyecto tiene el suyo) =====
 venv/
+venv_sistemasite_old/
+venv_*/
 env/
 .venv/
 
@@ -22,18 +24,13 @@ env/
 *.key
 *.pem
 
-# Estos 3 archivos llevan el App Key y el App Secret de Hik-Connect ESCRITOS
-# EN CLARO. Se excluyen para que este monorepo no nazca con el secreto en su
-# historial. Siguen en disco: no se ha borrado nada.
-#   - get_url.py           lineas 11-12, en las 4 copias del script
-#   - HIKCONNECT_INTEGRATION.md  documentacion con las claves de ejemplo reales
-#   - hik-connect/api hik.txt    notas de la API
-# Ver H-13: las claves YA estan expuestas en los repos antiguos de GitHub y
-# hay que ROTARLAS. Quitarlas del codigo no las desexpone.
-# Cuando esten rotadas, la documentacion puede volver al repositorio.
-get_url.py
-HIKCONNECT_INTEGRATION.md
-hik-connect/api hik.txt
+# H-13, CERRADO el 31-jul-2026: las claves de Hik-Connect se ROTARON. Los
+# archivos que se excluian por llevarlas en claro ya no las llevan (get_url.py
+# las lee del .env; los HIKCONNECT_INTEGRATION.md estan enmascarados) y
+# vuelven al repositorio, como este bloque prometia. La carpeta hik-connect/
+# (SDK + notas) la movio el usuario fuera del proyecto.
+# REGLA VIVA: ninguna credencial se escribe en un archivo versionable; la
+# sesion se introduce en el panel de Dispositivos del cliente.
 
 # ===== Modelos y pesos (50 GB; compartir por red o Git LFS) =====
 modelos NVIDIA/

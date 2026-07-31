@@ -34,11 +34,15 @@ from typing import Any, Dict, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
-MODO = (os.getenv('ELDE_VALIDAR_CONTRATO', 'observar') or 'observar').strip().lower()
+# Por defecto `estricto` desde el 31-jul-2026 (decision del usuario, tras
+# 7/8 pipelines validados con 0% de fallos en `observar` y los payloads
+# reales capturados pasando con `extra='forbid'`). `observar` y `apagado`
+# siguen disponibles por entorno para diagnosticar.
+MODO = (os.getenv('ELDE_VALIDAR_CONTRATO', 'estricto') or 'estricto').strip().lower()
 if MODO not in ('observar', 'estricto', 'apagado'):
-    logger.warning("ELDE_VALIDAR_CONTRATO=%r no reconocido; se usa 'observar'",
+    logger.warning("ELDE_VALIDAR_CONTRATO=%r no reconocido; se usa 'estricto'",
                    MODO)
-    MODO = 'observar'
+    MODO = 'estricto'
 
 SITE_ID = os.getenv('ELDE_SITE_ID', 'sitio-unico').strip() or 'sitio-unico'
 

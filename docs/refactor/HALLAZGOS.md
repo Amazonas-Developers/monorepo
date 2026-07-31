@@ -69,7 +69,22 @@ capturas **nuevas**; las 204 antiguas no son recuperables por pasillo.
 
 ---
 
-## H-04 · Los venv no aislan · `ABIERTO` (entorno, no codigo)
+## H-04 · Los venv no aislan · `CORREGIDO`
+
+> **CORREGIDO el 31-jul-2026 por orden del usuario.** Los 5 venv se recrearon
+> SIN `--system-site-packages`: PySide6, cv2 y torch viven ahora dentro de
+> cada venv. Clientes desde su `requirements.txt` (sin torch: ninguno lo
+> importa, se colaba del user-site) + `elde_core` editable; servidor desde el
+> freeze del entorno que funcionaba, con torch 2.8.0+cu128 del indice de
+> PyTorch y **CUDA revalidado en la RTX 5060 Ti con una operacion real**.
+> Amazonas ya estaba aislado y no se toco. Los venv viejos quedan como
+> `venv_sistemasite_old` en cada carpeta hasta rodar los nuevos; luego se
+> borran. Verificado: baterias de imports 12/14/12/11, servidor arrancando
+> con sus 3 puertos, 7/7 pipelines en estricto y 12+65 pruebas.
+>
+> Bonus del freeze: la linea `opencv-contrib-python-rolling @ file:///...`
+> del requirements del servidor era una linea MUERTA (H-06): el cv2 real
+> siempre fue `opencv-contrib-python==4.12.0.88` de PyPI.
 
 Los venv se crearon con `--system-site-packages`:
 `include-system-site-packages = true` y `ENABLE_USER_SITE = True`. **PySide6
@@ -331,7 +346,14 @@ propio pipeline.
 
 ---
 
-## H-13 · Claves de Hik-Connect en claro y **ya publicadas en GitHub** · `MITIGADO` · **falta rotarlas**
+## H-13 · Claves de Hik-Connect en claro y **ya publicadas en GitHub** · `CERRADO`
+
+> **CERRADO el 31-jul-2026: el usuario ROTO las claves** (App Key/Secret de
+> Hik-Connect y la key de Roboflow). Las cadenas expuestas en los historiales
+> antiguos quedaron muertas. Con eso, la documentacion que se excluia del
+> repositorio vuelve a el (enmascarada), como prometia el `.gitignore`. Lo
+> unico del capitulo que sigue vivo es BORRAR los 3 repos antiguos de GitHub
+> (decidido: eliminar, no archivar), que requiere la cuenta del usuario.
 
 > **Mitigado el 30-jul-2026: la credencial ya no vive en ningun archivo.**
 >
@@ -449,7 +471,12 @@ cree el repositorio vacio en GitHub.
 
 ---
 
-## H-10 · Peso muerto en la raiz del proyecto · `ABIERTO`
+## H-10 · Peso muerto en la raiz del proyecto · `CERRADO en lo posible`
+
+> **31-jul-2026:** el usuario movio fuera del proyecto la carpeta
+> `hik-connect/` completa (SDK + notas) y casi todos los modelos: de 50 GB
+> quedan **118 MB** en `modelos NVIDIA/` ("movi los que pude"). Los zips se
+> borraron en el HITO 11. Lo que queda es de uso corriente.
 
 - `modelos NVIDIA/`: **50 GB**.
 - `hik-connect/`: 3954 archivos de SDK de terceros (~200 MB en `.exe`, `.dll`,
@@ -567,9 +594,10 @@ intentar usarlos.
 valores por defecto de Hummus/Misters llevan tiempo sin resolver y solo
 funcionan cuando la configuracion los tapa.
 
-**Que hace falta:** el archivo `1080.pt`, o apuntar `Hummus` a un modelo que
-exista. Es una decision de producto (que modelo debe usar Hummus), no de
-refactor, asi que queda anotado sin tocar.
+**Decision del usuario (31-jul-2026):** el modelo esta AUN SIN ENTRENAR, y
+cuando exista **se llamara exactamente `1080.pt`**. Por tanto la configuracion
+actual es correcta y NO se toca: el dia que el archivo aparezca en
+`models/base/`, el modo Hummus arranca solo. Estado: esperando el modelo.
 
 ---
 

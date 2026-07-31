@@ -116,10 +116,29 @@ def test_rechaza_poligono_de_dos_puntos():
         raise AssertionError("deberia haber rechazado el poligono")
 
 
-def test_admite_claves_desconocidas_durante_la_migracion():
-    """Un cliente sin actualizar no debe romperse al activar la validacion."""
-    fi = FrameInference(image=JPEG, clave_que_no_conocemos="algo")
-    assert fi.image == JPEG
+def test_rechaza_claves_desconocidas_tras_la_migracion():
+    """La era de `extra='allow'` TERMINO el 31-jul-2026.
+
+    Durante la migracion, una clave desconocida era "un cliente sin
+    actualizar" y habia que dejarla pasar. Con los cuatro clientes migrados y
+    el envio compartido en el nucleo, una clave desconocida es un error o una
+    deriva del contrato, y debe sonar. (Esta prueba afirmaba lo contrario
+    hasta esa fecha: se invirtio a proposito, no por descuido.)"""
+    try:
+        FrameInference(image=JPEG, clave_que_no_conocemos="algo")
+    except Exception as exc:
+        assert 'clave_que_no_conocemos' in str(exc)
+    else:
+        raise AssertionError('debe rechazar claves desconocidas')
+
+
+def test_el_camera_id_del_payload_sigue_admitido():
+    """`camera_id` viaja DENTRO de `data` en el formato en transicion y el
+    servidor lo lee de ahi. Al endurecer a `forbid` casi se convierte en
+    rechazo de TODOS los frames: por eso esta modelado y esta prueba lo
+    fija."""
+    fi = FrameInference(image=JPEG, camera_id='dvr-J12345678-2')
+    assert fi.camera_id == 'dvr-J12345678-2'
 
 
 # ── Compatibilidad ───────────────────────────────────────────────────────

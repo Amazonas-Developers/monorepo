@@ -71,21 +71,21 @@ Los hallazgos (H-01…H-21) viven en `HALLAZGOS.md`: 17 corregidos, 4 abiertos.
 
 ### Tuyo (nadie más puede)
 
-| | Qué | Por qué urge |
+| | Qué | Estado |
 |---|---|---|
-| **H-13** | **Rotar** App Key/Secret de Hik-Connect y la key de Roboflow | llevan meses en el historial público de GitHub; borrarlas no las desexpone |
-| — | Poner **privado** el monorepo | está público desde su creación |
-| H-12 | Archivar (solo lectura) los 3 repos antiguos | dos clientes distintos publicaban al mismo remoto |
-| — | **Ejercitar los 8 modos con clientes reales** unos minutos | es lo único que falta para cortar la validación a `estricto` con datos de verdad |
+| **H-13** | Rotar las claves | **HECHO el 31-jul** — H-13 cerrado; la documentación volvió al repo |
+| — | Poner **privado** el monorepo | pendiente («después lo hago») |
+| H-12 | Los 3 repos antiguos de GitHub | decidido **eliminarlos** (no archivar); `gh` no está instalado, así que es un clic tuyo en Settings → Danger Zone de cada repo |
+| — | Ejercitar los 8 modos con clientes reales | pendiente; el corte a `estricto` ya se hizo con tráfico sintético verificado en ambos sentidos — si un cliente real tropezara, `ELDE_VALIDAR_CONTRATO=observar` es la vuelta atrás |
 
 ### Del código (con decisión previa)
 
 | | Qué |
 |---|---|
-| H-19 | `Hummus` apunta a `models/base/1080.pt`, que no existe. Decisión de producto: conseguir ese modelo o apuntar a otro |
-| H-04 | Los venv no aíslan (`--system-site-packages`); recrearlos exige revalidar torch/CUDA |
-| H-10 | 50 GB de `modelos NVIDIA/` + 1 GB de `hik-connect/` en la raíz |
-| contrato | pasar los payloads a `extra='forbid'` **a la vez** que el corte a `estricto` |
+| H-19 | `Hummus`: el modelo está sin entrenar; cuando exista se llamará `1080.pt` — la config es correcta y arrancará solo (decisión del 31-jul) |
+| H-04 | **CORREGIDO el 31-jul**: los 5 venv recreados aislados (los viejos, en `venv_sistemasite_old` hasta rodarlos) |
+| H-10 | **Cerrado en lo posible**: el usuario movió `hik-connect/` y casi todos los modelos (quedan 118 MB de uso corriente) |
+| contrato | **HECHO el 31-jul**: `estricto` por defecto + payloads `extra='forbid'`, verificado en ambos sentidos |
 | núcleo | `geometry/` (propuesto en el HITO 2) encaja cuando se siga partiendo `render_box` |
 
 ### Deuda de arquitectura anotada

@@ -65,7 +65,7 @@ class FrameInference(BaseModel):
 
     Corresponde al `data` de hoy (`render_box.py:645-669`)."""
 
-    model_config = ConfigDict(extra='allow')   # ver nota al pie del modulo
+    model_config = ConfigDict(extra='forbid')  # endurecido el 31-jul; ver nota al pie
 
     image: bytes = Field(..., description="JPEG del frame.")
 
@@ -74,6 +74,13 @@ class FrameInference(BaseModel):
     roi_coordinates: Optional[Poligono] = None
 
     # ── Camara ──
+    # Duplica el `device_id` del envelope DENTRO del payload. No es un
+    # descuido: el formato en transicion lo lleva ahi (`data.camera_id`) y el
+    # servidor lo lee de ahi; la capa de compatibilidad lo promociona al
+    # envelope SIN sacarlo del payload (sacarlo mutaria el request que el
+    # servidor procesa despues). Sin este campo, `extra='forbid'` rechazaria
+    # TODOS los frames.
+    camera_id: Optional[str] = Field(default=None, max_length=96)
     camera_angle: CameraAngle = CameraAngle.AUTO
     camera_name: Optional[str] = Field(default=None, max_length=48)
     # Cabecera del frame que anade el cliente de perimetrales: timestamp de
@@ -136,7 +143,7 @@ class FrameInference(BaseModel):
 
 class Deteccion(BaseModel):
     """Una caja detectada, con lo que el pipeline haya podido inferir."""
-    model_config = ConfigDict(extra='allow')
+    model_config = ConfigDict(extra='forbid')
 
     track_id: Optional[int] = None
     bbox: Optional[List[float]] = None
@@ -153,7 +160,7 @@ class FrameResult(BaseModel):
     resultado (`app.py:785`), asi que cliente y servidor comparten forma
     exterior pero no interior."""
 
-    model_config = ConfigDict(extra='allow')
+    model_config = ConfigDict(extra='forbid')
 
     status: Optional[str] = None           # "ok" o "success" segun pipeline
     message: Optional[str] = None
@@ -181,7 +188,7 @@ class FrameResult(BaseModel):
 
 class ConnectionInit(BaseModel):
     """Servidor -> cliente, al aceptar la conexion (`app.py:647`)."""
-    model_config = ConfigDict(extra='allow')
+    model_config = ConfigDict(extra='forbid')
 
     id_connection: int
     roi: bool = False
@@ -197,7 +204,7 @@ class Heartbeat(BaseModel):
 
 class ErrorEvento(BaseModel):
     """Error estructurado (`app.py:_send_error`)."""
-    model_config = ConfigDict(extra='allow')
+    model_config = ConfigDict(extra='forbid')
 
     status: str = "error"
     message: str
@@ -214,14 +221,15 @@ POR_EVENTO: Dict[str, Any] = {
 }
 
 
-# NOTA sobre `extra='allow'`
-# --------------------------
-# Los payloads permiten claves desconocidas a proposito, y solo durante la
-# migracion. Con `extra='forbid'` cualquier cliente sin actualizar dejaria de
-# funcionar en cuanto el servidor validase, que es exactamente el "romper
-# clientes en produccion" que el HITO 3 quiere evitar. El envelope, en cambio,
-# SI usa `extra='forbid'`: la cabecera es nueva y nadie la emite todavia, asi
-# que puede ser estricta desde el principio.
+# NOTA sobre `extra='forbid'`
+# ---------------------------
+# Hasta el 31-jul-2026 los payloads permitian claves desconocidas
+# (`extra='allow'`), a proposito y solo durante la migracion: endurecer antes
+# habria roto a los clientes sin actualizar. Con los cuatro clientes migrados
+# y el envio compartido en el nucleo (loop_show_result), la forma del payload
+# es una sola y conocida, asi que una clave desconocida ya no es "un cliente
+# viejo": es un error o una deriva del contrato, y debe sonar. Si un campo
+# nuevo hace falta, se anade AQUI primero y sube `event_version`.
 #
 # Cuando los 4 clientes esten migrados (fin del HITO 7), estos modelos deben
 # pasar a `extra='forbid'` y las claves sobrantes que aparezcan en el log de
