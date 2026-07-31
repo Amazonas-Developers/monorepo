@@ -4,6 +4,10 @@ from PySide6.QtNetwork import QAbstractSocket
 import json
 import msgpack
 
+from ..logging import obtener
+
+log = obtener(__name__)
+
 
 class Socket_services(QObject):
     
@@ -29,6 +33,10 @@ class Socket_services(QObject):
         self.client.disconnected.connect(self._on_disconnected)
         self.client.textMessageReceived.connect(self.on_text_message_received)
         self.client.binaryMessageReceived.connect(self.on_binary_message_received)
+        # `_on_error` existia desde el principio pero la señal NUNCA se
+        # conecto: los errores del socket se perdian sin dejar rastro. Es la
+        # misma leccion de H-25 (lo no observable no se puede diagnosticar).
+        self.client.errorOccurred.connect(self._on_error)
 
 
         
@@ -70,6 +78,21 @@ class Socket_services(QObject):
     
     def _on_disconnected(self):
         print('❌ WebSocket offline')
+        # El closeCode dice QUIEN cerro y por que: 1000=cierre normal,
+        # 1001=el peer se va, 1006=conexion abortada sin close frame (red,
+        # proceso muerto, buffer). Sin esta linea, las desconexiones
+        # periodicas eran indiagnosticables (solo se veia la secuela en el
+        # log del SERVIDOR).
+        try:
+            log.warning(
+                'websocket desconectado: closeCode=%s closeReason=%r '
+                'errorString=%r url=%s',
+                getattr(self.client.closeCode(), 'value',
+                        self.client.closeCode()),
+                self.client.closeReason(),
+                self.client.errorString(), self.url)
+        except Exception:
+            pass
         self.disconnected_signal.emit(False, "Server Offline")
         
         # SOLO reconecta si NO fue una desconexión manual
@@ -97,6 +120,10 @@ class Socket_services(QObject):
         # El signal de error de Qt suele enviar información técnica
         error_msg = self.client.errorString()
         print(f"💥 Error socket: {error_msg}")
+        try:
+            log.warning('error del socket: %s (%s)', error_msg, error)
+        except Exception:
+            pass
        
         self.disconnected_signal.emit(False, f"Error: {error_msg}")
         

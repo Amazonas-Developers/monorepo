@@ -14,6 +14,7 @@ from __future__ import annotations
 import os
 import socket
 import subprocess
+import webbrowser
 import sys
 
 from PySide6.QtCore import Qt, QTimer
@@ -84,6 +85,22 @@ def _start_server() -> str:
         return f"Error al arrancar el servidor: {e}"
 
 
+def _abrir_dashboard(s, srv, retraso_ms=1500):
+    """Abre el dashboard de dominio del sistema lanzado, en el navegador.
+
+    Sobre el SERVIDOR ELEGIDO (no siempre localhost: el selector permite
+    apuntar a un servidor remoto) y solo cuando ese servidor responde — abrir
+    la URL de un servidor caido seria una pestana de error. El retraso da
+    tiempo a que el cliente arranque y la pestana no le robe el foco justo
+    al abrirse la ventana."""
+    ruta = s.get("dashboard")
+    if not ruta:
+        return
+    host = "localhost" if srv.get("local") else srv["host"]
+    url = f"http://{host}:{SERVER_PORT}{ruta}"
+    QTimer.singleShot(retraso_ms, lambda: webbrowser.open(url))
+
+
 def _first_existing(*paths):
     for p in paths:
         if p and os.path.exists(p):
@@ -98,12 +115,17 @@ def _first_existing(*paths):
 #   - si no hay .bat: se usa el venv del sistema (o el python global) sobre
 #             su src/main.py.
 # Editar esta lista es todo lo que hace falta para agregar/quitar sistemas.
-def _sistema(nombre, emoji, desc, carpeta, color, bat=None, needs_server=False):
+def _sistema(nombre, emoji, desc, carpeta, color, bat=None, needs_server=False,
+             dashboard=None):
     d = os.path.join(ROOT, carpeta)
     bat_path = os.path.join(d, bat) if bat else None
     return {
         "nombre": nombre, "emoji": emoji, "desc": desc, "color": color,
         "carpeta": d, "bat": bat_path, "needs_server": needs_server,
+        # Ruta del dashboard de dominio (HITO 9) que se abre en el navegador
+        # al lanzar el sistema, sobre el SERVIDOR ELEGIDO. None = no abrir
+        # (tienda: su .bat ya lo abre; abrirlo aqui duplicaria la pestana).
+        "dashboard": dashboard,
         "venv_py": os.path.join(d, "venv", "Scripts", "python.exe"),
         "entry": os.path.join(d, "src", "main.py"),
     }
@@ -118,6 +140,7 @@ SISTEMAS = [
      "desc": "Analitica de supermercado: servidor + dashboard + cliente.",
      "carpeta": ROOT, "bat": os.path.join(ROOT, "INICIAR_TIENDA.bat"),
      "needs_server": False,
+     "dashboard": None,   # INICIAR_TIENDA.bat ya abre /dashboards/tienda/
      "venv_py": os.path.join(ROOT, "clients", "tienda", "venv", "Scripts",
                              "python.exe"),
      "entry": os.path.join(ROOT, "clients", "tienda", "src", "main.py")},
@@ -126,13 +149,15 @@ SISTEMAS = [
              "Cliente oficial (clients/managers). Arranca el servidor "
              "compartido si hace falta.",
              os.path.join("clients", "managers"), "#2ecc71",
-             bat="INICIAR_CLIENTE.bat", needs_server=True),
+             bat="INICIAR_CLIENTE.bat", needs_server=True,
+             dashboard="/dashboards/"),
 
     _sistema("Perimetrales", "🛡️",
              "Cliente de vigilancia perimetral. Arranca el servidor "
              "compartido si hace falta.",
              os.path.join("clients", "perimetrales"), "#e67e22",
-             bat="INICIAR_CLIENTE.bat", needs_server=True),
+             bat="INICIAR_CLIENTE.bat", needs_server=True,
+             dashboard="/dashboards/perimetrales/"),
 
     # Amazonas View SI usa el servidor compartido: su INICIAR_AMAZONAS.bat
     # lanza el mismo iniciar_servidor_headless.py que la tienda. El comentario
@@ -143,7 +168,8 @@ SISTEMAS = [
              "Cliente Amazonas View. Arranca el servidor compartido si hace "
              "falta.",
              os.path.join("clients", "amazonas"), "#9b59b6",
-             bat="INICIAR_AMAZONAS.bat", needs_server=True),
+             bat="INICIAR_AMAZONAS.bat", needs_server=True,
+             dashboard="/dashboards/amazonas/"),
 ]
 
 
@@ -311,6 +337,7 @@ class Selector(QWidget):
         if _server_reachable(srv):
             self._set_status(
                 f"Servidor {srv['host']} en linea. " + _lanzar(s, env_extra))
+            _abrir_dashboard(s, srv)
             return
 
         # No responde. Si es REMOTO no se puede arrancar desde aqui.
@@ -348,6 +375,7 @@ class Selector(QWidget):
             self._timer.stop()
             self._set_status("Servidor listo. "
                              + _lanzar(self._pending, self._pending_env))
+            _abrir_dashboard(self._pending, self._pending_srv)
         elif self._elapsed >= 200:
             self._timer.stop()
             self._set_status(
