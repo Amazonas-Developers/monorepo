@@ -287,3 +287,28 @@ def test_jarvis_api_conserva_el_superconjunto_de_perimetrales():
                    'selection_establishment'):
         assert hasattr(Jarvis_api, metodo), \
             f'{metodo} lo usa jarvis_alert_forwarder de perimetrales'
+
+
+def test_el_worker_de_captura_funciona_COMO_SCRIPT():
+    """H-23: `capture_woker.py` no se importa, se EJECUTA en un subproceso.
+
+    Un alias de modulo a secas (`sys.modules[__name__] = _modulo`) hacia que
+    el subproceso terminara al instante sin capturar: al correr como script
+    `__name__` es `"__main__"`, pero el modulo del nucleo se importa con su
+    nombre real y su guarda `if __name__ == "__main__"` nunca corria. Efecto
+    visible: el boton Play no hacia nada, sin error ni frames.
+
+    Los alias normales NO necesitan esto; este es el unico que se ejecuta.
+    """
+    import ast
+    for cliente in CLIENTES_MIGRADOS + ['clients/amazonas']:
+        ruta = RAIZ / cliente / 'src' / 'workers' / 'capture_woker.py'
+        if not ruta.is_file():
+            continue
+        texto = ruta.read_text(encoding='utf-8', errors='replace')
+        assert '__main__' in texto, (
+            f'{cliente}: el alias del worker no replica la guarda de script; '
+            'el subproceso saldria sin capturar (H-23)')
+        assert 'ejecutar_worker' in texto, (
+            f'{cliente}: debe llamar a ejecutar_worker() en modo script')
+        ast.parse(texto)          # y debe seguir siendo Python valido

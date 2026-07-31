@@ -709,3 +709,48 @@ kwargs exactos de cada `main.py` en los 4 venv. Y la leccion queda en la
 prueba nueva de `test_nucleo.py`: **importar no detecta una firma perdida;
 hay que construir**. Es la tercera vez que "compila/importa" no basto
 (plantillas de `ajustes.py`, y ahora esto).
+
+
+---
+
+## H-23 · El boton Play no capturaba: el alias del worker se EJECUTA, no se importa · `CORREGIDO` · **critico**
+
+**Sintoma.** Se elige una ventana, se pulsa Play y **no pasa nada**: ni error,
+ni frames, ni traza. En el servidor solo aparece "Cliente conectado" y su
+desconexion — el cliente conecta bien, pero no envia un solo frame.
+
+**Causa.** `render_box.init_loop` no importa el worker: lo lanza como script
+en un subproceso.
+
+```python
+QProcess.start(sys.executable, ["src/workers/capture_woker.py", str(hwnd)])
+```
+
+El HITO 4 convirtio ese archivo en un alias de modulo como todos los demas:
+
+```python
+_sys.modules[__name__] = _modulo
+```
+
+Al ejecutarse como script, `__name__` vale `"__main__"`, pero el modulo del
+nucleo se importa con su nombre real (`elde_core.capture.capture_worker`), asi
+que **su guarda `if __name__ == "__main__"` nunca corria**. El subproceso
+arrancaba, reasignaba `sys.modules` y terminaba con exit 0 sin capturar nada.
+
+Comprobado midiendo: el alias salia al instante; el modulo del nucleo lanzado
+directamente se quedaba capturando.
+
+**Afectaba a los CUATRO clientes**, y no lo detecto nada: los imports pasaban
+(el alias es Python valido), las pruebas pasaban y el cliente arrancaba. Solo
+se ve usandolo.
+
+**Correccion.** El alias replica la guarda de script y llama a
+`ejecutar_worker()`, que el nucleo ya exponia; en modo import sigue siendo un
+alias transparente. Verificado en los 4 venv: el subproceso ahora se queda
+vivo capturando. Prueba nueva en `test_nucleo.py`.
+
+**La leccion, que es la misma de H-22 subida de nivel:** un alias de modulo
+sirve para lo que se IMPORTA. Si un archivo tambien se ejecuta —worker,
+script, punto de entrada— el alias hay que escribirlo de otra forma. Al
+migrar conviene preguntarse *como se usa este archivo*, no solo *quien lo
+importa*.
