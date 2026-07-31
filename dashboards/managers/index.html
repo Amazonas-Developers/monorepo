@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Managers · Dashboards ELDE</title>
+<link rel="stylesheet" href="/dashboards/shared/estilo.css">
+<style>:root { --acento: #2ecc71; }</style>
+</head>
+<body>
+<header>
+  <h1>🧭 Managers — operación global</h1>
+  <span class="sub"><a href="/dashboards/" style="color:var(--apagado)">← todos los dashboards</a></span>
+  <span class="refresco"></span>
+</header>
+
+<nav class="paneles" id="paneles"></nav>
+
+<div class="kpis">
+  <div class="kpi"><div class="valor" data-kpi="camaras">—</div><div class="nombre">cámaras (todos los dominios)</div></div>
+  <div class="kpi"><div class="valor" data-kpi="activas">—</div><div class="nombre">activas (última hora)</div></div>
+  <div class="kpi"><div class="valor" data-kpi="modo">—</div><div class="nombre">validación del contrato</div></div>
+  <div class="kpi"><div class="valor" data-kpi="problemas">—</div><div class="nombre">mensajes con problema</div></div>
+  <div class="kpi"><div class="valor" data-kpi="pipelines">—</div><div class="nombre">pipelines validados</div></div>
+  <div class="kpi"><div class="valor" data-kpi="alertasHoy">—</div><div class="nombre">alertas del perímetro hoy</div></div>
+</div>
+
+<section>
+  <h2>Salud del servidor</h2>
+  <div class="rejilla2">
+    <div class="tarjeta" id="salud-contrato"></div>
+    <div class="tarjeta" id="salud-registro"></div>
+    <div class="tarjeta" id="salud-whatsapp"></div>
+  </div>
+</section>
+
+<section>
+  <h2>Todas las cámaras</h2>
+  <div class="tarjeta" id="dispositivos"></div>
+</section>
+
+<section>
+  <h2>Últimos eventos</h2>
+  <div class="rejilla2">
+    <div class="tarjeta"><h2>Alertas del perímetro</h2><div id="ultimas-alertas"></div></div>
+    <div class="tarjeta"><h2>Capturas de personas</h2><div id="ultimas-capturas"></div></div>
+  </div>
+</section>
+
+<script src="/dashboards/shared/api.js"></script>
+<script src="/dashboards/managers/app.js"></script>
+</body>
+</html>
