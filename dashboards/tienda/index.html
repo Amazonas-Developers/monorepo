@@ -21,22 +21,31 @@
   <div class="kpi"><div class="valor" data-kpi="entradas">—</div><div class="nombre">entradas totales</div></div>
   <div class="kpi"><div class="valor" data-kpi="aforo">—</div><div class="nombre">aforo actual</div></div>
   <div class="kpi"><div class="valor" data-kpi="permanencia">—</div><div class="nombre">permanencia media</div></div>
-  <div class="kpi"><div class="valor" data-kpi="capturas">—</div><div class="nombre">capturas</div></div>
+  <div class="kpi"><div class="valor" data-kpi="masConcurrido">—</div><div class="nombre">pasillo más concurrido</div></div>
+  <div class="kpi"><div class="valor" data-kpi="menosConcurrido">—</div><div class="nombre">pasillo menos concurrido</div></div>
 </div>
 
 <section>
-  <h2>Género</h2>
-  <div class="tarjeta"><div class="barras" id="genero"></div></div>
+  <h2>Pasillos por concurrencia</h2>
+  <div class="tarjeta" id="pasillos"></div>
 </section>
 
 <section>
-  <h2>Edad</h2>
-  <div class="tarjeta"><div class="barras" id="edad"></div></div>
+  <h2>Marketing y consumo</h2>
+  <div class="rejilla2">
+    <div class="tarjeta"><h2>Género de los visitantes</h2><div class="barras" id="genero"></div></div>
+    <div class="tarjeta"><h2>Edad de los visitantes</h2><div class="barras" id="edad"></div></div>
+    <div class="tarjeta"><h2>Franjas más activas (capturas por hora)</h2><div class="barras" id="franjas"></div></div>
+  </div>
 </section>
 
 <section>
-  <h2>Cámaras de tienda</h2>
-  <div class="tarjeta" id="dispositivos"></div>
+  <h2>Imágenes de detecciones</h2>
+  <div class="galeria" id="capturas"></div>
+  <div class="paginacion">
+    <button id="mas" class="boton">Cargar más</button>
+    <span class="vacio" id="mas-nota"></span>
+  </div>
 </section>
 
 <section>
@@ -44,54 +53,12 @@
   <div class="heatmaps" id="heatmaps"></div>
 </section>
 
+<section>
+  <h2>Cámaras de tienda</h2>
+  <div class="tarjeta" id="dispositivos"></div>
+</section>
+
 <script src="/dashboards/shared/api.js"></script>
-<script>
-async function pintarPaneles() {
-  const enlaces = await API.paneles();
-  const nav = document.getElementById('paneles');
-  const partes = [];
-  // El antiguo dashboard propio de tienda (9030) se retiro el 31-jul-2026:
-  // ESTA pagina es su sustituta, asi que no se enlaza a si misma.
-  if (enlaces.visitantes) partes.push(`<a href="${enlaces.visitantes}" target="_blank">👥 Analítica de visitantes (detalle, capturas, VLM)</a>`);
-  nav.innerHTML = partes.join('');
-}
-pintarPaneles().catch(console.error);
-
-refrescar(async () => {
-  const [{ resumen }, dispositivos, heatmaps] = await Promise.all([
-    API.leer('resumen'),
-    API.leer('dispositivos?client_type=tienda'),
-    API.leer('heatmaps'),
-  ]);
-
-  UI.kpis({
-    visitantes: resumen.visitantes_unicos,
-    entradas: resumen.trafico_total_entradas ?? resumen.total_entradas,
-    aforo: resumen.aforo_actual,
-    permanencia: resumen.permanencia_media_s != null
-      ? `${Number(resumen.permanencia_media_s).toFixed(1)} s` : null,
-    capturas: resumen.total_capturas,
-  });
-  UI.barras('genero', resumen.distribucion_genero);
-  UI.barras('edad', resumen.distribucion_edad);
-
-  UI.tabla('dispositivos', dispositivos.dispositivos, [
-    ['device_id', 'dispositivo'],
-    ['camera_name', 'cámara'],
-    ['pipelines', 'pipelines', v => UI.esc((v || []).join(', ') || '—')],
-    ['frames', 'frames'],
-    ['ultima_vez', 'última vez', v => UI.fecha(v)],
-  ]);
-
-  const cont = document.getElementById('heatmaps');
-  const filas = heatmaps.heatmaps.filter(h => !h.huerfano || heatmaps.total === heatmaps.huerfanos);
-  cont.innerHTML = filas.length ? filas.map(h => `
-    <figure>
-      <img src="${h.url}" alt="mapa de calor ${UI.esc(h.device_id)}" loading="lazy">
-      <figcaption>${UI.esc(h.camera_name || h.device_id)}${h.huerfano ? ' <span class="pill aviso">huérfano</span>' : ''}</figcaption>
-    </figure>`).join('')
-    : '<div class="vacio">sin mapas de calor todavía</div>';
-}, 15);
-</script>
+<script src="/dashboards/tienda/app.js"></script>
 </body>
 </html>
