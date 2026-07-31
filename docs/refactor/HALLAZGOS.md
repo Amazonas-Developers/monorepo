@@ -788,6 +788,12 @@ servidor) en los 4 venv y **declarado en los 4 `requirements.txt`** con el
 motivo escrito al lado. Prueba nueva que falla si el overlay vuelve a quedar
 apagado.
 
+**Barrido de la clase entera.** Tras corregirlo se buscaron TODAS las
+dependencias bajo `try/except import` del nucleo y los 4 clientes: son **6**
+(`PySide6`, `cv2`, `numpy`, `psutil`, `requests`, `supervision`). Comprobadas
+una a una en los 5 entornos: **ninguna mas apagada**. Y la comprobacion quedo
+como prueba permanente, asi que una dependencia opcional nueva se vigila sola.
+
 **La leccion.** Un `try/except ImportError` que desactiva una funcion es cómodo
 para arrancar, pero convierte una dependencia ausente en un fallo mudo. Los
 tres hallazgos del rodaje real (H-22, H-23, H-24) comparten raiz: **el codigo

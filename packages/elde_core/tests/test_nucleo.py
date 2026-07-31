@@ -330,3 +330,54 @@ def test_el_overlay_de_supervision_esta_disponible():
         'directo quedaria apagado sin decir nada (H-24). '
         'pip install supervision==0.28.0')
     assert sv_overlay.SupervisionOverlay is not None
+
+
+def test_ninguna_dependencia_opcional_esta_apagada_en_silencio():
+    """Generaliza H-24 a TODAS las dependencias bajo `try/except import`.
+
+    Ese patron desactiva una funcion sin decir nada: con supervision ausente
+    desaparecieron las cajas y las zonas del ROI, y no hubo ni un error. La
+    prueba concreta de supervision cubre un caso; esta cubre la clase entera,
+    asi que una dependencia opcional NUEVA queda vigilada sola.
+    """
+    import ast
+    import importlib.util
+    propios = {'core', 'gui', 'model', 'models', 'workers', 'config',
+               'utils', 'elde_core', 'src', 'resource'}
+    carpetas = [RAIZ / 'packages' / 'elde_core' / 'elde_core']
+    carpetas += [RAIZ / c / 'src' for c in CLIENTES_MIGRADOS]
+    carpetas += [RAIZ / 'clients' / 'amazonas' / 'src']
+
+    apagadas = {}
+    for base in carpetas:
+        if not base.is_dir():
+            continue
+        for py in base.rglob('*.py'):
+            if '__pycache__' in str(py):
+                continue
+            try:
+                arbol = ast.parse(py.read_text(encoding='utf-8',
+                                               errors='replace'))
+            except SyntaxError:
+                continue
+            for nodo in ast.walk(arbol):
+                if not isinstance(nodo, ast.Try):
+                    continue
+                for hijo in ast.walk(nodo):
+                    nombres = []
+                    if isinstance(hijo, ast.Import):
+                        nombres = [a.name.split('.')[0] for a in hijo.names]
+                    elif (isinstance(hijo, ast.ImportFrom) and hijo.module
+                            and not hijo.level):
+                        nombres = [hijo.module.split('.')[0]]
+                    for n in nombres:
+                        if n in propios or n in sys.stdlib_module_names:
+                            continue
+                        if importlib.util.find_spec(n) is None:
+                            apagadas.setdefault(n, set()).add(py.name)
+
+    assert not apagadas, (
+        'dependencias opcionales AUSENTES: la funcion que dependa de ellas '
+        'queda desactivada sin error visible (H-24). '
+        + '; '.join(f'{k} (en {", ".join(sorted(v))})'
+                    for k, v in sorted(apagadas.items())))
