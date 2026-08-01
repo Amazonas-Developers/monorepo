@@ -28,6 +28,7 @@ from ..analityc.core.car_washed import VehicleProcessor
 from ..analityc.core.hardware_available import device_hardware
 from ..analityc.core.Hummus import HummusProcess
 from ..analityc.core.Misters import MistersProcess
+from ..analityc.core.analytics import heatmap_registro as _heatmaps
 from ..analityc.core.perimetrales_multicam import PerimetralesMultiCam
 from ..analityc.core.person_amazona_inference import PersonAmazonas
 from ..analityc.config.config import get_config
@@ -98,6 +99,9 @@ async def lifespan(app: FastAPI):
     # El volcado esta amortiguado (cada 30 s), asi que al cerrar puede quedar
     # medio minuto de altas sin escribir.
     _registro.volcar()
+    # Mapas de calor: el acumulado y la hora en curso a disco. Sin esto, un
+    # apagado pierde hasta 30 s de estado y la hora parcial del historico.
+    _heatmaps.volcar_todos()
     executor.shutdown(wait=False)
 
 
@@ -585,6 +589,13 @@ def _full_frame_sync(
         camera_name=camera_name,
         draw_server=draw_server,
     )
+    # Mapa de calor GLOBAL (1-ago-2026): TODAS las camaras acumulan, no solo
+    # el pipeline de visitantes. Come las cajas del MISMO metadata que viaja
+    # al cliente; si el pipeline ya acumulo por dentro (trae `heatmap` en el
+    # metadata, caso PersonAmazonas), aqui no se estampa de nuevo. En modo
+    # clasico algunas ramas dibujan sobre `img`, asi que el fondo del PNG
+    # puede llevar cajas pintadas; en modo directo (el real hoy) va limpio.
+    _heatmaps.acumular_desde_metadata(camera_id, camera_name, img, metadata)
     processing_time = round(time.time() - t0, 3)
 
     # MODO DIRECTO: no se codifica ni envia la imagen (el cliente la dibuja).
@@ -940,6 +951,14 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
                 processor.cleanup()
             except Exception:
                 pass
+        # Mapas de calor a disco AHORA: "cerrar la camara" no puede costar el
+        # acumulado ni la hora parcial del historico. Volcar todos es barato
+        # (pocas camaras, PNG pequeno) y cubre tambien las de otros clientes.
+        try:
+            await asyncio.get_running_loop().run_in_executor(
+                None, _heatmaps.volcar_todos)
+        except Exception:
+            pass
         logger.info("Limpieza completa para client=%s", client_id)
 
 

@@ -92,15 +92,10 @@ async function pintar() {
       ? `la API sirve ${TOPE_API} como máximo: afina la búsqueda para ver el resto`
       : `${filtrado.alertas.length} de ${filtrado.total}`);
 
-  // Mapas de calor SOLO de las cámaras de este dominio.
+  // Mapas de calor SOLO de las cámaras de este dominio, con su histórico.
   const propios = new Set(dispositivos.dispositivos.map(d => d.device_id));
-  const mapas = heatmaps.heatmaps.filter(h => propios.has(h.device_id));
-  document.getElementById('heatmaps').innerHTML = mapas.length
-    ? mapas.map(h => `<figure>
-        <img src="${h.url}?t=${h.modificado}" alt="mapa de calor ${UI.esc(h.device_id)}" loading="lazy">
-        <figcaption>${UI.esc(h.camera_name || h.device_id)}</figcaption>
-      </figure>`).join('')
-    : '<div class="vacio">sin mapas de calor todavía — se generan solos mientras las cámaras transmiten</div>';
+  UI.heatmaps('heatmaps',
+    heatmaps.heatmaps.filter(h => propios.has(h.device_id)));
 
   UI.tabla('dispositivos', dispositivos.dispositivos, [
     ['device_id', 'dispositivo'],

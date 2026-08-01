@@ -26,7 +26,8 @@ from .analytics.demographics import DemographicsClassifier
 from .analytics.face_reidentifier import FaceReidentifier
 from .analytics.body_reidentifier import BodyReidentifier
 from .analytics.people_counter import PeopleCounter
-from .analytics.heatmap import HeatmapAccumulator
+from .analytics.heatmap import HeatmapAccumulator  # noqa: F401 (compat)
+from .analytics import heatmap_registro as _heatmaps
 from .utils.overlay import draw_demographics_panel, draw_people_total
 from .utils.logger import AnalyticsLogger
 
@@ -586,8 +587,10 @@ class PersonAmazonas:
             )
             self._people_counter = PeopleCounter()
             self._analytics_logger = AnalyticsLogger()
-            # Mapa de calor de ocupacion (overlay cliente + snapshot dashboard)
-            self._heatmap = HeatmapAccumulator()
+            # Mapa de calor: se toma del registro GLOBAL al conocer el
+            # camera_id (primer frame). Asi el acumulado PERSISTE entre
+            # sesiones y el volcado por desconexion tambien lo cubre.
+            self._heatmap = None
 
             print(f'✅ Modelo de personal inicializado para {client_id}')
             print(f'🖥️  Dispositivo: {self.device}')
@@ -1365,7 +1368,9 @@ class PersonAmazonas:
             state['_analytics_logger'] = AnalyticsLogger(
                 log_path=f"output/analytics_log_{camera_id}.jsonl"
             )
-            state['_heatmap'] = HeatmapAccumulator()
+            # Acumulador del registro GLOBAL: restaura lo persistido de esta
+            # camara y queda cubierto por el volcado a disco de app.py.
+            state['_heatmap'] = _heatmaps.obtener(camera_id)
             # ByteTrack propio por camara (stateful) -> tracking aislado en la
             # ruta de swap de estado (igual que active_tracks).
             state['_byte_tracker'] = self._make_byte_tracker()
@@ -3156,6 +3161,15 @@ class PersonAmazonas:
             try:
                 self.frame_counter += 1
                 self.last_processed_frame = image.copy()
+
+                # Ruta sin estado por camara (fallback): el acumulador se
+                # toma del registro global la primera vez que se conoce el
+                # camera_id, con su estado restaurado de disco.
+                if (AnalyticsConfig.HEATMAP_ENABLED
+                        and getattr(self, '_heatmap', None) is None):
+                    self._heatmap = _heatmaps.obtener(
+                        camera_id,
+                        getattr(self, '_camera_display_name', None))
 
                 # Detectar sobre la imagen COMPLETA (sin máscara) para evitar
                 # artefactos en los bordes del ROI que generan falsos positivos.

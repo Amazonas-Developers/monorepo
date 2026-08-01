@@ -66,6 +66,7 @@ class HeatmapAccumulator:
         self._last_decay_ts = time.time()
         self._last_snapshot_ts = 0.0
         self._last_bg_ts = 0.0
+        self._last_state_ts = 0.0
         self._started_ts = time.time()
 
         # Estampa gaussiana (suaviza la huella de cada persona). RADIO y
@@ -251,6 +252,98 @@ class HeatmapAccumulator:
             "zonas_calientes": self.top_zones(),
             "desde": self._started_ts,
         }
+
+    # ── Persistencia del acumulado (1-ago-2026) ───────────────────────
+    #
+    # Antes el TOTAL vivia solo en memoria: al cerrar la camara o reiniciar
+    # el servidor, la sesion siguiente empezaba de cero y el siguiente
+    # snapshot PISABA el PNG con esa sesion vacia. Guardando las grillas
+    # crudas, la camara CONTINUA donde iba — que es lo que significa "el
+    # mapa de calor debe permanecer aunque las camaras se cierren".
+
+    @staticmethod
+    def _ruta_estado(camera_id: Any, out_dir: str = None) -> str:
+        out_dir = out_dir or AnalyticsConfig.HEATMAP_DIR
+        return os.path.join(out_dir, "state",
+                            f"{_safe_camera_name(camera_id)}.npz")
+
+    def guardar_estado(self, camera_id: Any, out_dir: str = None) -> bool:
+        """Grillas crudas (total + hora en curso) a disco. Atomico, nunca
+        lanza: un fallo de disco no debe tumbar el frame loop."""
+        if self._samples == 0:
+            return False
+        try:
+            ruta = self._ruta_estado(camera_id, out_dir)
+            os.makedirs(os.path.dirname(ruta), exist_ok=True)
+            tmp = ruta + ".tmp.npz"
+            np.savez_compressed(
+                tmp,
+                total=self._total.astype(np.float32),
+                hour=self._hour.astype(np.float32),
+                samples=np.int64(self._samples),
+                hour_samples=np.int64(self._hour_samples),
+                hour_stamp=np.bytes_(self._hour_stamp.encode('ascii')),
+                grid=np.array([self.grid_w, self.grid_h], np.int64))
+            os.replace(tmp, ruta)
+            self._last_state_ts = time.time()
+            return True
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("Heatmap guardar_estado fallo: %s", exc)
+            return False
+
+    def cargar_estado(self, camera_id: Any, out_dir: str = None) -> bool:
+        """Restaura el acumulado persistido, si existe y las grillas encajan.
+
+        La hora restaurada conserva su `hour_stamp`: si ya es OTRA hora, el
+        proximo snapshot cierra aquella hora interrumpida en el historico
+        (via _maybe_roll_hour), que es justo lo que se perdia antes."""
+        try:
+            ruta = self._ruta_estado(camera_id, out_dir)
+            if not os.path.isfile(ruta):
+                return False
+            with np.load(ruta) as datos:
+                gw, gh = (int(v) for v in datos['grid'])
+                if (gw, gh) != (self.grid_w, self.grid_h):
+                    logger.info(
+                        "Heatmap estado de %s descartado: grilla %sx%s != "
+                        "%sx%s", camera_id, gw, gh, self.grid_w, self.grid_h)
+                    return False
+                self._total = datos['total'].astype(np.float32)
+                self._hour = datos['hour'].astype(np.float32)
+                self._samples = int(datos['samples'])
+                self._hour_samples = int(datos['hour_samples'])
+                self._hour_stamp = bytes(datos['hour_stamp']).decode('ascii')
+            logger.info("Heatmap de %s restaurado: %d muestras acumuladas",
+                        camera_id, self._samples)
+            return True
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Heatmap cargar_estado fallo para %s: %s",
+                           camera_id, exc)
+            return False
+
+    def flush(self, camera_id: Any, background: Optional[np.ndarray] = None,
+              out_dir: str = None, camera_name: Optional[str] = None) -> bool:
+        """Volcado FORZADO (desconexion del cliente / apagado del servidor):
+        PNG + JSON + estado crudo, sin esperar el throttle.
+
+        Sin frame a mano (el cliente ya se fue) usa el ultimo fondo guardado
+        en disco, para que el PNG final siga viendose sobre la camara real."""
+        if self._samples == 0:
+            return False
+        out_dir = out_dir or AnalyticsConfig.HEATMAP_DIR
+        if background is None or getattr(background, 'size', 0) == 0:
+            try:
+                bg = cv2.imread(os.path.join(
+                    out_dir, "bg", f"{_safe_camera_name(camera_id)}.jpg"))
+                background = bg if bg is not None and bg.size else None
+            except Exception:  # noqa: BLE001
+                background = None
+        self._last_snapshot_ts = 0.0          # anula el throttle
+        ok = self.maybe_save_snapshot(camera_id, background=background,
+                                      out_dir=out_dir, every_s=0.0,
+                                      camera_name=camera_name)
+        self.guardar_estado(camera_id, out_dir)
+        return bool(ok)
 
     # ── Snapshot a disco (para el dashboard) ──────────────────────────
 
@@ -454,6 +547,13 @@ class HeatmapAccumulator:
             with open(tmp_json, "w", encoding="utf-8") as f:
                 json.dump(meta, f, ensure_ascii=False)
             os.replace(tmp_json, json_path)
+
+            # Estado crudo con throttle propio (mas suave que el snapshot):
+            # si el proceso muere sin flush, se pierde este intervalo como
+            # maximo, no la sesion entera.
+            cada = float(os.getenv("ELDE_HEATMAP_ESTADO_CADA_S", "30"))
+            if now - self._last_state_ts >= cada:
+                self.guardar_estado(camera_id, out_dir)
             return bool(ok)
         except Exception as exc:  # noqa: BLE001 - no tumbar el frame loop
             logger.debug("Heatmap snapshot fallo: %s", exc)

@@ -77,13 +77,8 @@ async function pintar() {
     visibles.length >= todas.length ? '' : `${visibles.length} de ${capturas.total}`;
 
   const propios = new Set(dispositivos.dispositivos.map(d => d.device_id));
-  const mapas = heatmaps.heatmaps.filter(h => propios.has(h.device_id));
-  document.getElementById('heatmaps').innerHTML = mapas.length
-    ? mapas.map(h => `<figure>
-        <img src="${h.url}?t=${h.modificado}" alt="mapa de calor ${UI.esc(h.device_id)}" loading="lazy">
-        <figcaption>${UI.esc(h.camera_name || h.device_id)}</figcaption>
-      </figure>`).join('')
-    : '<div class="vacio">sin mapas de calor todavía — se generan solos mientras las cámaras transmiten</div>';
+  UI.heatmaps('heatmaps',
+    heatmaps.heatmaps.filter(h => propios.has(h.device_id)));
 
   UI.tabla('dispositivos', dispositivos.dispositivos, [
     ['device_id', 'dispositivo'],

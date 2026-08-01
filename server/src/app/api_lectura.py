@@ -159,6 +159,8 @@ def listar_heatmaps() -> Dict[str, Any]:
     conocidos = {f['device_id']: f for f in _registro.dispositivos()}
     fuera = []
     for png in sorted(carpeta.glob('*.png')):
+        if png.name.endswith('.tmp.png'):
+            continue
         ident = png.stem
         fila = conocidos.get(ident)
         fuera.append({
@@ -169,10 +171,71 @@ def listar_heatmaps() -> Dict[str, Any]:
             'camera_name': fila['camera_name'] if fila else None,
             'huerfano': fila is None,
             'url': f'/dashboard/img/heatmap/{ident}.png',
+            'horas_historico': _horas_de_historico(ident),
+            'historico': f'/api/v1/heatmaps/{ident}/historico',
         })
     return {'total': len(fuera),
             'huerfanos': sum(1 for h in fuera if h['huerfano']),
             'heatmaps': fuera}
+
+
+# ── Historico de mapas de calor (1-ago-2026) ─────────────────────────────
+#
+# El acumulador guarda un snapshot POR HORA en heatmap/history/<device>/
+# (PNG + JSON + grilla cruda .npz, con retencion configurada). Estos
+# endpoints lo exponen para que los dashboards muestren "como se movio la
+# tienda ayer a las 18h" y no solo el acumulado vigente.
+
+def _carpeta_historico(ident: str) -> Path:
+    return _salida() / 'heatmap' / 'history' / ident
+
+
+def _horas_de_historico(ident: str) -> int:
+    try:
+        return sum(1 for f in _carpeta_historico(ident).glob('*.png')
+                   if not f.name.endswith('.tmp.png'))
+    except OSError:
+        return 0
+
+
+@router.get('/heatmaps/{device_id}/historico')
+def historico_de_heatmap(device_id: str) -> Dict[str, Any]:
+    """Las horas guardadas de esa camara, mas recientes primero."""
+    ident = _saneado(device_id)
+    carpeta = _carpeta_historico(ident)
+    if not carpeta.is_dir():
+        return {'device_id': ident, 'total': 0, 'horas': []}
+    filas = []
+    for png in sorted(carpeta.glob('*.png'), reverse=True):
+        if png.name.endswith('.tmp.png'):
+            continue
+        sello = png.stem                      # AAAA-MM-DD_HH
+        meta: Dict[str, Any] = {}
+        try:
+            with open(png.with_suffix('.json'), encoding='utf-8') as f:
+                meta = json.load(f) or {}
+        except (OSError, ValueError):
+            pass
+        filas.append({
+            'stamp': sello,
+            'muestras': meta.get('muestras'),
+            'zonas_calientes': meta.get('zonas_calientes'),
+            'bytes': png.stat().st_size,
+            'url': f'/api/v1/heatmaps/{ident}/historico/{sello}.png',
+        })
+    return {'device_id': ident, 'total': len(filas), 'horas': filas}
+
+
+@router.get('/heatmaps/{device_id}/historico/{sello}.png')
+def foto_de_historico(device_id: str, sello: str):
+    """Sirve el PNG de una hora del historico. Sin salidas de carpeta."""
+    ident = _saneado(device_id)
+    limpio = _saneado(sello)
+    carpeta = _carpeta_historico(ident).resolve()
+    destino = (carpeta / f'{limpio}.png').resolve()
+    if carpeta not in destino.parents or not destino.is_file():
+        raise HTTPException(status_code=404, detail='no encontrada')
+    return FileResponse(str(destino))
 
 
 # ── Alertas de perimetrales ──────────────────────────────────────────────

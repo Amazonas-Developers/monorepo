@@ -164,6 +164,22 @@ tr:last-child td { border-bottom: none; }
 /* Rejilla de tarjetas lado a lado (desgloses) */
 .rejilla2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: .8rem; }
 
+/* Historico de mapas de calor (desplegable bajo la grilla) */
+.historial { margin-top: .9rem; }
+.historial h3 {
+  font-size: .9rem;
+  color: var(--apagado);
+  margin-bottom: .6rem;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+.heatmaps figcaption .btn-historial {
+  padding: .15rem .5rem;
+  font-size: .72rem;
+  margin-left: .4rem;
+}
+
 /* Portada */
 .portada { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1rem; }
 .portada a {

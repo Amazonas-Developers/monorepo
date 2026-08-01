@@ -75,6 +75,69 @@ const UI = {
     el.innerHTML = `<table><thead><tr>${cab}</tr></thead><tbody>${cuerpo}</tbody></table>`;
   },
 
+  /** Grilla de mapas de calor con HISTÓRICO por horas desplegable.
+   *  `mapas` = filas de /api/v1/heatmaps (ya filtradas al dominio). El botón
+   *  «histórico» de cada cámara abre su galería de horas debajo; el estado
+   *  abierto sobrevive al refresco periódico de la página. */
+  heatmaps(contenedor, mapas) {
+    const el = typeof contenedor === 'string'
+      ? document.getElementById(contenedor) : contenedor;
+    if (!mapas.length) {
+      el.innerHTML = '<div class="vacio">sin mapas de calor todavía — se generan solos mientras las cámaras transmiten</div>';
+      return;
+    }
+    el.innerHTML = mapas.map(h => `
+      <figure>
+        <img src="${h.url}?t=${h.modificado}" alt="mapa de calor ${UI.esc(h.device_id)}" loading="lazy">
+        <figcaption>${UI.esc(h.camera_name || h.device_id)}
+          ${h.horas_historico ? `<button class="boton btn-historial" data-id="${UI.esc(h.device_id)}">🕐 histórico (${h.horas_historico} h)</button>` : '<small style="color:var(--apagado)"> · histórico: aún sin horas cerradas</small>'}
+        </figcaption>
+      </figure>`).join('');
+
+    let panel = el.nextElementSibling;
+    if (!panel || !panel.classList.contains('historial')) {
+      panel = document.createElement('div');
+      panel.className = 'historial';
+      el.after(panel);
+    }
+    const abierto = el.dataset.historialAbierto || '';
+
+    async function pintarHistorial(id) {
+      const { horas } = await API.leer(`heatmaps/${encodeURIComponent(id)}/historico`);
+      panel.innerHTML = `
+        <h3>🕐 Histórico de ${UI.esc(id)} <button class="boton btn-cerrar-hist">cerrar</button></h3>
+        <div class="heatmaps">${horas.map(x => `
+          <figure>
+            <img src="${x.url}" alt="${UI.esc(x.stamp)}" loading="lazy">
+            <figcaption>${UI.esc(x.stamp.replace('_', ' · '))} h${x.muestras ? ` · ${UI.esc(x.muestras)} muestras` : ''}</figcaption>
+          </figure>`).join('') || '<div class="vacio">sin horas guardadas todavía</div>'}
+        </div>`;
+      panel.querySelector('.btn-cerrar-hist').addEventListener('click', () => {
+        el.dataset.historialAbierto = '';
+        panel.innerHTML = '';
+      });
+    }
+
+    for (const btn of el.querySelectorAll('.btn-historial')) {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        if (el.dataset.historialAbierto === id) {
+          el.dataset.historialAbierto = '';
+          panel.innerHTML = '';
+        } else {
+          el.dataset.historialAbierto = id;
+          pintarHistorial(id).catch(console.error);
+        }
+      });
+    }
+    if (abierto && mapas.some(h => h.device_id === abierto)) {
+      pintarHistorial(abierto).catch(console.error);
+    } else if (abierto) {
+      el.dataset.historialAbierto = '';
+      panel.innerHTML = '';
+    }
+  },
+
   /** Marca de "actualizado hace X s" en el header. */
   refrescado() {
     const el = document.querySelector('.refresco');
