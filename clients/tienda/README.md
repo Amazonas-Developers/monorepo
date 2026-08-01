@@ -53,7 +53,7 @@ arranca, en vez de quedarse intentando conectar a una URL sin sentido.
 | `site_id` | no | `tienda-principal` | Local o sucursal. Viaja en el contrato y permite comparar entre sucursales |
 | `jarvis_email`, `jarvis_password`, `jarvis_url` | sí | — | Cuenta de Jarvis para el selector de establecimiento |
 | `name_project` | no | `ELDE Tienda 🛒` | Título de la ventana |
-| `DASHBOARD_URL` | no | `http://localhost:9030` | Fuerza una URL de dashboard concreta |
+| `DASHBOARD_URL` | no | `http://otro-servidor:9000/dashboards/tienda/` | Fuerza una URL de dashboard concreta. OJO: si queda apuntando a un panel retirado (como el 9030), el botón seguirá abriéndolo — el override gana siempre |
 
 ### Las credenciales de Hik-Connect NO van aquí
 
