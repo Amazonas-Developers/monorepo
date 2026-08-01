@@ -156,6 +156,9 @@ class Render_box(CapturaDVRMixin, QFrame):
                  callback_save_data=None,
                  socket_services=None,
                  api_jarvis=None,
+                 # Establecimiento de ESTA camara: a donde van sus alertas de
+                 # Jarvis. Vacio = el seleccionado global del pie (historico).
+                 establecimiento="",
                  **_legacy_kwargs,
                  ):
         super().__init__()
@@ -183,6 +186,10 @@ class Render_box(CapturaDVRMixin, QFrame):
         # enable_vlm sigue viajando en el payload (False) por compatibilidad.
         self.vlm_enabled_boolean     = False
         self.callback_save_data      = callback_save_data
+        # Local de esta camara (persiste en el config del recuadro). Con
+        # camaras de establecimientos distintos en la misma ventana, cada una
+        # alerta al suyo; vacio = usa el del selector global del pie.
+        self.establecimiento         = str(establecimiento or "").strip()
 
         self.process              = None
         self.stop                 = False
@@ -394,14 +401,20 @@ class Render_box(CapturaDVRMixin, QFrame):
         self._menu_vista = self._make_menu_button(
             "Vista ▾", "Visualizacion: estelas de movimiento y estilo de caja",
             self._build_vista_menu)
+        # Establecimiento POR CAMARA (1-ago-2026): con camaras de locales
+        # distintos en la misma ventana, cada una alerta al suyo.
+        self._menu_local = self._make_menu_button(
+            "Local ▾", "", self._build_local_menu)
+        self._refrescar_boton_local()
 
-        # Layout: [IA | ROI | Vista | Clases] --- [▶ ⏹ DVR]
+        # Layout: [IA | ROI | Vista | Clases | Local] --- [▶ ⏹ DVR]
         bar_opt_layout.addWidget(self.btn_smart)
         bar_opt_layout.addWidget(_sep())
         bar_opt_layout.addWidget(self._menu_roi)
         bar_opt_layout.addWidget(self._menu_vista)
         bar_opt_layout.addWidget(_sep())
         bar_opt_layout.addWidget(self._btn_classes)
+        bar_opt_layout.addWidget(self._menu_local)
         bar_opt_layout.addStretch(1)
         bar_opt_layout.addWidget(btn_play)
         bar_opt_layout.addWidget(btn_stop)
@@ -676,6 +689,63 @@ class Render_box(CapturaDVRMixin, QFrame):
                          self.trace_boolean, self._toggle_trace)
         self._add_toggle(menu, "Cajas estilo elipse",
                          self.ellipse_style, self._toggle_box_style)
+
+    # ── Establecimiento por camara ───────────────────────────────────────
+
+    def _build_local_menu(self, menu):
+        """Menu de establecimiento de ESTA camara. Se reconstruye al abrirse
+        con la lista vigente de Jarvis (que carga async tras el login)."""
+        menu.clear()
+        a = menu.addAction("(el del pie de la ventana)")
+        a.setCheckable(True)
+        a.setChecked(not self.establecimiento)
+        a.triggered.connect(lambda *_: self._set_establecimiento(""))
+        nombres = []
+        try:
+            nombres = [str(e.get("name", "")).strip()
+                       for e in (getattr(self.api_jarvis,
+                                         "list_of_establishments", None) or [])
+                       if isinstance(e, dict) and e.get("name")]
+        except Exception:
+            nombres = []
+        if nombres:
+            menu.addSeparator()
+            for nombre in nombres:
+                act = menu.addAction(nombre)
+                act.setCheckable(True)
+                act.setChecked(nombre == self.establecimiento)
+                act.triggered.connect(
+                    lambda *_, n=nombre: self._set_establecimiento(n))
+        else:
+            menu.addSeparator()
+            aviso = menu.addAction("sin lista aún (¿sesión de Jarvis?)")
+            aviso.setEnabled(False)
+        # Un guardado que ya no aparece en la lista se muestra igual: borrarlo
+        # en silencio mandaria sus alertas a otro local sin avisar.
+        if self.establecimiento and self.establecimiento not in nombres:
+            menu.addSeparator()
+            fuera = menu.addAction(
+                f"guardado (no está en la lista): {self.establecimiento}")
+            fuera.setCheckable(True)
+            fuera.setChecked(True)
+            fuera.setEnabled(False)
+
+    def _set_establecimiento(self, nombre):
+        self.establecimiento = str(nombre or "").strip()
+        self._save_all("establecimiento", self.establecimiento)
+        self._refrescar_boton_local()
+        print(f"[box {self.index}] establecimiento de la camara: "
+              f"{self.establecimiento or '(el global del pie)'}")
+
+    def _refrescar_boton_local(self):
+        """El boton marca ● cuando la camara tiene local propio."""
+        propio = bool(self.establecimiento)
+        self._menu_local.setText("Local ● ▾" if propio else "Local ▾")
+        self._menu_local.setToolTip(
+            f"Establecimiento de ESTA cámara: {self.establecimiento}"
+            if propio else
+            "Establecimiento de ESTA cámara (a dónde van sus alertas de "
+            "Jarvis).\nAhora usa el seleccionado en el pie de la ventana.")
 
     def _show_class_menu(self):
         """Muestra un menú popup con checkboxes para seleccionar qué clases detectar."""
@@ -1069,6 +1139,9 @@ class Render_box(CapturaDVRMixin, QFrame):
                         "camera_id":       self._device_id(),
                         "camera_name":     camara_nombre,
                         "screenshot_path": ruta_foto,
+                        # Local de ESTA camara: el reenviador de Jarvis manda
+                        # la novedad ahi (vacio = el global del pie).
+                        "establecimiento": self.establecimiento,
                     })
             data = message["data"]
             if data["status"] == "success" and data["camera_id"] == self._device_id():

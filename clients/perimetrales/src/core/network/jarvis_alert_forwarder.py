@@ -109,8 +109,14 @@ class JarvisAlertForwarder(QObject):
             mensaje = str(alerta.get("description", "") or "")
             imagen = alerta.get("image_base64") or alerta.get("crop_image") or ""
 
+            # Local de la CAMARA que disparo la alerta (menu "Local" del
+            # recuadro). Vacio -> None -> el seleccionado global del pie,
+            # que es el comportamiento de siempre.
+            establecimiento = (str(alerta.get("establecimiento") or "").strip()
+                               or None)
             self._jarvis.enviar_novedad_async(
-                base64_image=imagen, title=titulo, message=mensaje)
+                base64_image=imagen, title=titulo, message=mensaje,
+                establecimiento=establecimiento)
             self.enviadas += 1
         except Exception as e:
             print(f"[jarvis-forwarder] error reenviando alerta: {e}")

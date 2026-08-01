@@ -78,6 +78,41 @@ class Jarvis_api(QObject):
                 self.selected_establishment = iteration
                 print(f'{name} seleted by client')
                 break
+
+    def buscar_establecimiento(self, nombre):
+        """El dict del establecimiento por nombre, o None.
+
+        Primero coincidencia exacta, luego parcial (ambas sin distinguir
+        mayusculas). Existe para el envio POR CAMARA (1-ago-2026): cada
+        recuadro puede apuntar sus alertas a un local distinto y aqui se
+        resuelve el nombre guardado contra la lista cargada."""
+        buscado = str(nombre or '').strip().lower()
+        if not buscado:
+            return None
+        for est in self.list_of_establishments:
+            if (isinstance(est, dict)
+                    and str(est.get('name', '')).strip().lower() == buscado):
+                return est
+        for est in self.list_of_establishments:
+            if (isinstance(est, dict)
+                    and buscado in str(est.get('name', '')).lower()):
+                return est
+        return None
+
+    def _resolver_destino(self, establecimiento):
+        """dict | nombre | None -> el establecimiento al que enviar.
+
+        Sin `establecimiento` (o si el nombre no aparece en la lista) se cae
+        al seleccionado global del pie, que es el comportamiento historico."""
+        if isinstance(establecimiento, dict):
+            return establecimiento
+        if establecimiento:
+            encontrado = self.buscar_establecimiento(establecimiento)
+            if encontrado is not None:
+                return encontrado
+            print(f"[jarvis] establecimiento '{establecimiento}' no esta en "
+                  "la lista: se usa el seleccionado global")
+        return self.selected_establishment
     
     
     
@@ -95,15 +130,18 @@ class Jarvis_api(QObject):
         
         
         
-    def send_alert_to_api(self, url_image='https://amazona365.ddns.net/api_jarvis/v1/novelty/img=novelty_1769530415033.jpeg' , title='Alerta de perimetral', message='', params=None):
+    def send_alert_to_api(self, url_image='https://amazona365.ddns.net/api_jarvis/v1/novelty/img=novelty_1769530415033.jpeg' , title='Alerta de perimetral', message='', params=None, establecimiento=None):
         # ENVÍO DE ALERTAS ACTIVO (perimetrales-view). Envía una "novedad" a
         # Jarvis365 (POST /novelties) de forma ASÍNCRONA (no bloquea la GUI).
+        # `establecimiento` (dict o nombre) manda la novedad a ESE local en
+        # vez del seleccionado global — es lo que usa el envio POR CAMARA.
         try:
             if self.session_user is None:
                 self.error_request.emit('Error de sesión')
                 print('[jarvis] no se envía alerta: sesión no autenticada')
                 return None
-            if self.selected_establishment is None:
+            destino = self._resolver_destino(establecimiento)
+            if destino is None:
                 self.error_request.emit('Seleciones un establecimiento o lugar')
                 print('[jarvis] no se envía alerta: sin establecimiento seleccionado')
                 return None
@@ -114,13 +152,13 @@ class Jarvis_api(QObject):
                 'title': f'{title} ("Modo IA")',
                 'userName': nombre or 'Jarvis Visión',
                 'userId': self.session_user.get('_id', ''),
-                'localName': self.selected_establishment.get('name', ''),
-                'localId': self.selected_establishment.get('_id', ''),
+                'localName': destino.get('name', ''),
+                'localId': destino.get('_id', ''),
                 'ruleBonus': {'worth': 0, 'acomulate': 0},
                 'alertId': '6977974dfed1f0dcaffceefa',
                 'description': 'Alerta generada con IA',
                 'imageToShare': imageurl,
-                'menu': f"*{self.selected_establishment.get('name', '')}*\n_{title}_\n{message}",
+                'menu': f"*{destino.get('name', '')}*\n_{title}_\n{message}",
                 'imageUrl': [
                     {'url': imageurl, 'caption': 'alert'}
                 ]
@@ -129,7 +167,8 @@ class Jarvis_api(QObject):
             response = self._request(resource='novelties', body=data, berb='post')
             if response is not None:
                 response.finished.connect(lambda: self.__handler_response_alert(response))
-            print(f'[jarvis] novedad enviada -> {title}')
+            print(f"[jarvis] novedad enviada -> {title} "
+                  f"[local: {destino.get('name', '?')}]")
         except Exception as e:
             print(f'[jarvis] error enviando alerta: {e}')
         
@@ -377,19 +416,30 @@ class Jarvis_api(QObject):
             callback('')
 
     def enviar_novedad_async(self, base64_image: str = '', title: str = 'Alerta de perimetral',
-                             message: str = ''):
+                             message: str = '', establecimiento=None):
         """Flujo completo NO bloqueante: sube la imagen (si hay) y luego envía
-        la novedad con esa URL. Si no hay imagen, envía la novedad directa."""
-        if self.session_user is None or self.selected_establishment is None:
-            print('[jarvis] novedad omitida: sin sesión o sin establecimiento')
+        la novedad con esa URL. Si no hay imagen, envía la novedad directa.
+
+        `establecimiento` (nombre o dict) apunta la novedad a ESE local: es lo
+        que permite que cada camara del cliente alerte a su establecimiento.
+        Se resuelve AQUI (no en el callback) para que un cambio de seleccion
+        global mientras sube la imagen no desvie la alerta."""
+        if self.session_user is None:
+            print('[jarvis] novedad omitida: sin sesión')
+            return
+        destino = self._resolver_destino(establecimiento)
+        if destino is None:
+            print('[jarvis] novedad omitida: sin establecimiento')
             return
         if base64_image:
             self.subir_imagen_async(
                 base64_image,
                 lambda url: self.send_alert_to_api(
-                    url_image=url or '', title=title, message=message))
+                    url_image=url or '', title=title, message=message,
+                    establecimiento=destino))
         else:
-            self.send_alert_to_api(title=title, message=message)
+            self.send_alert_to_api(title=title, message=message,
+                                   establecimiento=destino)
             
             
             

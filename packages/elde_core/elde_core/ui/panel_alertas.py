@@ -201,6 +201,11 @@ class TarjetaAlerta(QFrame):
         cam = str(alerta.get('camera_name') or '').strip()
         if cam:
             partes.append(f'📹 {cam}')
+        # Local por camara (perimetrales): si la alerta viene etiquetada, se
+        # ve a que establecimiento pertenece sin abrir Jarvis.
+        local = str(alerta.get('establecimiento') or '').strip()
+        if local:
+            partes.append(f'🏢 {local}')
         return '   '.join(partes)
 
     def _miniatura(self, alerta: dict) -> Optional[QLabel]:
