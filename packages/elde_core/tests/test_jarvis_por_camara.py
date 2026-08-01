@@ -45,25 +45,20 @@ def test_busca_exacto_antes_que_parcial():
     assert api.buscar_establecimiento(None) is None
 
 
-def test_resolver_destino_cae_al_global():
+def test_resolver_destino_sin_fallback_global():
+    """1-ago-2026: el selector global del pie se elimino. Una camara sin
+    local propio (o con un nombre que no esta en la lista) NO envia — el
+    fallback al global desviaba alertas al establecimiento equivocado."""
     api = _api_sin_red()
-    # Nombre valido -> ese local, NO el global.
+    # Nombre valido -> ese local.
     assert api._resolver_destino('Bodega Central')['_id'] == 'id-bodega'
-    # Dict ya resuelto -> tal cual (es lo que pasa entre los callbacks
-    # asincronos: se resuelve una vez y viaja resuelto).
+    # Dict ya resuelto -> tal cual (asi viaja entre callbacks asincronos:
+    # se resuelve una vez y no cambia aunque la seleccion cambie despues).
     propio = {'name': 'Otro', '_id': 'id-otro'}
     assert api._resolver_destino(propio) is propio
-    # Sin establecimiento o nombre desconocido -> el seleccionado global
-    # (comportamiento historico del selector del pie).
-    assert api._resolver_destino(None)['_id'] == 'id-comarca'
-    assert api._resolver_destino('')['_id'] == 'id-comarca'
-    assert api._resolver_destino('fantasma')['_id'] == 'id-comarca'
-
-
-def test_sin_global_y_sin_nombre_no_hay_destino():
-    api = _api_sin_red()
-    api.selected_establishment = None
+    # Sin local o nombre desconocido -> None (se omite), AUNQUE exista un
+    # selected_establishment viejo en memoria.
+    assert api.selected_establishment is not None
     assert api._resolver_destino(None) is None
+    assert api._resolver_destino('') is None
     assert api._resolver_destino('fantasma') is None
-    # Pero un nombre VALIDO si resuelve aunque no haya global.
-    assert api._resolver_destino('bodega')['_id'] == 'id-bodega'

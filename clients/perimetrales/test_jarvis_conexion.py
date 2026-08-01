@@ -47,19 +47,23 @@ def main() -> int:
                   f"{jarvis.session_user.get('surName','')}")
         n = len(jarvis.list_of_establishments or [])
         print(f"  {'OK' if n else 'FALLO'}  Establecimientos cargados: {n}")
-        sel = jarvis.selected_establishment
-        sel_nom = sel.get("name") if isinstance(sel, dict) else None
-        print(f"  {'OK' if sel_nom else 'FALLO'}  Establecimiento auto-seleccionado: {sel_nom}")
+        # La auto-seleccion GLOBAL se elimino (1-ago-2026): el destino de las
+        # novedades es POR CAMARA (select "Local" de cada recuadro). Para la
+        # prueba de envio se usa explicitamente el PRIMERO de la lista.
+        primero = None
         if n and isinstance(jarvis.list_of_establishments, list):
             nombres = [e.get("name", "?") for e in jarvis.list_of_establishments[:6]
                        if isinstance(e, dict)]
             print(f"       disponibles (máx 6): {nombres}")
+            primero = next((e.get("name") for e in jarvis.list_of_establishments
+                            if isinstance(e, dict) and e.get("name")), None)
 
-        if enviar and auth and sel_nom:
-            print("  → enviando novedad de PRUEBA a Jarvis…")
+        if enviar and auth and primero:
+            print(f"  → enviando novedad de PRUEBA a '{primero}'…")
             jarvis.enviar_novedad_async(
                 base64_image="", title="PRUEBA integración perimetrales-view",
-                message="Alerta de prueba (sin imagen) desde test_jarvis_conexion.py")
+                message="Alerta de prueba (sin imagen) desde test_jarvis_conexion.py",
+                establecimiento=primero)
             QTimer.singleShot(6000, app.quit)   # dar tiempo al POST /novelties
         else:
             QTimer.singleShot(500, app.quit)

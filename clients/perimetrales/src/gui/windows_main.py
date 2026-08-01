@@ -110,31 +110,19 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.device_panel, "Dispositivos")
 
         # ── Footer ────────────────────────────────────────────
-        last_inference         = self.data_model_gui.get("last_inference", None)
-        selected_establishment = self.data_model_gui.get("selected_establishment", None)
+        # El selector GLOBAL de establecimiento se elimino (1-ago-2026): el
+        # destino de las alertas es POR CAMARA (select "Local" del recuadro)
+        # y aqui ya no se selecciona ni se restaura nada global.
+        last_inference = self.data_model_gui.get("last_inference", None)
 
         self.footer_bar = CustomStatusBar(
-            list_establishment             = self.jarvis_api.list_of_establishments,
-            type_inference_default         = last_inference,
-            selected_establishment_default = selected_establishment,
+            list_establishment     = self.jarvis_api.list_of_establishments,
+            type_inference_default = last_inference,
         )
         self.footer_bar.btn_layout.clicked.connect(self.open_dialog)
         self.footer_bar.inference_type_selected.connect(self.socket_init)
         self.footer_bar.btn_stopconection.clicked.connect(self.socket_close)
         self.footer_bar.setStyleSheet("QStatusBar { background-color:#424242; color:white; }")
-
-        if selected_establishment is not None:
-            self.jarvis_api.selection_establishment(selected_establishment)
-
-        # El selector se puebla ASYNC cuando Jarvis termina de cargar la lista
-        # (tras el login). Al llegar, se restaura la selección guardada.
-        self.footer_bar.selector_establishment.currentTextChanged.connect(
-            self.clicked_selection_establishment
-        )
-        self.jarvis_api.establishments_loaded.connect(self._on_establecimientos)
-        # Si la lista YA estaba cargada (reconstrucción de ventana), poblar ya.
-        if self.jarvis_api.list_of_establishments:
-            self._on_establecimientos(self.jarvis_api.list_of_establishments)
 
         self.window_child.setStatusBar(self.footer_bar)
 
@@ -180,31 +168,6 @@ class MainWindow(QMainWindow):
         self.socket.type_inference = parameter
         self.socket.conect_server()
         self.data_model_gui.set("last_inference", parameter)
-
-    def clicked_selection_establishment(self, text):
-        self.jarvis_api.selection_establishment(text)
-        self.data_model_gui.set("selected_establishment", text)
-
-    def _on_establecimientos(self, lista):
-        """La lista de Jarvis llegó (async): poblar el selector del pie.
-
-        Prioridad de selección: la guardada por el usuario (si sigue
-        existiendo) > la auto-seleccionada por Jarvis_api (preferido del .env
-        o el primero)."""
-        try:
-            nombres = [e.get("name", "") for e in (lista or [])
-                       if isinstance(e, dict) and e.get("name")]
-            guardado = self.data_model_gui.get("selected_establishment", None)
-            auto = (self.jarvis_api.selected_establishment or {}).get("name") \
-                if isinstance(self.jarvis_api.selected_establishment, dict) else None
-            elegido = guardado if guardado in nombres else auto
-            self.footer_bar.cargar_establecimientos(nombres, elegido)
-            # Aplicar en Jarvis la selección final mostrada (la guardada puede
-            # diferir de la auto-seleccionada).
-            if elegido and elegido in nombres:
-                self.jarvis_api.selection_establishment(elegido)
-        except Exception as e:
-            print(f"[jarvis] error poblando selector de establecimientos: {e}")
 
     def socket_close(self):
         self.socket.disconnect_server()

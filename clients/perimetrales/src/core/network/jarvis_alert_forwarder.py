@@ -70,6 +70,7 @@ class JarvisAlertForwarder(QObject):
         self._ultimo: dict[tuple, float] = {}
         self.enviadas: int = 0
         self.agrupadas: int = 0     # entradas suprimidas por pertenecer a un grupo
+        self.sin_local: int = 0     # omitidas: la cámara no tiene local asignado
 
     @Slot(bool)
     def set_activo(self, activo: bool) -> None:
@@ -105,15 +106,22 @@ class JarvisAlertForwarder(QObject):
             self._ultimo[clave] = ahora
             self._purgar(ahora)
 
+            # Local de la CAMARA que disparo la alerta (select "Local" del
+            # recuadro). SIN local no se envia (1-ago-2026): el selector
+            # global del pie se elimino y un fallback escondido mandaria la
+            # alerta al establecimiento equivocado.
+            establecimiento = str(alerta.get("establecimiento") or "").strip()
+            if not establecimiento:
+                self.sin_local += 1
+                print("[jarvis-forwarder] alerta NO enviada: la cámara "
+                      f"'{alerta.get('camera_name') or '?'}' no tiene "
+                      "establecimiento asignado (select Local del recuadro)")
+                return
+
             titulo = self._titulo(alerta, evento, alerta.get("class_name") or "")
             mensaje = str(alerta.get("description", "") or "")
             imagen = alerta.get("image_base64") or alerta.get("crop_image") or ""
 
-            # Local de la CAMARA que disparo la alerta (menu "Local" del
-            # recuadro). Vacio -> None -> el seleccionado global del pie,
-            # que es el comportamiento de siempre.
-            establecimiento = (str(alerta.get("establecimiento") or "").strip()
-                               or None)
             self._jarvis.enviar_novedad_async(
                 base64_image=imagen, title=titulo, message=mensaje,
                 establecimiento=establecimiento)

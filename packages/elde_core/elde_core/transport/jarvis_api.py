@@ -47,9 +47,10 @@ class Jarvis_api(QObject):
         self.email_jarvis_request = emailuser
         self.password_jarvis_request = password
         self.url_api_base = url_api
-        # Nombre del establecimiento preferido (del .env). Si está, se
-        # auto-selecciona por coincidencia de nombre al cargar la lista; si no,
-        # se toma el primero. La UI del footer puede sobrescribirlo.
+        # COMPAT: el "establecimiento preferido" del .env alimentaba la
+        # auto-seleccion GLOBAL, eliminada el 1-ago-2026 (el destino es por
+        # camara). El parametro se acepta para no romper a quien construya
+        # con el, pero ya no selecciona nada.
         self._establecimiento_preferido = (establecimiento or '').strip()
 
         self.session_user = None
@@ -100,19 +101,22 @@ class Jarvis_api(QObject):
         return None
 
     def _resolver_destino(self, establecimiento):
-        """dict | nombre | None -> el establecimiento al que enviar.
+        """dict | nombre -> el establecimiento al que enviar, o None.
 
-        Sin `establecimiento` (o si el nombre no aparece en la lista) se cae
-        al seleccionado global del pie, que es el comportamiento historico."""
+        SIN fallback global (1-ago-2026, peticion del operador): el selector
+        global del pie se elimino y una camara sin local propio NO envia —
+        un global escondido desviaba alertas al establecimiento equivocado.
+        Un nombre que no este en la lista tampoco envia (mejor omitir con
+        aviso que alertar al local que no era)."""
         if isinstance(establecimiento, dict):
             return establecimiento
         if establecimiento:
             encontrado = self.buscar_establecimiento(establecimiento)
-            if encontrado is not None:
-                return encontrado
-            print(f"[jarvis] establecimiento '{establecimiento}' no esta en "
-                  "la lista: se usa el seleccionado global")
-        return self.selected_establishment
+            if encontrado is None:
+                print(f"[jarvis] establecimiento '{establecimiento}' no esta "
+                      "en la lista de Jarvis: novedad omitida")
+            return encontrado
+        return None
     
     
     
@@ -223,28 +227,13 @@ class Jarvis_api(QObject):
                 json_data = json.loads(data)
 
                 self.list_of_establishments = json_data
-                # Auto-selección para que el envío quede operativo sin depender
-                # de la UI: si el .env fija un establecimiento preferido se busca
-                # por nombre (coincidencia parcial, sin distinguir mayúsculas);
-                # si no se encuentra o no hay preferido, se toma el primero.
-                # La UI (footer) puede sobrescribirlo con selection_establishment.
-                if (self.selected_establishment is None
-                        and isinstance(json_data, list) and json_data):
-                    elegido = None
-                    pref = self._establecimiento_preferido.lower()
-                    if pref:
-                        for est in json_data:
-                            if isinstance(est, dict) and pref in str(est.get('name', '')).lower():
-                                elegido = est
-                                break
-                    if elegido is None:
-                        elegido = json_data[0]
-                    self.selected_establishment = elegido
-                    nombre = elegido.get('name', '?') if isinstance(elegido, dict) else '?'
-                    print(f'[jarvis] establecimiento auto-seleccionado: {nombre}'
-                          + (f" (preferido: '{self._establecimiento_preferido}')"
-                             if self._establecimiento_preferido else ''))
-                # Avisar a la UI (selector del pie) que ya hay lista.
+                # La AUTO-SELECCION global (preferido del .env o el primero de
+                # la lista) se ELIMINO el 1-ago-2026: era el "Carpinteria"
+                # fantasma que aparecia elegido solo y al que iban las alertas
+                # de cualquier camara sin local propio. El destino ahora es
+                # POR CAMARA (select "Local" de cada recuadro) y el envio se
+                # omite si la camara no tiene local asignado.
+                # Avisar a la UI (selects por camara) que ya hay lista.
                 self.establishments_loaded.emit(
                     json_data if isinstance(json_data, list) else [])
 
@@ -429,7 +418,8 @@ class Jarvis_api(QObject):
             return
         destino = self._resolver_destino(establecimiento)
         if destino is None:
-            print('[jarvis] novedad omitida: sin establecimiento')
+            print('[jarvis] novedad omitida: la cámara no tiene '
+                  'establecimiento asignado (select "Local" del recuadro)')
             return
         if base64_image:
             self.subir_imagen_async(

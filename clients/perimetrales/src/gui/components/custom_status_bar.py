@@ -93,19 +93,11 @@ class CustomStatusBar(QStatusBar):
         "inserción______⤵️_______"
         self.container_layout.addWidget(self.chk_envio_whatsapp)
 
-        """____Selector de ESTABLECIMIENTO Jarvis (destino de las alertas)___
-        Se crea SIEMPRE (aunque la lista llegue vacía): los establecimientos
-        se cargan de forma asíncrona tras el login de Jarvis y el combo se
-        rellena con cargar_establecimientos() cuando la lista llega."""
-        self.selector_establishment = QComboBox()
-        self.selector_establishment.setMinimumWidth(180)
-        self.selector_establishment.setToolTip(
-            'Establecimiento de Jarvis365 al que se envían las alertas')
-        self.selector_establishment.addItem('Cargando establecimientos…')
-        self.selector_establishment.setEnabled(False)
-        "inserción______⤵️_______"
-        self.container_layout.addWidget(QLabel("Alertas a:"))
-        self.container_layout.addWidget(self.selector_establishment)
+        # El selector GLOBAL de establecimiento ("Alertas a:") se ELIMINO el
+        # 1-ago-2026 a peticion del operador: el destino de las alertas es
+        # POR CAMARA (select "Local" en la barra de cada recuadro) y un
+        # global escondido podia desviar las alertas de las camaras sin
+        # local propio. Una camara sin local asignado ya NO envia a Jarvis.
 
         """____Indicador del server___"""
         self.msg_label = QLabel('Selecione el tipo de inferencia --->')
@@ -277,28 +269,6 @@ class CustomStatusBar(QStatusBar):
     def receive_message(self, mesagge):
         self.showMessage(mesagge, 3000)
 
-
-    def cargar_establecimientos(self, nombres, seleccionado=None):
-        """Rellena el selector cuando la lista de Jarvis llega (async).
-
-        `nombres`: lista de nombres de establecimientos.
-        `seleccionado`: nombre a dejar elegido (guardado previo o el
-        auto-seleccionado por Jarvis_api); si no está en la lista, el primero.
-        Bloquea señales durante el llenado para no disparar
-        currentTextChanged de forma programática.
-        """
-        self.selector_establishment.blockSignals(True)
-        self.selector_establishment.clear()
-        if not nombres:
-            self.selector_establishment.addItem('Sin establecimientos')
-            self.selector_establishment.setEnabled(False)
-            self.selector_establishment.blockSignals(False)
-            return
-        self.selector_establishment.addItems(list(nombres))
-        indice = self.selector_establishment.findText(seleccionado or '')
-        self.selector_establishment.setCurrentIndex(indice if indice != -1 else 0)
-        self.selector_establishment.setEnabled(True)
-        self.selector_establishment.blockSignals(False)
 
     # ── VLM verificador ──────────────────────────────────────────────
 
