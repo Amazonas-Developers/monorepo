@@ -61,24 +61,30 @@ class Sidebar_Dock(QWidget):
         self.content_layaut.setContentsMargins(0, 0, 0, 0)
         self.content_layaut.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
 
+        # Aviso de seccion vacia: sin el, una lista sin ventanas es un panel
+        # EN BLANCO y parece que la aplicacion fallo.
+        self._aviso_sin_ventanas = QLabel(
+            'Sin ventanas para capturar todavía.\n'
+            'Abre iVMS-4200 / SmartPSS y aparecerá aquí.')
+        self._aviso_sin_ventanas.setAlignment(Qt.AlignCenter)
+        self._aviso_sin_ventanas.setWordWrap(True)
+        self._aviso_sin_ventanas.setStyleSheet(
+            'color:#8b949e; font-size:11px; padding:14px 8px;')
+        self.content_layaut.addWidget(self._aviso_sin_ventanas)
+
         # ── Sección: DVR Tree ────────────────────────────────
         self.dvr_tree = DVRTree()
         self.dvr_tree.refresh(self._repo.all())
 
         # ── ToolBox ──────────────────────────────────────────
+        # Antes habia un tercer item VACIO e invisible seleccionado por
+        # defecto "para que ninguno quede activo": el resultado real era un
+        # sidebar EN BLANCO al arrancar sin DVRs guardados. Se arranca
+        # mostrando las ventanas (o los DVR, si ya hay guardados).
         toolbox = QToolBox()
-        toolbox.addItem(content_center, "Ventanas de windows")
+        toolbox.addItem(content_center, "Ventanas de Windows")
         toolbox.addItem(self.dvr_tree,  "Dispositivos DVR")
-
-        # Ítem vacío/invisible para que ninguno quede activo por defecto
-        empt       = QWidget()
-        idx_empt   = toolbox.addItem(empt, "")
-        toolbox.setCurrentIndex(idx_empt)
-        toolbox.setItemEnabled(idx_empt, False)
-
-        # Si hay dispositivos guardados, abrir la sección DVR
-        if self._repo.all():
-            toolbox.setCurrentIndex(1)
+        toolbox.setCurrentIndex(1 if self._repo.all() else 0)
 
         layout_dock.addWidget(header, alignment=Qt.AlignTop)
         layout_dock.addWidget(toolbox)
@@ -95,10 +101,12 @@ class Sidebar_Dock(QWidget):
 
     def print_list(self, list_windows):
         if list_windows:
+            self._aviso_sin_ventanas.setVisible(False)
             for window in list_windows:
                 self.content_layaut.addWidget(Box_cap(window))
 
     def add_new_window(self, hwnd, title):
+        self._aviso_sin_ventanas.setVisible(False)
         self.content_layaut.addWidget(Box_cap({"hwnd": hwnd, "title": title}))
 
     def remove_closed_windows(self, hwnd):

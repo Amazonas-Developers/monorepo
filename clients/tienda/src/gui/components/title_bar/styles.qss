@@ -1,38 +1,39 @@
-/* Barra de título */
-
+/* Barra de título — misma paleta que global.qss (1-ago-2026). */
 
 #title_bar {
-    background-color: #252525;
+    background-color: #161b22;
+    border-bottom: 1px solid #2d333c;
 }
 
-/* Texto del título */
 QLabel#title_label {
-    color: white;
+    color: #e6edf3;
     font-weight: bold;
     font-size: 12px;
     padding-left: 12px;
+    background: transparent;
 }
 
-/* Botones de control */
 QPushButton#MinimizeButton,
 QPushButton#MaximizeButton,
 QPushButton#CloseButton {
     border: none;
-    background-color: #252525;
-    color: white;
+    border-radius: 0;
+    background-color: transparent;
+    color: #8b949e;
     font-weight: bold;
     font-size: 14px;
-    padding: 0px 8px;
+    padding: 0 8px;
     width: 35px;
     height: 35px;
 }
 
-/* Hover states */
 QPushButton#MinimizeButton:hover,
 QPushButton#MaximizeButton:hover {
-    background-color: #42464b;
+    background-color: #1c222b;
+    color: #e6edf3;
 }
 
 QPushButton#CloseButton:hover {
-    background-color: #ff0a0a;
+    background-color: #f85149;
+    color: #ffffff;
 }

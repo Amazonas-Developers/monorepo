@@ -79,20 +79,14 @@ class MainWindow(QMainWindow):
         self.layout_main.addWidget(self.window_child)
 
         # ── Pestañas ─────────────────────────────────────────
+        # Sin stylesheet propio: el tema vive en styles/global.qss para que
+        # TODAS las pestañas de la aplicacion (estas y las del panel derecho)
+        # se vean igual. Antes cada QTabWidget llevaba su estilo inline y el
+        # del panel derecho iba sin ninguno — la mitad de la interfaz salia
+        # con el tema claro por defecto de Qt.
         self.tabs = QTabWidget()
         self.tabs.setContentsMargins(0, 0, 0, 0)
         self.tabs.setAttribute(Qt.WA_StyledBackground, True)
-        self.tabs.setStyleSheet("""
-            QTabBar::tab {
-                background:#292929; border-top-left-radius:4px;
-                border-top-right-radius:4px;
-                border:1px solid #000; padding:8px 12px;
-                color:#ffffff; font-size:10pt;
-            }
-            QTabBar::tab:selected { border-bottom:2px solid #00A8E8; }
-            QTabBar::tab:hover    { background:#363535; }
-            QTabWidget            { background:#000; border:0; padding:0; }
-        """)
         self.window_child.setCentralWidget(self.tabs)
 
         # ── Pestaña: Smart Streaming ──────────────────────────
@@ -121,7 +115,6 @@ class MainWindow(QMainWindow):
         self.footer_bar.btn_layout.clicked.connect(self.open_dialog)
         self.footer_bar.inference_type_selected.connect(self.socket_init)
         self.footer_bar.btn_stopconection.clicked.connect(self.socket_close)
-        self.footer_bar.setStyleSheet("QStatusBar { background-color:#424242; color:white; }")
 
         if selected_establishment is not None:
             self.jarvis_api.selection_establishment(selected_establishment)
@@ -274,7 +267,9 @@ class MainWindow(QMainWindow):
     def open_dialog(self):
         dlg = QDialog(parent=self)
         dlg.setFixedSize(260, 180)
-        dlg.setStyleSheet("QDialog { background-color:#424242; color:white; }")
+        dlg.setStyleSheet(
+            "QDialog { background-color:#161b22; color:#e6edf3;"
+            " border:1px solid #2d333c; border-radius:8px; }")
         dlg.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 
         def close_dlg(): dlg.close()
@@ -302,7 +297,8 @@ class MainWindow(QMainWindow):
         btn_cancel.setCursor(Qt.PointingHandCursor)
         btn_cancel.setStyleSheet(
             "QPushButton { background:transparent; border:none;"
-            " text-decoration:underline; color:#fff }"
+            " text-decoration:underline; color:#8b949e; }"
+            "QPushButton:hover { color:#00c8ff; }"
         )
         btn_cancel.clicked.connect(close_dlg)
         layout.addWidget(btn_cancel, alignment=Qt.AlignCenter)

@@ -29,9 +29,8 @@ class CustomStatusBar(QStatusBar):
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setFixedHeight(35)
         self.setObjectName('FooterBar')
-        self.setStyleSheet('''
-            QStatusBar { background-color: #424242; color: white; }
-        ''')
+        # Sin stylesheet propio: #FooterBar se viste en styles/global.qss
+        # (antes el gris #424242 inline pisaba cualquier tema).
         
         container = QWidget()
         self.container_layout = QHBoxLayout(container)
@@ -111,8 +110,7 @@ class CustomStatusBar(QStatusBar):
             'Desactivado: las alertas siguen viéndose en el panel lateral,\n'
             'pero NO se envían imágenes al grupo de WhatsApp.')
         self.chk_envio_whatsapp.setStyleSheet(
-            'QCheckBox { color: #999; }'
-            'QCheckBox::indicator { width: 14px; height: 14px; }')
+            'QCheckBox { color: #8b949e; }')
         self.chk_envio_whatsapp.toggled.connect(self._on_envio_whatsapp_toggled)
         self.container_layout.addWidget(self.chk_envio_whatsapp)
 
@@ -151,13 +149,11 @@ class CustomStatusBar(QStatusBar):
         """Retroalimentacion visual del interruptor de envio por WhatsApp."""
         if activo:
             self.chk_envio_whatsapp.setStyleSheet(
-                'QCheckBox { color: white; }'
-                'QCheckBox::indicator { width: 14px; height: 14px; }')
+                'QCheckBox { color: #3fb950; font-weight: bold; }')
             self.showMessage('Envío de alertas por WhatsApp ACTIVADO', 4000)
         else:
             self.chk_envio_whatsapp.setStyleSheet(
-                'QCheckBox { color: #999; }'
-                'QCheckBox::indicator { width: 14px; height: 14px; }')
+                'QCheckBox { color: #8b949e; }')
             self.showMessage('Envío de alertas por WhatsApp DESACTIVADO '
                              '(el panel lateral sigue mostrando alertas)', 5000)
 
@@ -165,13 +161,13 @@ class CustomStatusBar(QStatusBar):
     def update_ui(self, is_connected, message):
         if is_connected:
             self.showMessage('Conexión establecida con el servidor', 3000)
-            self.indicator.setStyleSheet('color: #4eff2b; font-weight: bold;')
-            self.msg_label.setStyleSheet('color: #4eff2b; font-weight: bold;')
+            self.indicator.setStyleSheet('color: #3fb950; font-weight: bold;')
+            self.msg_label.setStyleSheet('color: #3fb950; font-weight: bold;')
             self.layout_selector.setEnabled(False)
         else:
             self.showMessage('Conexión perdida con el servidor', 3000)
-            self.indicator.setStyleSheet('color: #8B0000; font-weight: bold;')
-            self.msg_label.setStyleSheet('color: white; font-weight: bold;')
+            self.indicator.setStyleSheet('color: #f85149; font-weight: bold;')
+            self.msg_label.setStyleSheet('color: #e6edf3; font-weight: bold;')
             self.layout_selector.setEnabled(True)
         self.msg_label.setText(message)
        
