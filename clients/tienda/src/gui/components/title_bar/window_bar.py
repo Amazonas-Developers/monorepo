@@ -42,13 +42,14 @@ class CustomTitleBar(QWidget):
         self.title.setObjectName('title_label')
         self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
-        # ── Boton DASHBOARD: abre el mapa de calor / analitica web ──
+        # ── Boton DASHBOARD: abre el dashboard de PRODUCTO de tienda ──
         self.btn_dashboard = QPushButton("  📊  Dashboard  ")
         self.btn_dashboard.setObjectName('DashboardButton')
         self.btn_dashboard.setFixedHeight(40)
         self.btn_dashboard.setCursor(Qt.PointingHandCursor)
         self.btn_dashboard.setToolTip(
-            "Abrir el dashboard de analitica (mapa de calor de pasillos)")
+            "Abrir el dashboard de tienda: pasillos más y menos concurridos,\n"
+            "marketing (género, edad, franjas), capturas y búsqueda con IA.")
         self.btn_dashboard.clicked.connect(self.open_dashboard)
 
         btn_minimize = QPushButton()
@@ -80,12 +81,12 @@ class CustomTitleBar(QWidget):
         layout.addWidget(btn_close)
 
     def _dashboard_url(self):
-        """URL del dashboard de visitantes.
+        """URL del dashboard de PRODUCTO de tienda (/dashboards/tienda/).
 
-        Lo sirve el MISMO proceso del servidor de IA en /dashboard, asi que la
-        URL se deriva de server_ws_url (el servidor al que el cliente ya esta
-        conectado) y no de un puerto fijo: asi vale igual con servidor local o
-        remoto. DASHBOARD_URL en .env fuerza una URL concreta."""
+        Lo sirve el MISMO servidor de IA, asi que la URL se deriva de
+        server_ws_url (el servidor al que el cliente ya esta conectado) y no
+        de un puerto fijo: asi vale igual con servidor local o remoto.
+        DASHBOARD_URL en .env fuerza una URL concreta."""
         forced = (os.getenv("DASHBOARD_URL") or "").strip()
         if forced:
             return forced
@@ -96,7 +97,7 @@ class CustomTitleBar(QWidget):
         return cargar().dashboard_url
 
     def open_dashboard(self):
-        """Abre el dashboard de analitica de visitantes en el navegador."""
+        """Abre el dashboard de tienda en el navegador."""
         import webbrowser
         url = self._dashboard_url()
         try:
@@ -161,12 +162,13 @@ class CustomTitleBar(QWidget):
             with open(qss_path, 'r') as f:
                 self.setStyleSheet(f.read())
         # Estilo del boton Dashboard (se anade tras cargar el qss para que
-        # no dependa de editar el archivo de estilos).
+        # no dependa de editar el archivo de estilos). Acento del dominio
+        # tienda (#00c8ff), texto oscuro para el contraste.
         self.btn_dashboard.setStyleSheet(
-            "#DashboardButton{background:#00A8E8;color:#fff;font-weight:bold;"
-            "font-size:10pt;border:none;border-radius:4px;margin:4px 8px;"
-            "padding:4px 10px;}"
-            "#DashboardButton:hover{background:#33bff0;}")
+            "#DashboardButton{background:#00c8ff;color:#06222c;"
+            "font-weight:bold;font-size:10pt;border:none;border-radius:6px;"
+            "margin:4px 8px;padding:4px 12px;}"
+            "#DashboardButton:hover{background:#33d5ff;}")
 
 
     

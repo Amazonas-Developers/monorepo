@@ -44,7 +44,11 @@ class Ajustes:
 
     @property
     def dashboard_url(self) -> str:
-        return f'{self.server_http_url}/dashboard'
+        """El dashboard de PRODUCTO de Amazonas (genero/edad, totales).
+
+        Hasta el 1-ago-2026 apuntaba a `/dashboard` (panel tecnico de
+        visitantes); la pagina de producto enlaza a aquel."""
+        return f'{self.server_http_url}/dashboards/amazonas/'
 
 
 def _limpio(valor: Optional[str]) -> str:
