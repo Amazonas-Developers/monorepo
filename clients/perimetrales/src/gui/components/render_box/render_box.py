@@ -31,7 +31,7 @@ except Exception:
 from PySide6.QtWidgets import (
     QFrame, QWidget, QLabel, QHBoxLayout, QVBoxLayout,
     QGridLayout, QSizePolicy, QMenu, QWidgetAction, QCheckBox,
-    QLineEdit, QMessageBox, QToolButton, QApplication,
+    QLineEdit, QMessageBox, QToolButton, QApplication, QComboBox,
 )
 from PySide6.QtCore  import (Qt, Slot, QProcess, QUrl, Signal, QEvent, QBuffer,
                              QIODevice, QThread)
@@ -402,10 +402,31 @@ class Render_box(CapturaDVRMixin, QFrame):
             "Vista ▾", "Visualizacion: estelas de movimiento y estilo de caja",
             self._build_vista_menu)
         # Establecimiento POR CAMARA (1-ago-2026): con camaras de locales
-        # distintos en la misma ventana, cada una alerta al suyo.
-        self._menu_local = self._make_menu_button(
-            "Local ▾", "", self._build_local_menu)
-        self._refrescar_boton_local()
+        # distintos en la misma ventana, cada una alerta al suyo. Es un
+        # SELECT con los establecimientos como opciones (peticion del
+        # operador); la lista carga async tras el login de Jarvis y el
+        # selector se repuebla solo al llegar.
+        self.selector_local = QComboBox()
+        self.selector_local.setObjectName("selector-local")
+        self.selector_local.setFixedHeight(24)
+        self.selector_local.setMinimumWidth(130)
+        self.selector_local.setMaximumWidth(190)
+        self.selector_local.setCursor(Qt.PointingHandCursor)
+        self.selector_local.setStyleSheet(
+            "QComboBox{color:#fff;background:#333;border:1px solid #555;"
+            "border-radius:4px;padding:1px 8px;font-size:11px;}"
+            "QComboBox:hover{border-color:#3d6fb0;}"
+            "QComboBox::drop-down{border:none;width:16px;}"
+            "QComboBox QAbstractItemView{background:#2b2b2b;color:#eee;"
+            "border:1px solid #555;selection-background-color:#3d6fb0;}")
+        self._poblar_selector_local()
+        self.selector_local.activated.connect(self._on_local_elegido)
+        # Repoblar cuando Jarvis termine de cargar la lista (async).
+        try:
+            self.api_jarvis.establishments_loaded.connect(
+                lambda *_: self._poblar_selector_local())
+        except Exception:
+            pass
 
         # Layout: [IA | ROI | Vista | Clases | Local] --- [▶ ⏹ DVR]
         bar_opt_layout.addWidget(self.btn_smart)
@@ -414,7 +435,7 @@ class Render_box(CapturaDVRMixin, QFrame):
         bar_opt_layout.addWidget(self._menu_vista)
         bar_opt_layout.addWidget(_sep())
         bar_opt_layout.addWidget(self._btn_classes)
-        bar_opt_layout.addWidget(self._menu_local)
+        bar_opt_layout.addWidget(self.selector_local)
         bar_opt_layout.addStretch(1)
         bar_opt_layout.addWidget(btn_play)
         bar_opt_layout.addWidget(btn_stop)
@@ -690,60 +711,54 @@ class Render_box(CapturaDVRMixin, QFrame):
         self._add_toggle(menu, "Cajas estilo elipse",
                          self.ellipse_style, self._toggle_box_style)
 
-    # ── Establecimiento por camara ───────────────────────────────────────
+    # ── Establecimiento por camara (select) ──────────────────────────────
 
-    def _build_local_menu(self, menu):
-        """Menu de establecimiento de ESTA camara. Se reconstruye al abrirse
-        con la lista vigente de Jarvis (que carga async tras el login)."""
-        menu.clear()
-        a = menu.addAction("(el del pie de la ventana)")
-        a.setCheckable(True)
-        a.setChecked(not self.establecimiento)
-        a.triggered.connect(lambda *_: self._set_establecimiento(""))
-        nombres = []
+    def _nombres_de_establecimientos(self):
         try:
-            nombres = [str(e.get("name", "")).strip()
-                       for e in (getattr(self.api_jarvis,
-                                         "list_of_establishments", None) or [])
-                       if isinstance(e, dict) and e.get("name")]
+            return [str(e.get("name", "")).strip()
+                    for e in (getattr(self.api_jarvis,
+                                      "list_of_establishments", None) or [])
+                    if isinstance(e, dict) and e.get("name")]
         except Exception:
-            nombres = []
-        if nombres:
-            menu.addSeparator()
-            for nombre in nombres:
-                act = menu.addAction(nombre)
-                act.setCheckable(True)
-                act.setChecked(nombre == self.establecimiento)
-                act.triggered.connect(
-                    lambda *_, n=nombre: self._set_establecimiento(n))
-        else:
-            menu.addSeparator()
-            aviso = menu.addAction("sin lista aún (¿sesión de Jarvis?)")
-            aviso.setEnabled(False)
-        # Un guardado que ya no aparece en la lista se muestra igual: borrarlo
-        # en silencio mandaria sus alertas a otro local sin avisar.
+            return []
+
+    def _poblar_selector_local(self):
+        """Rellena el select con los establecimientos como opciones y deja
+        seleccionado el de esta camara. Idempotente: se llama al construir y
+        cada vez que Jarvis termina de cargar la lista."""
+        combo = self.selector_local
+        combo.blockSignals(True)
+        combo.clear()
+        combo.addItem("Local: el del pie", "")
+        nombres = self._nombres_de_establecimientos()
+        for nombre in nombres:
+            combo.addItem(nombre, nombre)
+        # Un guardado que no aparece en la lista se conserva como opcion:
+        # quitarlo en silencio mandaria sus alertas a otro local sin avisar.
         if self.establecimiento and self.establecimiento not in nombres:
-            menu.addSeparator()
-            fuera = menu.addAction(
-                f"guardado (no está en la lista): {self.establecimiento}")
-            fuera.setCheckable(True)
-            fuera.setChecked(True)
-            fuera.setEnabled(False)
+            combo.addItem(f"{self.establecimiento} (no está en la lista)",
+                          self.establecimiento)
+        indice = combo.findData(self.establecimiento)
+        combo.setCurrentIndex(indice if indice != -1 else 0)
+        combo.blockSignals(False)
+        self._refrescar_tooltip_local()
+
+    def _on_local_elegido(self, indice):
+        self._set_establecimiento(self.selector_local.itemData(indice) or "")
 
     def _set_establecimiento(self, nombre):
         self.establecimiento = str(nombre or "").strip()
         self._save_all("establecimiento", self.establecimiento)
-        self._refrescar_boton_local()
+        # Repoblar deja el select sincronizado tambien cuando el cambio no
+        # vino del propio combo (restauracion, codigo).
+        self._poblar_selector_local()
         print(f"[box {self.index}] establecimiento de la camara: "
               f"{self.establecimiento or '(el global del pie)'}")
 
-    def _refrescar_boton_local(self):
-        """El boton marca ● cuando la camara tiene local propio."""
-        propio = bool(self.establecimiento)
-        self._menu_local.setText("Local ● ▾" if propio else "Local ▾")
-        self._menu_local.setToolTip(
+    def _refrescar_tooltip_local(self):
+        self.selector_local.setToolTip(
             f"Establecimiento de ESTA cámara: {self.establecimiento}"
-            if propio else
+            if self.establecimiento else
             "Establecimiento de ESTA cámara (a dónde van sus alertas de "
             "Jarvis).\nAhora usa el seleccionado en el pie de la ventana.")
 
