@@ -510,6 +510,9 @@ class Render_box(CapturaDVRMixin, QFrame):
                     "track_classes": self._selected_classes,
                     "draw_server": (not self._direct_mode),
                     "enviar_whatsapp": self.whatsapp_boolean,
+                    # Local de esta camara (select "Local"): el servidor lo
+                    # pone de encabezado en el mensaje de WhatsApp.
+                    "establecimiento": self.establecimiento or None,
                 }
                 # Modo directo: guardar el frame enviado para dibujar encima
                 # las detecciones que devuelva el servidor.
@@ -1134,6 +1137,10 @@ class Render_box(CapturaDVRMixin, QFrame):
                                             "global_id": iteration.get("global_id", ""),
                                             "descripcion": iteration.get("description", ""),
                                             "permanencia_s": iteration.get("permanencia_s"),
+                                            # Local de la camara: permite
+                                            # segmentar el dashboard por
+                                            # establecimiento a futuro.
+                                            "establecimiento": self.establecimiento,
                                         })
                     # Payload PERIMETRAL: llegada/salida con tiempos por
                     # identidad (ver contrato en alerts_sidebar.py). Los campos

@@ -319,6 +319,9 @@ def _fila_alerta(carpeta: Path, nombre: str) -> Dict[str, Any]:
         'global_id': meta.get('global_id') or '',
         'permanencia_s': meta.get('permanencia_s'),
         'descripcion': meta.get('descripcion') or '',
+        # Local de la camara (3-ago-2026): los sidecars nuevos lo traen; los
+        # viejos no, y queda vacio.
+        'establecimiento': meta.get('establecimiento') or '',
         # Sin sidecar no hay clase ni fecha fiables; se marca para que la UI
         # y los totales no lo cuenten como si se supiera.
         'sin_metadatos': not bool(meta),

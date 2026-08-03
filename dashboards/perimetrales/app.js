@@ -7,6 +7,9 @@
 'use strict';
 
 // ── estado del buscador ──────────────────────────────────────────────────
+// `camara` es el SEGMENTO activo (pestañas "Cámara / cliente"): el operador
+// usa un mismo cliente para camaras de establecimientos distintos, y el
+// segmento gobierna KPIs, galería, desgloses, mapas de calor y tabla.
 const filtros = { q: '', evento: '', clase: '', camara: '', desde: '', hasta: '' };
 const TOPE_API = 200;               // limite máximo de /api/v1/alertas
 let mostrar = 24;                   // cuántas fotos pide la galería
@@ -41,21 +44,40 @@ function tarjetaAlerta(a) {
       <b>${UI.esc(a.clase || 'sin clase')}</b>
       <span class="pill ${clasePill}">${UI.esc(a.evento || 'sin evento')}</span>
       <small>${UI.esc(a.camara || '—')} · ${UI.esc(a.timestamp || 'sin fecha')}</small>
+      ${a.establecimiento ? `<small>🏢 ${UI.esc(a.establecimiento)}</small>` : ''}
       ${a.permanencia_s != null ? `<small>permaneció ${UI.duracion(a.permanencia_s)}</small>` : ''}
       ${a.sin_metadatos ? '<small class="error-carga">foto sin metadatos</small>' : ''}
     </div></a>`;
 }
 
+function pintarSegmentos(porCamara, totalGlobal) {
+  // Pestañas de camara: se reconstruyen en cada refresco (los handlers van
+  // por delegación, así que reconstruir no pierde nada).
+  const boton = (valor, texto) =>
+    `<button class="boton${filtros.camara === valor ? ' activo' : ''}"
+             data-cam="${UI.esc(valor)}">${UI.esc(texto)}</button>`;
+  const partes = [boton('', `Todas (${totalGlobal})`)];
+  for (const [cam, n] of Object.entries(porCamara || {})) {
+    partes.push(boton(cam, `📹 ${cam} (${n})`));
+  }
+  document.getElementById('segmentos').innerHTML = partes.join('');
+}
+
 async function pintar() {
-  const [global, filtrado, dispositivos, heatmaps] = await Promise.all([
+  const [catalogo, global, filtrado, dispositivos, heatmaps] = await Promise.all([
+    API.leer('alertas?limite=1'),          // catálogo de cámaras, SIN filtros
     consultaAlertasGlobal(),
     consultaAlertas(mostrar),
     API.leer('dispositivos?client_type=perimetrales'),
     API.leer('heatmaps'),
   ]);
 
-  // KPIs con los TOTALES globales (sin filtros); la galería y los desgloses
-  // siguen al buscador.
+  // Pestañas de segmentación con el catálogo completo (una pestaña por
+  // cámara aunque esté filtrado a otra).
+  pintarSegmentos(catalogo.facetas.por_camara, catalogo.total);
+
+  // KPIs del SEGMENTO activo (o globales en "Todas"); la galería y los
+  // desgloses siguen además al buscador.
   const clases = global.facetas.por_clase || {};
   UI.kpis({
     personas: clases.PERSONA ?? 0,
@@ -67,7 +89,6 @@ async function pintar() {
 
   opciones(document.getElementById('f-evento'), Object.keys(global.facetas.por_evento || {}), 'evento');
   opciones(document.getElementById('f-clase'), Object.keys(clases), 'clase');
-  opciones(document.getElementById('f-camara'), Object.keys(global.facetas.por_camara || {}), 'cámara');
 
   UI.barras('d-clase', filtrado.facetas.por_clase);
   UI.barras('d-evento', filtrado.facetas.por_evento);
@@ -92,12 +113,14 @@ async function pintar() {
       ? `la API sirve ${TOPE_API} como máximo: afina la búsqueda para ver el resto`
       : `${filtrado.alertas.length} de ${filtrado.total}`);
 
-  // Mapas de calor SOLO de las cámaras de este dominio, con su histórico.
-  const propios = new Set(dispositivos.dispositivos.map(d => d.device_id));
+  // Mapas de calor y tabla SOLO del dominio y del SEGMENTO activo.
+  const visibles = dispositivos.dispositivos.filter(d =>
+    !filtros.camara || (d.camera_name || d.device_id) === filtros.camara);
+  const propios = new Set(visibles.map(d => d.device_id));
   UI.heatmaps('heatmaps',
     heatmaps.heatmaps.filter(h => propios.has(h.device_id)));
 
-  UI.tabla('dispositivos', dispositivos.dispositivos, [
+  UI.tabla('dispositivos', visibles, [
     ['device_id', 'dispositivo'],
     ['camera_name', 'cámara'],
     ['pipelines', 'pipelines', v => UI.esc((v || []).join(', ') || '—')],
@@ -108,15 +131,17 @@ async function pintar() {
 }
 
 async function consultaAlertasGlobal() {
-  // Totales sin filtros + cuántas son de hoy (dos preguntas, misma caché del
-  // servidor). La fecha local del navegador basta: la API entiende AAAA-MM-DD.
+  // Totales del SEGMENTO activo + cuántas son de hoy. La fecha local del
+  // navegador basta: la API entiende AAAA-MM-DD.
   const hoy = new Date();
   const dia = [hoy.getFullYear(),
     String(hoy.getMonth() + 1).padStart(2, '0'),
     String(hoy.getDate()).padStart(2, '0')].join('-');
+  const cam = filtros.camara
+    ? `&camara=${encodeURIComponent(filtros.camara)}` : '';
   const [todas, deHoy] = await Promise.all([
-    API.leer('alertas?limite=1'),
-    API.leer(`alertas?limite=1&desde=${dia}&hasta=${dia}`),
+    API.leer(`alertas?limite=1${cam}`),
+    API.leer(`alertas?limite=1&desde=${dia}&hasta=${dia}${cam}`),
   ]);
   return { ...todas, hoy: deHoy.total };
 }
@@ -141,18 +166,25 @@ document.getElementById('f-q').addEventListener('input', UI.debounce(e => {
   alCambiar();
 }));
 for (const [id, clave] of [['f-evento', 'evento'], ['f-clase', 'clase'],
-                           ['f-camara', 'camara'], ['f-desde', 'desde'],
-                           ['f-hasta', 'hasta']]) {
+                           ['f-desde', 'desde'], ['f-hasta', 'hasta']]) {
   document.getElementById(id).addEventListener('change', e => {
     filtros[clave] = e.target.value;
     alCambiar();
   });
 }
 document.getElementById('f-limpiar').addEventListener('click', () => {
-  for (const clave of Object.keys(filtros)) filtros[clave] = '';
-  for (const id of ['f-q', 'f-evento', 'f-clase', 'f-camara', 'f-desde', 'f-hasta']) {
+  // Limpia el BUSCADOR; el segmento de cámara es navegación y se conserva.
+  for (const clave of ['q', 'evento', 'clase', 'desde', 'hasta']) filtros[clave] = '';
+  for (const id of ['f-q', 'f-evento', 'f-clase', 'f-desde', 'f-hasta']) {
     document.getElementById(id).value = '';
   }
+  alCambiar();
+});
+// Pestañas de cámara: delegación (los botones se reconstruyen en cada tick).
+document.getElementById('segmentos').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-cam]');
+  if (!btn) return;
+  filtros.camara = btn.dataset.cam;
   alCambiar();
 });
 document.getElementById('mas').addEventListener('click', () => {

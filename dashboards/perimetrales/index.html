@@ -16,6 +16,11 @@
 
 <nav class="paneles" id="paneles"></nav>
 
+<section>
+  <h2>Cámara / cliente</h2>
+  <div class="filtros" id="segmentos"></div>
+</section>
+
 <div class="kpis">
   <div class="kpi"><div class="valor" data-kpi="personas">—</div><div class="nombre">personas detectadas</div></div>
   <div class="kpi"><div class="valor" data-kpi="carros">—</div><div class="nombre">carros</div></div>
@@ -27,10 +32,9 @@
 <section>
   <h2>Buscador de alertas</h2>
   <div class="filtros">
-    <input id="f-q" type="search" placeholder="texto libre: clase, cámara, descripción, id…" size="34">
+    <input id="f-q" type="search" placeholder="texto libre: clase, descripción, id…" size="34">
     <select id="f-evento"><option value="">evento: todos</option></select>
     <select id="f-clase"><option value="">clase: todas</option></select>
-    <select id="f-camara"><option value="">cámara: todas</option></select>
     <label>desde <input id="f-desde" type="date"></label>
     <label>hasta <input id="f-hasta" type="date"></label>
     <button id="f-limpiar" class="boton">Limpiar</button>

@@ -71,6 +71,9 @@ class VigilanteWS:
         self._seq: dict[str, int] = defaultdict(int)
         self._tarjetas: dict[str, Deque[dict[str, Any]]] = defaultdict(
             lambda: deque(maxlen=MAX_TARJETAS_CAMARA))
+        # camara -> establecimiento (local) elegido en el cliente (select
+        # "Local" del recuadro). Encabeza el mensaje de WhatsApp (3-ago-2026).
+        self._locales: dict[str, str] = {}
         # (camara, track_id) -> (nombre, nivel, ts_expira)
         self._identidades: dict[tuple[str, int], tuple[str, str, float]] = {}
         if self._servicios.motor_reid is not None:
@@ -86,13 +89,19 @@ class VigilanteWS:
                       track_classes: list[int] | None = None,
                       draw: bool = True,
                       roi: Any = None,
-                      roi_activate: bool = False) -> tuple[np.ndarray, dict[str, Any]]:
+                      roi_activate: bool = False,
+                      establecimiento: str | None = None) -> tuple[np.ndarray, dict[str, Any]]:
         """Procesa UN frame de UNA cámara del cliente. Nunca lanza: ante un
         error interno devuelve el frame original con metadata vacía.
 
         `roi`/`roi_activate`: polígono del área que dibuja el cliente. Si no
-        está activo, el área es todo el frame."""
+        está activo, el área es todo el frame.
+        `establecimiento`: local de ESTA camara (select del recuadro);
+        encabeza sus mensajes de WhatsApp."""
         try:
+            camara = camera_name or camera_id
+            if establecimiento is not None:
+                self._locales[str(camara)] = str(establecimiento).strip()
             return self._procesar(img, camera_id, camera_name, draw,
                                   roi, roi_activate)
         except Exception:
@@ -286,17 +295,12 @@ class VigilanteWS:
                 return
             clase = str(tarjeta.get("class_name") or "detección")
             cam = str(tarjeta.get("camera_name") or "")
-            desc = str(tarjeta.get("description") or "")
-            ts = str(tarjeta.get("timestamp") or "")
             gid = str(tarjeta.get("global_id") or "")
-            icono = "🚗" if gruesa == "vehiculo" else "🚶"
-            texto = f"🚨 VIGILANTE · {icono} {clase} ENTRÓ AL PERÍMETRO"
-            if cam:
-                texto += f" · cámara {cam}"
-            if desc:
-                texto += f"\n{desc}"
-            if ts:
-                texto += f"\n🕒 {ts}"
+            # Formato del 3-ago-2026 (peticion del operador): encabezado con
+            # el LOCAL de la camara (no "VIGILANTE"), hora legible y sin
+            # descripcion redundante. Ver servicios/formato_whatsapp.py.
+            from vigilante_amazonas.servicios.formato_whatsapp import texto_alerta
+            texto = texto_alerta(tarjeta, self._locales.get(cam, ""))
             # Clave anti-flood: misma persona/evento en la misma cámara no se
             # reenvía más de una vez por WHATSAPP_COOLDOWN_SEG.
             clave = f"{gid}|{clase}|{cam}"

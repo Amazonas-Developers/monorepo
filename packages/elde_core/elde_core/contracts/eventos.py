@@ -95,6 +95,10 @@ class FrameInference(BaseModel):
     enable_vlm: bool = False
     # Notificacion por WhatsApp de las alertas (clientes perimetrales).
     enviar_whatsapp: bool = False
+    # Establecimiento (local) de ESTA camara (3-ago-2026): lo elige el
+    # operador en el select "Local" del recuadro. El servidor lo usa como
+    # encabezado del mensaje de WhatsApp en lugar del "VIGILANTE" generico.
+    establecimiento: Optional[str] = Field(default=None, max_length=120)
 
     # ── Zonas de Hummus (pedido / entrega de bandeja) ──
     order_zone_activate: bool = False

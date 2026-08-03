@@ -404,6 +404,7 @@ def process_image_sync(
     heatmap_activate: bool = False,
     camera_name: Optional[str] = None,
     draw_server: bool = True,
+    establecimiento: Optional[str] = None,
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
     Despacha el frame al procesador correcto.
@@ -422,6 +423,7 @@ def process_image_sync(
             draw=bool(draw_server),
             roi=roi,                       # poligono del area (contador/alertas)
             roi_activate=bool(roi_activate),
+            establecimiento=establecimiento,   # local de la camara (WhatsApp)
         )
 
     # Motor perimetral NUEVO: detections (modo directo) + alerts con el
@@ -565,6 +567,7 @@ def _full_frame_sync(
     heatmap_activate: bool = False,
     camera_name: Optional[str] = None,
     draw_server: bool = True,
+    establecimiento: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Combina decode + inferencia + encode JPEG en una sola llamada al executor.
@@ -588,6 +591,7 @@ def _full_frame_sync(
         heatmap_activate=heatmap_activate,
         camera_name=camera_name,
         draw_server=draw_server,
+        establecimiento=establecimiento,
     )
     # Mapa de calor GLOBAL (1-ago-2026): TODAS las camaras acumulan, no solo
     # el pipeline de visitantes. Come las cajas del MISMO metadata que viaja
@@ -845,6 +849,13 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
             # Nombre legible de la camara (para dashboard/heatmap).
             camera_name = str(data.get("camera_name") or "").strip()[:48] or None
 
+            # Local (establecimiento) de ESTA camara: encabeza su mensaje de
+            # WhatsApp en VigilanteWS. Va POR FRAME (no como atributo del
+            # procesador) porque una misma conexion lleva camaras de locales
+            # distintos.
+            establecimiento = (str(data.get("establecimiento") or "")
+                               .strip()[:120] or None)
+
             # MODO DIRECTO: si el cliente pide draw_server=False, el servidor
             # NO dibuja ni envia la imagen; devuelve solo detecciones y el
             # cliente las pinta (menos latencia). Default True (compatibilidad).
@@ -896,6 +907,7 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
                 heatmap_activate,
                 camera_name,
                 draw_server,
+                establecimiento,
             )
 
             try:
