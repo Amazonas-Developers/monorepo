@@ -28,7 +28,8 @@ from fastapi import HTTPException  # noqa: E402
 from src.app import api_lectura as api  # noqa: E402
 
 _DEFAULTS = dict(evento=None, clase=None, clase_gruesa=None, camara=None,
-                 desde=None, hasta=None, q=None, limite=60, offset=0)
+                 establecimiento=None, desde=None, hasta=None, q=None,
+                 limite=60, offset=0)
 
 
 def _buscar(**kw):

@@ -148,18 +148,33 @@ def es_afirmativa(respuesta: str) -> bool:
 
 # ── Fotos de cada ámbito ─────────────────────────────────────────────────
 
-def _fotos(ambito: str, limite: int) -> List[Dict[str, str]]:
-    """Las `limite` fotos más recientes: [{archivo, ruta, url, nota}]."""
+def _fotos(ambito: str, limite: int,
+           establecimiento: Optional[str] = None) -> List[Dict[str, str]]:
+    """Las `limite` fotos más recientes: [{archivo, ruta, url, nota}].
+
+    `establecimiento` (solo ambito alertas) acota la búsqueda a las camaras
+    de ESE local — es lo que hace que el buscador de cada pestaña del
+    dashboard mire solo sus fotos."""
     if ambito == 'alertas':
-        from .api_lectura import _carpeta_alertas, _filas_alertas
+        from .api_lectura import (SIN_LOCAL, _carpeta_alertas, _filas_alertas,
+                                  _local_de, _locales_por_camara)
         carpeta = _carpeta_alertas()
+        filas = _filas_alertas()
+        if establecimiento:
+            mapa = _locales_por_camara()
+            if establecimiento == SIN_LOCAL:
+                filas = [f for f in filas if not _local_de(f, mapa)]
+            else:
+                buscado = str(establecimiento).strip().lower()
+                filas = [f for f in filas
+                         if _local_de(f, mapa).strip().lower() == buscado]
         return [{
             'archivo': f['archivo'],
             'ruta': str(carpeta / f['archivo']),
             'url': f['url'],
             'nota': ' · '.join(x for x in (f['clase'], f['evento'],
                                            f['camara'], f['timestamp']) if x),
-        } for f in _filas_alertas()[:limite]]
+        } for f in filas[:limite]]
     if ambito == 'capturas':
         from .dashboard import _captures_dir, dashboard_captures
         base = Path(_captures_dir()) / 'persons'
@@ -274,6 +289,9 @@ def cambiar_buscador(activo: bool = True) -> Dict[str, Any]:
 def crear_busqueda(
         consulta: str = Query(..., min_length=2, max_length=300),
         ambito: str = Query('alertas'),
+        establecimiento: Optional[str] = Query(
+            None, max_length=120,
+            description='acota la búsqueda a las fotos de ese local'),
         limite: Optional[int] = Query(None, ge=1, le=200),
 ) -> Dict[str, Any]:
     """Crea la búsqueda y devuelve su id; el estado se sondea por GET."""
@@ -292,14 +310,18 @@ def crear_busqueda(
             tope = int(os.getenv('ELDE_VLM_BUSQUEDA_FOTOS_DETECT', '80'))
         else:
             tope = int(os.getenv('ELDE_VLM_BUSQUEDA_FOTOS_VQA', '6'))
-        fotos = _fotos(ambito, min(limite or tope, tope))
+        fotos = _fotos(ambito, min(limite or tope, tope), establecimiento)
         if not fotos:
-            raise HTTPException(status_code=404,
-                                detail=f'no hay fotos en el ámbito {ambito}')
+            raise HTTPException(
+                status_code=404,
+                detail=(f'no hay fotos en el ámbito {ambito}'
+                        + (f' para {establecimiento}' if establecimiento
+                           else '')))
         ident = uuid.uuid4().hex[:12]
         _recortar_viejos()
         _TRABAJOS[ident] = {
             'id': ident, 'consulta': consulta, 'ambito': ambito,
+            'establecimiento': establecimiento or '',
             'modo': 'deteccion' if termino else 'pregunta',
             'termino': termino, 'estado': 'en_cola', 'hechas': 0,
             'total': len(fotos), 'resultados': [], 'error': None,

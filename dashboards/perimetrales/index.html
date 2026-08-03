@@ -17,7 +17,7 @@
 <nav class="paneles" id="paneles"></nav>
 
 <section>
-  <h2>Cámara / cliente</h2>
+  <h2>Cliente / establecimiento</h2>
   <div class="filtros" id="segmentos"></div>
 </section>
 
@@ -74,6 +74,10 @@
 <script src="/dashboards/shared/api.js"></script>
 <script src="/dashboards/shared/vlm.js"></script>
 <script src="/dashboards/perimetrales/app.js"></script>
-<script>montarBuscadorVLM('vlm', 'alertas', 'p. ej. búscame el carro rojo');</script>
+<script>
+// La búsqueda VLM queda acotada a la pestaña (establecimiento) activa.
+montarBuscadorVLM('vlm', 'alertas', 'p. ej. búscame el carro rojo',
+  () => window.segmentoVlmExtra ? window.segmentoVlmExtra() : '');
+</script>
 </body>
 </html>

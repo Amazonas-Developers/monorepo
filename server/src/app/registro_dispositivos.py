@@ -138,6 +138,7 @@ def anotar(mensaje: Dict[str, Any], type_inference: str = '') -> None:
                     'client_type': _client_type(mensaje, pipeline),
                     'pipelines': [],
                     'camera_name': '',
+                    'establecimiento': '',
                     'primera_vez': ahora,
                     'ultima_vez': ahora,
                     'frames': 0,
@@ -153,6 +154,13 @@ def anotar(mensaje: Dict[str, Any], type_inference: str = '') -> None:
             nombre = _texto(datos.get('camera_name'), 64)
             if nombre:
                 fila['camera_name'] = nombre
+            # Local (establecimiento) de la camara (3-ago-2026): lo manda el
+            # cliente perimetral por frame y segmenta dashboard y VLM. Se
+            # actualiza siempre que la clave venga en el payload — VACIO
+            # incluido: devolver la camara a "sin local" tambien cuenta.
+            if 'establecimiento' in datos:
+                fila['establecimiento'] = _texto(
+                    datos.get('establecimiento'), 120)
             # Si el cliente empieza a declararse, deja de valer lo deducido.
             declarado = _texto(mensaje.get('client_type'), 32).lower()
             if declarado and fila['client_type'] != declarado:
@@ -228,6 +236,7 @@ def cargar() -> int:
                 site_id = _texto(fila.get('site_id'), 64) or SITE_ID_POR_DEFECTO
                 fila.setdefault('pipelines', [])
                 fila.setdefault('frames', 0)
+                fila.setdefault('establecimiento', '')
                 _dispositivos[f'{site_id}/{device_id}'] = fila
         logger.info('registro de dispositivos: %d recuperados de %s',
                     len(filas), origen)

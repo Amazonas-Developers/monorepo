@@ -365,6 +365,29 @@ def _filas_alertas() -> List[Dict[str, Any]]:
     return filas
 
 
+#: Etiqueta del segmento de camaras que NO tienen local asignado.
+SIN_LOCAL = '(sin local)'
+
+
+def _locales_por_camara() -> Dict[str, str]:
+    """{camera_name: establecimiento} segun el registro de dispositivos.
+
+    Es el respaldo para las alertas VIEJAS (sidecar sin `establecimiento`):
+    la camara hereda su local ACTUAL, que es como el operador piensa en
+    ellas («las de la Carpinteria»)."""
+    fuera: Dict[str, str] = {}
+    for disp in _registro.dispositivos():
+        nombre = str(disp.get('camera_name') or '').strip()
+        local = str(disp.get('establecimiento') or '').strip()
+        if nombre and local:
+            fuera[nombre] = local
+    return fuera
+
+
+def _local_de(fila: Dict[str, Any], mapa: Dict[str, str]) -> str:
+    return fila.get('establecimiento') or mapa.get(fila.get('camara') or '', '')
+
+
 @router.get('/alertas')
 def listar_alertas(
         evento: Optional[str] = Query(
@@ -375,6 +398,9 @@ def listar_alertas(
         clase_gruesa: Optional[str] = Query(
             None, description='persona | vehiculo'),
         camara: Optional[str] = Query(None),
+        establecimiento: Optional[str] = Query(
+            None, description=f'local de la camara; "{SIN_LOCAL}" para las '
+                              'camaras sin local asignado'),
         desde: Optional[str] = Query(
             None, description='AAAA-MM-DD u AAAA-MM-DD HH:MM[:SS]'),
         hasta: Optional[str] = Query(None, description='igual que desde'),
@@ -386,10 +412,12 @@ def listar_alertas(
 ) -> Dict[str, Any]:
     """Buscador de alertas del perimetro, con facetas para el desglose.
 
-    Las facetas (`por_clase`, `por_evento`, `por_camara`) se calculan sobre el
-    conjunto FILTRADO: son los numeros que acompañan a lo que se esta viendo.
-    Para los totales globales se llama sin filtros.
+    Las facetas se calculan sobre el conjunto FILTRADO: son los numeros que
+    acompañan a lo que se esta viendo. Para los totales globales se llama sin
+    filtros. Cada alerta sale con `local` (su establecimiento EFECTIVO: el del
+    sidecar o, si es vieja, el actual de su camara segun el registro).
     """
+    mapa_locales = _locales_por_camara()
     filas = _filas_alertas()
     if evento:
         buscado = _llano(evento)
@@ -403,6 +431,13 @@ def listar_alertas(
     if camara:
         buscado = _llano(camara)
         filas = [f for f in filas if _llano(f['camara']) == buscado]
+    if establecimiento:
+        if establecimiento == SIN_LOCAL:
+            filas = [f for f in filas if not _local_de(f, mapa_locales)]
+        else:
+            buscado = _llano(establecimiento)
+            filas = [f for f in filas
+                     if _llano(_local_de(f, mapa_locales)) == buscado]
     if desde is not None:
         corte = _epoch_de(desde)
         filas = [f for f in filas if (f['epoch'] or 0) >= corte]
@@ -427,11 +462,16 @@ def listar_alertas(
                 f['evento'] for f in filas if f['evento']).most_common()),
             'por_camara': dict(Counter(
                 f['camara'] for f in filas if f['camara']).most_common()),
+            'por_establecimiento': dict(Counter(
+                _local_de(f, mapa_locales) or SIN_LOCAL
+                for f in filas).most_common()),
             'por_clase_gruesa': dict(Counter(
                 f['clase_gruesa'] for f in filas
                 if f['clase_gruesa']).most_common()),
         },
-        'alertas': filas[offset:offset + limite],
+        # Copias: las filas cacheadas no se mutan (el cache es compartido).
+        'alertas': [{**f, 'local': _local_de(f, mapa_locales)}
+                    for f in filas[offset:offset + limite]],
     }
 
 

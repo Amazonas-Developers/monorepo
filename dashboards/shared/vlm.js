@@ -7,7 +7,10 @@
  */
 'use strict';
 
-function montarBuscadorVLM(idContenedor, ambito, ejemplo) {
+/* `extras` (opcional): función que devuelve parámetros de query adicionales
+ * para la búsqueda (p. ej. `&establecimiento=X` según la pestaña activa del
+ * dashboard). Se evalúa AL BUSCAR, no al montar. */
+function montarBuscadorVLM(idContenedor, ambito, ejemplo, extras) {
   const cont = document.getElementById(idContenedor);
   cont.innerHTML = `
     <div class="filtros">
@@ -92,8 +95,9 @@ function montarBuscadorVLM(idContenedor, ambito, ejemplo) {
     $('resultados').innerHTML = '';
     $('estado').textContent = 'enviando…';
     try {
+      const extra = typeof extras === 'function' ? (extras() || '') : '';
       const r = await fetch(
-        `/dashboard/api/vlm-busqueda?consulta=${encodeURIComponent(consulta)}&ambito=${encodeURIComponent(ambito)}`,
+        `/dashboard/api/vlm-busqueda?consulta=${encodeURIComponent(consulta)}&ambito=${encodeURIComponent(ambito)}${extra}`,
         { method: 'POST' });
       const d = await r.json();
       if (!r.ok) {
