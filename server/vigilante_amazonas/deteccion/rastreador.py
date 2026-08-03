@@ -48,6 +48,14 @@ class RastreadorCamara:
         for atributo in ("max_time_lost", "maximum_frames_without_update"):
             if hasattr(self._tracker, atributo):
                 setattr(self._tracker, atributo, frames_perdido)
+        # GOTCHA supervision #2 (3-ago-2026): ByteTrack exige internamente
+        # score >= activacion + 0.1 (`det_thresh`) para NACER un track. Con
+        # la activacion historica 0.25, un carro de 0.32 no podia INICIAR
+        # su track (pedia 0.35) — y las motos (mediana 0.16) jamas. La
+        # compuerta de confianza ya vive POR CLASE en el detector, asi que
+        # el nacimiento usa el MISMO umbral de activacion, sin el +0.1.
+        if hasattr(self._tracker, "det_thresh"):
+            self._tracker.det_thresh = config.TRACK_ACTIVATION_UMBRAL
 
     def actualizar(self, dets: list[DeteccionCruda]) -> list[DeteccionVig]:
         """Asigna track_id a las detecciones crudas de un frame."""

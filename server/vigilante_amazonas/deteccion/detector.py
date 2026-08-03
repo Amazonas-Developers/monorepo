@@ -130,6 +130,12 @@ class DetectorMulticlase:
                                  forma_frame)
             if clase is None:
                 continue
+            # Compuerta POR CLASE (3-ago-2026): el predict corre al SUELO
+            # (CONF_DETECCION) y aquí se aplica el umbral de cada clase —
+            # las motos viven en 0.10-0.25 en estas cámaras y el umbral
+            # único las dejaba fuera (medido: 25% -> 72%).
+            if float(conf) < config.umbral_de_clase(clase):
+                continue
             dets.append(DeteccionCruda(
                 bbox=(int(x1), int(y1), int(x2), int(y2)),
                 conf=float(conf),

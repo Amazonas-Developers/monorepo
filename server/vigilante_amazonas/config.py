@@ -66,11 +66,31 @@ DETECTOR_CANDIDATOS: list[Path] = [
 ]
 DETECTOR_IMGSZ: int = 1280
 BATCH_MAX: int = 4                   # tamaño máx. de lote (el engine b4 es batch 4)
-# 0.45 dejaba fuera objetivos lejanos; 0.25 alimenta a ByteTrack con las
-# detecciones de baja confianza (su 2a etapa de asociación las usa para
-# MANTENER IDs cuando un objeto oscuro/estático parpadea). Los falsos
-# positivos los filtran la activación del tracker y AREA_MIN_FRAMES_LLEGADA.
-CONF_DETECCION: float = 0.25
+# ── Umbrales de confianza: SUELO global + compuerta POR CLASE ────────────
+# MEDIDO 3-ago-2026 sobre 208 fotos reales de alertas de estas cámaras: cada
+# clase vive en un rango de confianza distinto (mediana persona 0.58, carro
+# 0.32, objeto 0.27 y MOTO 0.16). Con el umbral único 0.25, las motos se
+# reconocían el 25% y los carros nocturnos (IR) el 27%. Con la compuerta por
+# clase: moto 25%→72%, carro 60%→70%, objeto 52%→60%, persona intacta, a
+# cambio de 14 detecciones cruzadas de baja confianza en 208 fotos (la
+# mayoría, carros aparcados REALES de la escena).
+# `CONF_DETECCION` es ahora el SUELO que ve el modelo (todo lo de abajo se
+# descarta); la compuerta real por clase es CONF_POR_CLASE y se aplica en
+# deteccion/detector.py tras mapear la clase propia.
+CONF_DETECCION: float = 0.10
+CONF_POR_CLASE: dict[str, float] = {
+    "persona": 0.25,     # sobrada (mediana 0.58); bajarla solo mete ruido
+    "moto": 0.10,        # la clase más débil en estas cámaras (mediana 0.16)
+    "carro": 0.15,       # de noche (IR) la confianza cae mucho
+    "camioneta": 0.15,
+    "camion": 0.15,
+    "objeto": 0.15,      # presión de FP casi nula en la banda baja (3/208)
+}
+
+
+def umbral_de_clase(clase: str) -> float:
+    """Umbral de confianza efectivo para una clase propia del detector."""
+    return float(CONF_POR_CLASE.get(clase, CONF_DETECCION))
 MAX_DETECCIONES: int = 300           # YOLO26 es NMS-free, salida (N,300,6)
 DETECTOR_HALF: bool = True           # FP16 en el fallback .pt
 
@@ -116,7 +136,12 @@ VEHICULO_VOTOS: int = 3                  # historial de votos por track (moda)
 # =============================================================================
 # TRACKING (ByteTrack vía supervision, por cámara)
 # =============================================================================
-TRACK_ACTIVATION_UMBRAL: float = 0.25
+# 0.25 impedía que las motos (mediana 0.16) llegaran a ACTIVAR un track
+# aunque el detector las viera: la compuerta por clase vive ahora en el
+# detector (CONF_POR_CLASE), así que el tracker activa lo que aquel dejó
+# pasar. El parpadeo lo siguen filtrando AREA_MIN_FRAMES_LLEGADA (3 frames
+# dentro del área antes de alertar) y el antiflood de WhatsApp/Jarvis.
+TRACK_ACTIVATION_UMBRAL: float = 0.10
 # Segundos que un track sobrevive SIN detección antes de perder su ID.
 # 7 s aguanta parpadeos largos de objetos estáticos/oscuros (motos aparcadas)
 # sin crear IDs nuevos. OJO: rastreador.py fuerza este valor REAL en el
