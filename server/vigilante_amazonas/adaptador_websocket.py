@@ -101,7 +101,15 @@ class VigilanteWS:
         try:
             camara = camera_name or camera_id
             if establecimiento is not None:
-                self._locales[str(camara)] = str(establecimiento).strip()
+                nuevo = str(establecimiento).strip()
+                previo = self._locales.get(str(camara))
+                if (previo or '') != nuevo:
+                    # Transicion observable (mismo criterio que el toggle de
+                    # WhatsApp): asi el log dice cuando llego la seleccion y
+                    # cuando el cliente abrio sin ella (limpia con '').
+                    logger.info("local de '%s': %r -> %r",
+                                camara, previo or '', nuevo)
+                self._locales[str(camara)] = nuevo
             return self._procesar(img, camera_id, camera_name, draw,
                                   roi, roi_activate)
         except Exception:

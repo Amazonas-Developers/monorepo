@@ -511,8 +511,11 @@ class Render_box(CapturaDVRMixin, QFrame):
                     "draw_server": (not self._direct_mode),
                     "enviar_whatsapp": self.whatsapp_boolean,
                     # Local de esta camara (select "Local"): el servidor lo
-                    # pone de encabezado en el mensaje de WhatsApp.
-                    "establecimiento": self.establecimiento or None,
+                    # pone de encabezado en el mensaje de WhatsApp. Viaja
+                    # SIEMPRE como cadena — vacia incluida: asi el servidor
+                    # LIMPIA el local recordado cuando el cliente abre sin
+                    # seleccion (el operador elige de cero en cada sesion).
+                    "establecimiento": self.establecimiento,
                 }
                 # Modo directo: guardar el frame enviado para dibujar encima
                 # las detecciones que devuelva el servidor.
@@ -750,13 +753,15 @@ class Render_box(CapturaDVRMixin, QFrame):
         self._set_establecimiento(self.selector_local.itemData(indice) or "")
 
     def _set_establecimiento(self, nombre):
+        # SIN persistencia a proposito (3-ago-2026, peticion del operador):
+        # el local NO se recuerda entre sesiones — cada vez que el cliente
+        # abre, el operador lo elige de cero.
         self.establecimiento = str(nombre or "").strip()
-        self._save_all("establecimiento", self.establecimiento)
         # Repoblar deja el select sincronizado tambien cuando el cambio no
-        # vino del propio combo (restauracion, codigo).
+        # vino del propio combo.
         self._poblar_selector_local()
         print(f"[box {self.index}] establecimiento de la camara: "
-              f"{self.establecimiento or '(el global del pie)'}")
+              f"{self.establecimiento or '(sin local)'}")
 
     def _refrescar_tooltip_local(self):
         self.selector_local.setToolTip(

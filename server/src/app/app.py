@@ -852,9 +852,13 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
             # Local (establecimiento) de ESTA camara: encabeza su mensaje de
             # WhatsApp en VigilanteWS. Va POR FRAME (no como atributo del
             # procesador) porque una misma conexion lleva camaras de locales
-            # distintos.
-            establecimiento = (str(data.get("establecimiento") or "")
-                               .strip()[:120] or None)
+            # distintos. OJO: la cadena VACIA se conserva distinta de None —
+            # el cliente arranca sin seleccion y manda '' para LIMPIAR el
+            # local recordado; None significa "cliente que no maneja el
+            # campo" y no toca nada.
+            _est_crudo = data.get("establecimiento")
+            establecimiento = (None if _est_crudo is None
+                               else str(_est_crudo).strip()[:120])
 
             # MODO DIRECTO: si el cliente pide draw_server=False, el servidor
             # NO dibuja ni envia la imagen; devuelve solo detecciones y el

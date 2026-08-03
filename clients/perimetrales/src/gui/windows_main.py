@@ -228,9 +228,9 @@ class MainWindow(QMainWindow):
                 track_classes              = cfg.get("track_classes", [0]),
                 callback_save_data         = self._save_data_render_box,
                 api_jarvis                 = self.jarvis_api,
-                # Local propio de la camara (menu "Local" del recuadro);
-                # vacio = el del selector global del pie.
-                establecimiento            = cfg.get("establecimiento", ""),
+                # El local de la camara NO se restaura (3-ago-2026): cada
+                # sesion arranca sin seleccion y el operador lo elige de
+                # cero en el select "Local" del recuadro.
             )
             box.double_clicked_signal.connect(
                 lambda idx, isMx: self.handdler_dlouble_click(idx, isMx)
