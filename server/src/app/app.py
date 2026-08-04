@@ -291,6 +291,19 @@ def _build_processor(type_inference: str, client_id: str, config: Dict[str, Any]
         from vigilante_amazonas.adaptador_websocket import get_vigilante_ws
         return get_vigilante_ws()
 
+    if type_inference == "Estacionamiento":
+        # ESTACIONAMIENTO (4-ago-2026): la optica vehicular del motor
+        # vigilante — solo alertan vehiculos, "estacionado" al superar el
+        # umbral, salida con tiempo total y ocupacion en el metadata. Es
+        # subclase de VigilanteWS: el despacho de process_image_sync le
+        # sirve tal cual (isinstance).
+        if VigilanteWS is None:
+            raise ValueError("vigilante_amazonas no esta disponible en este "
+                             "servidor (ver log de arranque)")
+        from vigilante_amazonas.adaptador_estacionamiento import (
+            get_estacionamiento_ws)
+        return get_estacionamiento_ws()
+
     if type_inference == "PerimetralesBoTSORT":
         return BoTSORTWrapper(
             model_path=_get_model_path(config, "PerimetralesBoTSORT", _modelo("base/yolo26m.pt")),

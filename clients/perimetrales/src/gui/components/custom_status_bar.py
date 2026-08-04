@@ -110,14 +110,16 @@ class CustomStatusBar(QStatusBar):
 
         # VigilanteAmazonas = deteccion de 7 clases + Re-ID de personas de
         # interes + verificador VLM (panel en http://<servidor>:5333/).
+        # Estacionamiento (4-ago-2026) = el mismo motor con la optica
+        # vehicular: alerta "estacionado" al superar el umbral, salida con
+        # el tiempo total y ocupacion del area.
         #
-        # Es el UNICO modo que se ofrece: los antiguos "Perimetrales" y
-        # "PerimetralesMultiCam" existen solo como .pyc compilados, sin
-        # codigo fuente, asi que no se pueden depurar ni corregir. Quien
-        # los necesite en un despliegue viejo puede reactivarlos con
-        # PERIMETRALES_MODOS_LEGADO=1.
+        # Los antiguos "Perimetrales" y "PerimetralesMultiCam" existen solo
+        # como .pyc compilados, sin codigo fuente, asi que no se pueden
+        # depurar ni corregir. Quien los necesite en un despliegue viejo
+        # puede reactivarlos con PERIMETRALES_MODOS_LEGADO=1.
         self.layout_selector = QComboBox()
-        modos = ['Seleccione...', 'VigilanteAmazonas']
+        modos = ['Seleccione...', 'VigilanteAmazonas', 'Estacionamiento']
         if os.getenv('PERIMETRALES_MODOS_LEGADO', '') == '1':
             modos[1:1] = ['Perimetrales', 'PerimetralesMultiCam']
         self.layout_selector.addItems(modos)

@@ -68,12 +68,20 @@ class RastreadorArea:
     serializa; esta clase no toma locks propios).
     """
 
-    def __init__(self, detector_merodeo: Any = None) -> None:
+    def __init__(self, detector_merodeo: Any = None,
+                 umbral_permanencia_seg: float | None = None) -> None:
         # camara -> {track_id: _EstadoObjeto}
         self._por_camara: dict[str, dict[int, _EstadoObjeto]] = {}
         # Colaborador opcional (DetectorMerodeo): en cada LLEGADA confirmada
         # registra la visita por apariencia y puede devolver tarjeta "merodeo".
         self._merodeo = detector_merodeo
+        # Umbral de la alerta de permanencia PROPIO de esta instancia (el modo
+        # Estacionamiento usa el suyo); None = el global de config.
+        self._umbral_permanencia = umbral_permanencia_seg
+
+    def _umbral_permanencia_seg(self) -> float:
+        return (self._umbral_permanencia if self._umbral_permanencia is not None
+                else config.AREA_ALERTA_PERMANENCIA_SEG)
 
     # ------------------------------------------------------------------ API
     def actualizar(self, camara: str, frame: np.ndarray,
@@ -159,8 +167,8 @@ class RastreadorArea:
 
             # Alerta de PERMANENCIA al acumular el umbral (una vez por objeto).
             if (estado.alertado_llegada and not estado.alertado_permanencia
-                    and config.AREA_ALERTA_PERMANENCIA_SEG > 0
-                    and estado.permanencia(ahora) >= config.AREA_ALERTA_PERMANENCIA_SEG):
+                    and self._umbral_permanencia_seg() > 0
+                    and estado.permanencia(ahora) >= self._umbral_permanencia_seg()):
                 estado.alertado_permanencia = True
                 estado.crop_b64 = _foto()        # foto actual (situación vigente)
                 tarjetas.append(self._tarjeta(camara, estado, "permanencia", ahora))
@@ -170,6 +178,22 @@ class RastreadorArea:
 
     def olvidar_camara(self, camara: str) -> None:
         self._por_camara.pop(camara, None)
+
+    def ocupacion(self, camara: str, clase_gruesa: str | None = None) -> int:
+        """Cuántos objetos están AHORA dentro del área de esa cámara.
+
+        `clase_gruesa` ('vehiculo' | 'persona') filtra por familia — es la
+        ocupación que el modo Estacionamiento publica en el metadata."""
+        ahora = time.time()
+        n = 0
+        for est in self._por_camara.get(camara, {}).values():
+            if ahora - est.ultima_vez > config.AREA_TTL_SALIDA_SEG:
+                continue
+            if (clase_gruesa and config.AREA_CLASE_GRUESA.get(
+                    est.clase, "persona") != clase_gruesa):
+                continue
+            n += 1
+        return n
 
     # ------------------------------------------------------------------ interno
     def _purgar(self, camara: str, ahora: float,

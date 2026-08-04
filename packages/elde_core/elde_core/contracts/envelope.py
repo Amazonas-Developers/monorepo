@@ -44,7 +44,7 @@ class ClientType(str, Enum):
 class Pipeline(str, Enum):
     """Modo de inferencia solicitado al servidor.
 
-    Los valores son los 8 que `_build_processor` acepta hoy, en su forma
+    Los valores son los que `_build_processor` acepta hoy, en su forma
     normalizada. La traduccion desde las cadenas antiguas ("Personal de
     Amazonas", etc.) vive en `compat.py`."""
     PERSONAL_AMAZONAS = "personal_amazonas"
@@ -52,6 +52,10 @@ class Pipeline(str, Enum):
     PERIMETRALES_BOTSORT = "perimetrales_botsort"
     PERIMETRALES_MULTICAM = "perimetrales_multicam"
     VIGILANTE_AMAZONAS = "vigilante_amazonas"
+    # Vigilancia de estacionamiento (4-ago-2026): el motor del vigilante con
+    # la optica vehicular — alerta "estacionado" al superar el umbral, salida
+    # con el tiempo total y ocupacion en el metadata.
+    ESTACIONAMIENTO = "estacionamiento"
     AUTOLAVADO = "autolavado"
     HUMMUS = "hummus"
     MISTERS = "misters"

@@ -59,6 +59,10 @@ def _titular(evento: str, clase: str, permanencia_s: Any) -> str:
         dur = _duracion(permanencia_s)
         base = f'{clase} permanece en el área'
         return f'{base} ({dur})' if dur else base
+    if evento == 'estacionado':
+        dur = _duracion(permanencia_s)
+        base = f'{clase} estacionado'
+        return f'{base} ({dur})' if dur else base
     if evento == 'merodeo':
         return f'MERODEO: {clase}'
     if evento in ('alerta', 'intrusion', 'intrusión'):

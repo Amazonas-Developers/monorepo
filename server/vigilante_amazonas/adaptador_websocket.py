@@ -74,6 +74,11 @@ class VigilanteWS:
         # camara -> establecimiento (local) elegido en el cliente (select
         # "Local" del recuadro). Encabeza el mensaje de WhatsApp (3-ago-2026).
         self._locales: dict[str, str] = {}
+        # Filtros de WhatsApp POR INSTANCIA (4-ago-2026): el modo
+        # Estacionamiento (subclase) usa sus propios eventos/clases sin
+        # tocar los globales del vigilante.
+        self._whatsapp_eventos: tuple[str, ...] = config.WHATSAPP_EVENTOS
+        self._whatsapp_clases: tuple[str, ...] = config.WHATSAPP_CLASES
         # (camara, track_id) -> (nombre, nivel, ts_expira)
         self._identidades: dict[tuple[str, int], tuple[str, str, float]] = {}
         if self._servicios.motor_reid is not None:
@@ -184,7 +189,11 @@ class VigilanteWS:
                                                              poligono)
             identidades = self._identidades_de(camara)
             for t in tarjetas_area:
-                self._tarjetas[camara].append(t)
+                # Gancho por modo (4-ago-2026): Estacionamiento filtra a
+                # solo-vehiculos y renombra 'permanencia' -> 'estacionado'.
+                t = self._filtrar_tarjeta(t)
+                if t is not None:
+                    self._tarjetas[camara].append(t)
             tarjetas = self._drenar_tarjetas(camara)
 
         # Reenvío a WhatsApp: cada alerta sale como imagen al bot SOLO si el
@@ -272,6 +281,11 @@ class VigilanteWS:
         cola.clear()
         return tarjetas
 
+    def _filtrar_tarjeta(self, tarjeta: dict[str, Any]) -> dict[str, Any] | None:
+        """Gancho por modo: la base deja pasar todo tal cual. El modo
+        Estacionamiento (subclase) lo reescribe."""
+        return tarjeta
+
     def _identidades_de(self, camara: str) -> dict[int, tuple[str, str]]:
         ahora = time.time()
         vencidas = [k for k, (_, _, exp) in self._identidades.items() if exp < ahora]
@@ -293,10 +307,10 @@ class VigilanteWS:
         """
         try:
             evento = str(tarjeta.get("event_type") or "").strip().lower()
-            if config.WHATSAPP_EVENTOS and evento not in config.WHATSAPP_EVENTOS:
+            if self._whatsapp_eventos and evento not in self._whatsapp_eventos:
                 return
             gruesa = str(tarjeta.get("clase_gruesa") or "").strip().lower()
-            if config.WHATSAPP_CLASES and gruesa not in config.WHATSAPP_CLASES:
+            if self._whatsapp_clases and gruesa not in self._whatsapp_clases:
                 return
             img_b64 = tarjeta.get("image_base64") or ""
             if not img_b64:

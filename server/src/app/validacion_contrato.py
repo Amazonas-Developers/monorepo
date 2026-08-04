@@ -147,13 +147,24 @@ def resumen() -> Dict[str, Any]:
         'mensajes_con_problema_pct': round(100.0 * problemas / total, 2),
         'sin_errores': sin_errores,
         # Que pipelines se han ejercitado de verdad. "Sin errores" NO basta
-        # para cortar: hay 8 pipelines y un solo cliente conectado da 0% de
-        # fallos dejando siete sin probar.
+        # para cortar: un solo cliente conectado da 0% de fallos dejando el
+        # resto sin probar. El total se DERIVA del contrato (antes era un 8
+        # clavado a mano que se pudrio al nacer Estacionamiento).
         'pipelines_observados': vistos,
-        'pipelines_totales': 8,
-        'listo_para_estricto': sin_errores and len(vistos) >= 8,
+        'pipelines_totales': _total_pipelines(),
+        'listo_para_estricto': sin_errores and len(vistos) >= _total_pipelines(),
         'para_cortar_falta': (
-            'nada' if (sin_errores and len(vistos) >= 8)
+            'nada' if (sin_errores and len(vistos) >= _total_pipelines())
             else ('resolver los errores' if not sin_errores
-                  else f'ejercitar los {8 - len(vistos)} pipelines restantes')),
+                  else (f'ejercitar los {_total_pipelines() - len(vistos)} '
+                        'pipelines restantes'))),
     }
+
+
+def _total_pipelines() -> int:
+    """Cuantos pipelines conoce el contrato (fuente de verdad: el enum)."""
+    try:
+        from elde_core.contracts.envelope import Pipeline
+        return len(Pipeline)
+    except Exception:
+        return 9

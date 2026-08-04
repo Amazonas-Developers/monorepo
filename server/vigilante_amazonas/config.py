@@ -134,6 +134,20 @@ VEHICULO_CROP_MIN_PX: int = 40           # crops más chicos no se clasifican
 VEHICULO_VOTOS: int = 3                  # historial de votos por track (moda)
 
 # =============================================================================
+# MODO ESTACIONAMIENTO (4-ago-2026)
+# =============================================================================
+# La óptica vehicular del motor vigilante: solo alertan los VEHÍCULOS, la
+# alerta central es "estacionado" (vehículo quieto más del umbral) y la
+# salida reporta el tiempo total. Ver adaptador_estacionamiento.py.
+ESTACIONAMIENTO_UMBRAL_SEG: float = float(
+    os.getenv("ESTACIONAMIENTO_UMBRAL_SEG", "300"))     # 5 min por defecto
+# Eventos que este modo reenvía a WhatsApp (con su propio antiflood).
+ESTACIONAMIENTO_EVENTOS_WHATSAPP: tuple[str, ...] = tuple(
+    e.strip() for e in
+    os.getenv("ESTACIONAMIENTO_EVENTOS_WHATSAPP",
+              "llegada,estacionado,salida").split(",") if e.strip())
+
+# =============================================================================
 # TRACKING (ByteTrack vía supervision, por cámara)
 # =============================================================================
 # 0.25 impedía que las motos (mediana 0.16) llegaran a ACTIVAR un track
