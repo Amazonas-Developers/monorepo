@@ -17,7 +17,7 @@ sys.path.insert(0, str(RAIZ / 'server'))
 sys.path.insert(0, str(RAIZ / 'packages' / 'elde_core'))
 
 from vigilante_amazonas import config  # noqa: E402
-from vigilante_amazonas.adaptador_estacionamiento import adaptar_tarjeta  # noqa: E402
+from src.analityc.core.estacionamiento import adaptar_tarjeta  # noqa: E402
 from vigilante_amazonas.servicios.formato_whatsapp import texto_alerta  # noqa: E402
 from vigilante_amazonas.servicios.rastreador_area import (  # noqa: E402
     RastreadorArea, _EstadoObjeto)

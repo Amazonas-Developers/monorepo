@@ -296,12 +296,12 @@ def _build_processor(type_inference: str, client_id: str, config: Dict[str, Any]
         # vigilante — solo alertan vehiculos, "estacionado" al superar el
         # umbral, salida con tiempo total y ocupacion en el metadata. Es
         # subclase de VigilanteWS: el despacho de process_image_sync le
-        # sirve tal cual (isinstance).
+        # sirve tal cual (isinstance). La logica vive con el resto de
+        # procesadores en analityc/core (un archivo por funcionalidad).
         if VigilanteWS is None:
             raise ValueError("vigilante_amazonas no esta disponible en este "
                              "servidor (ver log de arranque)")
-        from vigilante_amazonas.adaptador_estacionamiento import (
-            get_estacionamiento_ws)
+        from ..analityc.core.estacionamiento import get_estacionamiento_ws
         return get_estacionamiento_ws()
 
     if type_inference == "PerimetralesBoTSORT":

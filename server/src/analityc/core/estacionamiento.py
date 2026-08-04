@@ -1,5 +1,9 @@
 """
-Modo ESTACIONAMIENTO (4-ago-2026) — la óptica vehicular del motor vigilante.
+src/analityc/core/estacionamiento.py — Modo ESTACIONAMIENTO (4-ago-2026).
+
+La óptica vehicular del motor vigilante, en SU PROPIO archivo junto al resto
+de procesadores del servidor (regla del operador: un archivo por
+funcionalidad, nada de módulos gigantes).
 
 Pedido del operador: vigilancia completa de estacionamiento. Reutiliza TODO
 el motor de VigilanteWS (detección 7 clases + ByteTrack + rastreador de área
@@ -8,13 +12,16 @@ con re-vinculación) y cambia solo la óptica:
   * Solo los VEHÍCULOS alertan (las personas se detectan y se dibujan, pero
     no generan tarjetas: en un estacionamiento la persona es contexto).
   * La alerta central es «estacionado»: un vehículo quieto en el área más de
-    ESTACIONAMIENTO_UMBRAL_SEG (config, 5 min por defecto). Por debajo, es
-    solo un vehículo pasando.
+    ESTACIONAMIENTO_UMBRAL_SEG (config de vigilante, 5 min por defecto). Por
+    debajo, es solo un vehículo pasando.
   * La salida reporta el tiempo total que estuvo estacionado.
   * `metadata['ocupacion']` lleva cuántos vehículos hay AHORA en el área.
   * WhatsApp/Jarvis: mismo flujo del vigilante (toggle del pie + local de la
     cámara como encabezado), con sus propios eventos
     (ESTACIONAMIENTO_EVENTOS_WHATSAPP: llegada, estacionado, salida).
+
+Importar del paquete vigilante desde aquí tiene precedente: es el mismo
+sentido de dependencia que `puente_vigilante.py` (core -> vigilante).
 
 Instancia PROPIA (no comparte el singleton del vigilante): cada modo tiene su
 rastreador de área con su umbral y su lock — compartir el detector entre dos

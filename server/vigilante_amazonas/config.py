@@ -138,7 +138,7 @@ VEHICULO_VOTOS: int = 3                  # historial de votos por track (moda)
 # =============================================================================
 # La óptica vehicular del motor vigilante: solo alertan los VEHÍCULOS, la
 # alerta central es "estacionado" (vehículo quieto más del umbral) y la
-# salida reporta el tiempo total. Ver adaptador_estacionamiento.py.
+# salida reporta el tiempo total. Ver src/analityc/core/estacionamiento.py.
 ESTACIONAMIENTO_UMBRAL_SEG: float = float(
     os.getenv("ESTACIONAMIENTO_UMBRAL_SEG", "300"))     # 5 min por defecto
 # Eventos que este modo reenvía a WhatsApp (con su propio antiflood).
