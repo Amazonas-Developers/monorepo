@@ -159,6 +159,8 @@ class Render_box(CapturaDVRMixin, QFrame):
                  # Establecimiento de ESTA camara: a donde van sus alertas de
                  # Jarvis. Vacio = el seleccionado global del pie (historico).
                  establecimiento="",
+                 # Lectura de placas (ALPR) de esta camara: boton de la barra.
+                 placas_boolean=False,
                  **_legacy_kwargs,
                  ):
         super().__init__()
@@ -190,6 +192,9 @@ class Render_box(CapturaDVRMixin, QFrame):
         # camaras de establecimientos distintos en la misma ventana, cada una
         # alerta al suyo; vacio = usa el del selector global del pie.
         self.establecimiento         = str(establecimiento or "").strip()
+        # Lectura de placas de esta camara (SI persiste, a diferencia del
+        # local: es un ajuste de la camara, no una eleccion de sesion).
+        self.placas_boolean          = bool(placas_boolean)
 
         self.process              = None
         self.stop                 = False
@@ -365,6 +370,18 @@ class Render_box(CapturaDVRMixin, QFrame):
         self._btn_classes.setObjectName("btn-bar")
         self._btn_classes.clicked.connect(self._show_class_menu)
 
+        # ── Lectura de PLACAS (ALPR) de esta camara ──
+        # Va POR CAMARA a proposito: el OCR cuesta y solo interesa donde se
+        # ven las placas (la entrada del estacionamiento), no en todas.
+        self.btn_placas = QToolButton()
+        self.btn_placas.setObjectName("btn-bar")
+        self.btn_placas.setCheckable(True)
+        self.btn_placas.setChecked(self.placas_boolean)
+        self.btn_placas.setCursor(Qt.PointingHandCursor)
+        self.btn_placas.setFixedHeight(30)
+        self.btn_placas.clicked.connect(self._toggle_placas)
+        self._pintar_boton_placas()
+
         # ── Controles de captura: solo Iniciar y Parar (los necesarios) ──
         btn_play  = BtnIco(ico_path="resource/play_box.png",  title="Iniciar", h=30, w=30)
         btn_stop  = BtnIco(ico_path="resource/stop_box.png",  title="Parar",   h=30, w=30)
@@ -435,6 +452,7 @@ class Render_box(CapturaDVRMixin, QFrame):
         bar_opt_layout.addWidget(self._menu_vista)
         bar_opt_layout.addWidget(_sep())
         bar_opt_layout.addWidget(self._btn_classes)
+        bar_opt_layout.addWidget(self.btn_placas)
         bar_opt_layout.addWidget(self.selector_local)
         bar_opt_layout.addStretch(1)
         bar_opt_layout.addWidget(btn_play)
@@ -516,6 +534,8 @@ class Render_box(CapturaDVRMixin, QFrame):
                     # LIMPIA el local recordado cuando el cliente abre sin
                     # seleccion (el operador elige de cero en cada sesion).
                     "establecimiento": self.establecimiento,
+                    # Boton "Placas" de esta camara (ALPR).
+                    "leer_placas": self.placas_boolean,
                 }
                 # Modo directo: guardar el frame enviado para dibujar encima
                 # las detecciones que devuelva el servidor.
@@ -716,6 +736,32 @@ class Render_box(CapturaDVRMixin, QFrame):
                          self.trace_boolean, self._toggle_trace)
         self._add_toggle(menu, "Cajas estilo elipse",
                          self.ellipse_style, self._toggle_box_style)
+
+    # ── Lectura de placas por camara ─────────────────────────────────────
+
+    def _toggle_placas(self):
+        self.placas_boolean = bool(self.btn_placas.isChecked())
+        self._save_all("placas_boolean", self.placas_boolean)
+        self._pintar_boton_placas()
+        print(f"[box {self.index}] lectura de placas: "
+              f"{'ENCENDIDA' if self.placas_boolean else 'apagada'}")
+
+    def _pintar_boton_placas(self):
+        """Verde y con marca cuando esta leyendo; gris cuando no."""
+        activo = bool(self.placas_boolean)
+        self.btn_placas.setText("🔖 Placas ●" if activo else "🔖 Placas")
+        self.btn_placas.setToolTip(
+            "Lectura de placas ENCENDIDA en esta cámara.\n"
+            "La placa aparece en la etiqueta del vehículo y en el reporte."
+            if activo else
+            "Leer las placas de los vehículos de esta cámara (OCR).\n"
+            "Cuesta GPU: enciéndela solo donde se vean las placas.")
+        borde = "#4CAF50" if activo else "#555"
+        color = "#4CAF50" if activo else "#fff"
+        self.btn_placas.setStyleSheet(
+            f"QToolButton{{color:{color};font-weight:bold;padding:2px 10px;"
+            f"border:1px solid {borde};border-radius:4px;background:#333;}}"
+            "QToolButton:hover{background:#3d6fb0;}")
 
     # ── Establecimiento por camara (select) ──────────────────────────────
 

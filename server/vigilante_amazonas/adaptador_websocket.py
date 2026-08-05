@@ -95,14 +95,18 @@ class VigilanteWS:
                       draw: bool = True,
                       roi: Any = None,
                       roi_activate: bool = False,
-                      establecimiento: str | None = None) -> tuple[np.ndarray, dict[str, Any]]:
+                      establecimiento: str | None = None,
+                      leer_placas: bool = False) -> tuple[np.ndarray, dict[str, Any]]:
         """Procesa UN frame de UNA cámara del cliente. Nunca lanza: ante un
         error interno devuelve el frame original con metadata vacía.
 
         `roi`/`roi_activate`: polígono del área que dibuja el cliente. Si no
         está activo, el área es todo el frame.
         `establecimiento`: local de ESTA camara (select del recuadro);
-        encabeza sus mensajes de WhatsApp."""
+        encabeza sus mensajes de WhatsApp.
+        `leer_placas`: botón «Placas» del recuadro. Aquí se ACEPTA y se
+        ignora — solo el modo Estacionamiento (subclase) lee placas; tenerlo
+        en la firma base evita que app.py tenga que distinguir el modo."""
         try:
             camara = camera_name or camera_id
             if establecimiento is not None:

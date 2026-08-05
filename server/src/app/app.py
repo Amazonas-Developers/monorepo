@@ -418,6 +418,7 @@ def process_image_sync(
     camera_name: Optional[str] = None,
     draw_server: bool = True,
     establecimiento: Optional[str] = None,
+    leer_placas: bool = False,
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
     Despacha el frame al procesador correcto.
@@ -437,6 +438,7 @@ def process_image_sync(
             roi=roi,                       # poligono del area (contador/alertas)
             roi_activate=bool(roi_activate),
             establecimiento=establecimiento,   # local de la camara (WhatsApp)
+            leer_placas=leer_placas,           # boton "Placas" del recuadro
         )
 
     # Motor perimetral NUEVO: detections (modo directo) + alerts con el
@@ -581,6 +583,7 @@ def _full_frame_sync(
     camera_name: Optional[str] = None,
     draw_server: bool = True,
     establecimiento: Optional[str] = None,
+    leer_placas: bool = False,
 ) -> Dict[str, Any]:
     """
     Combina decode + inferencia + encode JPEG en una sola llamada al executor.
@@ -605,6 +608,7 @@ def _full_frame_sync(
         camera_name=camera_name,
         draw_server=draw_server,
         establecimiento=establecimiento,
+        leer_placas=leer_placas,
     )
     # Mapa de calor GLOBAL (1-ago-2026): TODAS las camaras acumulan, no solo
     # el pipeline de visitantes. Come las cajas del MISMO metadata que viaja
@@ -873,6 +877,10 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
             establecimiento = (None if _est_crudo is None
                                else str(_est_crudo).strip()[:120])
 
+            # Lectura de placas (ALPR) de ESTA camara: boton del recuadro.
+            # Va por frame, como el local, porque cada camara decide.
+            leer_placas = bool(data.get("leer_placas", False))
+
             # MODO DIRECTO: si el cliente pide draw_server=False, el servidor
             # NO dibuja ni envia la imagen; devuelve solo detecciones y el
             # cliente las pinta (menos latencia). Default True (compatibilidad).
@@ -925,6 +933,7 @@ async def websocket_endpoint(websocket: WebSocket, type_inference: str):
                 camera_name,
                 draw_server,
                 establecimiento,
+                leer_placas,
             )
 
             try:

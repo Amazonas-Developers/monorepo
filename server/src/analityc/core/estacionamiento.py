@@ -124,6 +124,7 @@ class EstacionamientoWS(VigilanteWS):
         self._ocupacion: Dict[str, int] = {}     # camara -> vehículos dentro
         self._placa_de_track: Dict[str, str] = {}
         self._ultimo_encolado: Dict[str, float] = {}
+        self._placas_activas: Dict[str, bool] = {}   # camara -> botón
 
         self.lector_placas = _placas.lector(self._al_leer_placa)
         _planificador.planificador(self._contexto_del_reporte).iniciar()
@@ -204,7 +205,8 @@ class EstacionamientoWS(VigilanteWS):
                       draw: bool = True,
                       roi: Any = None,
                       roi_activate: bool = False,
-                      establecimiento: str | None = None) -> tuple[np.ndarray, dict[str, Any]]:
+                      establecimiento: str | None = None,
+                      leer_placas: bool = False) -> tuple[np.ndarray, dict[str, Any]]:
         img_salida, metadata = super().process_frame(
             img, camera_id, camera_name=camera_name,
             track_classes=track_classes, draw=draw,
@@ -222,7 +224,9 @@ class EstacionamientoWS(VigilanteWS):
             pernoctas = self._revisar_pernocta(camara)
             if pernoctas:
                 metadata.setdefault("alerts", []).extend(pernoctas)
-            self._encolar_placas(img, metadata, camara)
+            self._placas_de_camara(camara, leer_placas)
+            if leer_placas:
+                self._encolar_placas(img, metadata, camara)
             self._pegar_placas(metadata)
         except Exception:                    # noqa: BLE001 — nunca al frame loop
             logger.debug("extras de estacionamiento fallaron", exc_info=True)
@@ -289,6 +293,28 @@ class EstacionamientoWS(VigilanteWS):
         return n
 
     # ── Placas ───────────────────────────────────────────────────────
+    def _placas_de_camara(self, camara: str, encendido: bool) -> None:
+        """Enciende/apaga la lectura de placas de UNA cámara (botón del
+        recuadro) y deja la TRANSICIÓN en el log — mismo criterio que el
+        interruptor de WhatsApp: si no llega ninguna placa, se puede
+        distinguir «apagado» de «no había vehículos» o «falló el OCR».
+
+        El lector se crea la PRIMERA vez que alguna cámara lo pide: así
+        EasyOCR (~1 GB en GPU) no se carga en instalaciones que no lo usan.
+        """
+        previo = self._placas_activas.get(camara)
+        if previo == encendido:
+            return
+        self._placas_activas[camara] = encendido
+        logger.info("placas: lectura %s para '%s'",
+                    "ACTIVADA" if encendido else "desactivada", camara)
+        if encendido and self.lector_placas is None:
+            self.lector_placas = _placas.lector(self._al_leer_placa,
+                                                forzar=True)
+            if self.lector_placas is None:
+                logger.warning("no se pudo iniciar el lector de placas: "
+                               "¿falta easyocr en el venv del servidor?")
+
     def _al_leer_placa(self, track_id: str, placa: str, confianza: float) -> None:
         with self._lock_estado:
             self._placa_de_track[str(track_id)] = placa

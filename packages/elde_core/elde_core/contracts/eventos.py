@@ -99,6 +99,10 @@ class FrameInference(BaseModel):
     # operador en el select "Local" del recuadro. El servidor lo usa como
     # encabezado del mensaje de WhatsApp en lugar del "VIGILANTE" generico.
     establecimiento: Optional[str] = Field(default=None, max_length=120)
+    # Lectura de placas (ALPR) de ESTA camara (5-ago-2026): boton propio en
+    # la barra del recuadro. Va por camara porque el OCR cuesta y solo
+    # interesa donde se ven las placas (entrada del estacionamiento).
+    leer_placas: bool = False
 
     # ── Zonas de Hummus (pedido / entrega de bandeja) ──
     order_zone_activate: bool = False

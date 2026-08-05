@@ -231,6 +231,9 @@ class MainWindow(QMainWindow):
                 # El local de la camara NO se restaura (3-ago-2026): cada
                 # sesion arranca sin seleccion y el operador lo elige de
                 # cero en el select "Local" del recuadro.
+                # La lectura de placas SI se recuerda: es un ajuste de la
+                # camara (donde se ven las placas), no una eleccion diaria.
+                placas_boolean             = cfg.get("placas_boolean", False),
             )
             box.double_clicked_signal.connect(
                 lambda idx, isMx: self.handdler_dlouble_click(idx, isMx)

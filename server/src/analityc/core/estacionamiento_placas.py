@@ -280,12 +280,18 @@ _lector: Optional[LectorDePlacas] = None
 _lock_singleton = threading.Lock()
 
 
-def lector(al_detectar: Optional[Callable[[str, str, float], None]] = None
-           ) -> Optional[LectorDePlacas]:
+def lector(al_detectar: Optional[Callable[[str, str, float], None]] = None,
+           forzar: bool = False) -> Optional[LectorDePlacas]:
     """El lector del proceso, o None si las placas están apagadas o EasyOCR
-    no está instalado. Nunca lanza: sin placas, el modo sigue igual."""
+    no está instalado. Nunca lanza: sin placas, el modo sigue igual.
+
+    `forzar=True` lo crea aunque la variable de entorno no esté puesta: es
+    lo que usa el BOTÓN «Placas» del cliente, que manda la orden por frame.
+    El env `ESTACIONAMIENTO_PLACAS=1` sigue valiendo para arrancar ya
+    encendido sin tocar el cliente.
+    """
     global _lector
-    if not activado():
+    if not (forzar or activado()):
         return None
     if not disponible():
         logger.warning('placas activadas pero EasyOCR no está instalado: '
