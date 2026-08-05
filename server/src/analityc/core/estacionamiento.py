@@ -140,8 +140,8 @@ class EstacionamientoWS(VigilanteWS):
         """Cada tarjeta que sobrevive va a la bitácora CSV, que es de donde
         el reporte diario saca sus números."""
         camara = str(tarjeta.get("camera_name") or "")
+        conteos = self._conteos_del_area(camara)
         with self._lock_estado:
-            conteos = {"vehiculos_area": self._ocupacion.get(camara, 0)}
             placa = self._placa_de_track.get(
                 str(tarjeta.get("global_id") or ""), "")
         _bitacora.anotar(
@@ -153,6 +153,30 @@ class EstacionamientoWS(VigilanteWS):
             local=self._locales.get(camara, ""),
             placa=placa,
             conteos=conteos)
+
+    def _conteos_del_area(self, camara: str) -> Dict[str, int]:
+        """Las columnas por clase de la bitácora (Cars/Trucks/…), contadas
+        del área AHORA. Sin esto salían todas en 0 y los scripts de ARUBA
+        que leen esas columnas no verían nada."""
+        conteos = {"vehiculos_area": 0, "cars": 0, "trucks": 0, "buses": 0,
+                   "motorcycles": 0, "personas_dentro": 0, "personas_area": 0}
+        try:
+            for estado in self.area.objetos_dentro(camara):
+                clase = str(estado.clase).lower()
+                if clase in ("persona", "personal_seguridad"):
+                    conteos["personas_area"] += 1
+                    conteos["personas_dentro"] += 1
+                    continue
+                conteos["vehiculos_area"] += 1
+                if clase == "carro":
+                    conteos["cars"] += 1
+                elif clase in ("camion", "camioneta"):
+                    conteos["trucks"] += 1
+                elif clase == "moto":
+                    conteos["motorcycles"] += 1
+        except Exception:                             # noqa: BLE001
+            logger.debug("no se pudieron contar los objetos del área")
+        return conteos
 
     @staticmethod
     def _clase_propia(tarjeta: Dict[str, Any]) -> str:
