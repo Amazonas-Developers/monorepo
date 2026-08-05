@@ -903,3 +903,36 @@ exactamente las dos fotos CARRO.
 **Si se corrige el router,** conviene mover allí el extractor de
 `busqueda_vlm.py` (una sola fuente de verdad) y que `route()` lo use; los
 usuarios actuales de `route()` saldrían ganando gratis.
+
+## H-28 · El puerto 9000 lo puede ocupar OTRO proyecto de la maquina · `ABIERTO (operativo)`
+
+**Sintoma.** El servidor de ELDE no arranca: `[Errno 10048] error while
+attempting to bind on address ('0.0.0.0', 9000)`, y `/api/v1/estado`
+responde **404** en vez de rechazar la conexion — o sea, "hay servidor,
+pero no es el nuestro".
+
+**Causa.** El proyecto `Desktop\amazonas\Amazonas-IA` levanta SU propio
+servidor en el mismo puerto 9000 (`Amazonas-IA\venv\...\python main.py`,
+que a su vez lanza un hijo con el Python global). Mientras corre, ELDE no
+puede escuchar y sus clientes ven "servidor caido".
+
+**Como distinguirlo de un servidor de ELDE sano** (comprobado el
+4-ago-2026): el dueno del puerto responde 404 en `/api/v1/estado` y su
+linea de comandos NO es `iniciar_servidor_headless.py`:
+
+    Get-NetTCPConnection -LocalPort 9000 -State Listen
+    Get-CimInstance Win32_Process -Filter "ProcessId = <pid>"
+
+**Que NO se hizo:** matar ese proceso — es de otro proyecto del operador y
+la decision es suya. `INICIAR_SERVIDOR.bat` ya avisa si el 9000 esta
+ocupado (58d3122c), pero no puede saber DE QUIEN es.
+
+**Opciones cuando estorbe:** (a) cerrar Amazonas-IA, (b) mover uno de los
+dos de puerto — ELDE admite `iniciar_servidor_headless.py <puerto>` y los
+clientes lo toman de `server_ws_url`.
+
+**Agravante medido el mismo dia:** la maquina tiene 15,7 GB y llego a 0,5 GB
+libres (3 ventanas de VS Code ~3,3 GB + Brave 1,2 GB + los dos proyectos).
+Con esa presion el servidor muere al cargar modelos, sin traza ni OOM en el
+log — solo deja de escribir. Si "se cayo solo", mirar la RAM antes que el
+codigo.

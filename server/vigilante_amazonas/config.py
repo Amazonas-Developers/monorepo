@@ -145,7 +145,22 @@ ESTACIONAMIENTO_UMBRAL_SEG: float = float(
 ESTACIONAMIENTO_EVENTOS_WHATSAPP: tuple[str, ...] = tuple(
     e.strip() for e in
     os.getenv("ESTACIONAMIENTO_EVENTOS_WHATSAPP",
-              "llegada,estacionado,salida").split(",") if e.strip())
+              "llegada,estacionado,pernocta,salida").split(",") if e.strip())
+
+# PERNOCTA (portado de ARUBA_DEFINITIVO): el vehículo que sigue dentro del
+# área entrada la noche. Franja que CRUZA la medianoche: se cumple con
+# hora >= DESDE **o** hora <= HASTA. Una sola alerta por vehículo y noche.
+ESTACIONAMIENTO_PERNOCTA_ACTIVA: bool = (
+    os.getenv("ESTACIONAMIENTO_PERNOCTA", "1").strip()
+    not in ("0", "false", "no"))
+ESTACIONAMIENTO_PERNOCTA_DESDE: int = int(
+    os.getenv("ESTACIONAMIENTO_PERNOCTA_DESDE", "19"))
+ESTACIONAMIENTO_PERNOCTA_HASTA: int = int(
+    os.getenv("ESTACIONAMIENTO_PERNOCTA_HASTA", "6"))
+# Cada cuánto se reintenta leer la placa de un MISMO vehículo (el OCR cuesta
+# y la placa no cambia; solo se reintenta hasta que haya una lectura buena).
+ESTACIONAMIENTO_PLACA_CADA_SEG: float = float(
+    os.getenv("ESTACIONAMIENTO_PLACA_CADA_SEG", "4"))
 
 # =============================================================================
 # TRACKING (ByteTrack vía supervision, por cámara)

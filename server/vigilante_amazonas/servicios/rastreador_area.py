@@ -179,21 +179,27 @@ class RastreadorArea:
     def olvidar_camara(self, camara: str) -> None:
         self._por_camara.pop(camara, None)
 
-    def ocupacion(self, camara: str, clase_gruesa: str | None = None) -> int:
-        """Cuántos objetos están AHORA dentro del área de esa cámara.
+    def objetos_dentro(self, camara: str,
+                       clase_gruesa: str | None = None) -> list[_EstadoObjeto]:
+        """Los objetos que están AHORA dentro del área de esa cámara.
 
-        `clase_gruesa` ('vehiculo' | 'persona') filtra por familia — es la
-        ocupación que el modo Estacionamiento publica en el metadata."""
+        `clase_gruesa` ('vehiculo' | 'persona') filtra por familia. Lo usa el
+        modo Estacionamiento para la ocupación y para decidir la PERNOCTA
+        (qué vehículos siguen dentro al entrar la noche)."""
         ahora = time.time()
-        n = 0
+        dentro: list[_EstadoObjeto] = []
         for est in self._por_camara.get(camara, {}).values():
             if ahora - est.ultima_vez > config.AREA_TTL_SALIDA_SEG:
                 continue
             if (clase_gruesa and config.AREA_CLASE_GRUESA.get(
                     est.clase, "persona") != clase_gruesa):
                 continue
-            n += 1
-        return n
+            dentro.append(est)
+        return dentro
+
+    def ocupacion(self, camara: str, clase_gruesa: str | None = None) -> int:
+        """Cuántos objetos están AHORA dentro del área de esa cámara."""
+        return len(self.objetos_dentro(camara, clase_gruesa))
 
     # ------------------------------------------------------------------ interno
     def _purgar(self, camara: str, ahora: float,
