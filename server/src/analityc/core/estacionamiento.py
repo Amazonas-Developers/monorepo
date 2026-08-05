@@ -52,6 +52,7 @@ from vigilante_amazonas.utilidades.registro import configurar_registro
 from . import estacionamiento_placas as _placas
 from . import estacionamiento_planificador as _planificador
 from . import estacionamiento_registro as _bitacora
+from . import estacionamiento_vehiculos as _vehiculos
 
 logger = configurar_registro(__name__)
 
@@ -108,6 +109,12 @@ class EstacionamientoWS(VigilanteWS):
             umbral_permanencia_seg=config.ESTACIONAMIENTO_UMBRAL_SEG)
         self._whatsapp_eventos = config.ESTACIONAMIENTO_EVENTOS_WHATSAPP
         self._whatsapp_clases = ("vehiculo",)
+        # Clase fina del vehículo con el modelo ENTRENADO (aruba.pt): sustituye
+        # al refinador de ImageNet del vigilante, que se midió inservible
+        # (techo 52 %, 0/19 en camión). Mismo contrato `refinar()`, así que
+        # VigilanteWS lo usa sin enterarse. Si el modelo no está, queda la
+        # heurística de caja de siempre.
+        self.vehiculos = _vehiculos.RefinadorAruba()
 
         # Estado para el reporte y la pernocta.
         self._lock_estado = threading.Lock()
@@ -122,12 +129,15 @@ class EstacionamientoWS(VigilanteWS):
         _planificador.planificador(self._contexto_del_reporte).iniciar()
         logger.info(
             "EstacionamientoWS listo: umbral estacionado = %.0f s; "
-            "pernocta %02d:00-%02d:59; eventos WhatsApp = %s; placas = %s",
+            "pernocta %02d:00-%02d:59; eventos WhatsApp = %s; placas = %s; "
+            "modelo fino de vehículos = %s",
             config.ESTACIONAMIENTO_UMBRAL_SEG,
             config.ESTACIONAMIENTO_PERNOCTA_DESDE,
             config.ESTACIONAMIENTO_PERNOCTA_HASTA,
             ",".join(config.ESTACIONAMIENTO_EVENTOS_WHATSAPP),
-            "sí" if self.lector_placas else "no")
+            "sí" if self.lector_placas else "no",
+            self.vehiculos.ruta.name if self.vehiculos.disponible
+            else "no (heurística de caja)")
 
     # ── Óptica del modo ──────────────────────────────────────────────
     def _filtrar_tarjeta(self, tarjeta: dict[str, Any]) -> dict[str, Any] | None:

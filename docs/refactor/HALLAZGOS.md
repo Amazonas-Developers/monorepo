@@ -936,3 +936,48 @@ libres (3 ventanas de VS Code ~3,3 GB + Brave 1,2 GB + los dos proyectos).
 Con esa presion el servidor muere al cargar modelos, sin traza ni OOM en el
 log — solo deja de escribir. Si "se cayo solo", mirar la RAM antes que el
 codigo.
+
+
+## H-29 · `aruba.pt` no transfiere a las camaras de hoy (brecha de dominio) · `MEDIDO, apagado`
+
+**Contexto.** El operador aporta `models/vehiculos/aruba.pt`, YOLO entrenado
+100 epocas sobre UA-DETRAC (10 K) con metricas excelentes EN SU VALIDACION:
+mAP50 0,983, precision 0,973, recall 0,951; clases bus/car/truck/van. La
+esperanza era cerrar la limitacion medida el 3-ago (la heuristica de caja
+tiene techo del 52 % de acuerdo y 0/19 en CAMION).
+
+**Medicion (5-ago-2026, 69 fotos reales de alertas de estas camaras).**
+
+    encuentra el vehiculo:
+      produccion (yolo26m + compuerta por clase)   57/69  (83 %)
+      aruba.pt, ajuste por defecto (640, conf .30) 20/69  (29 %)
+      aruba.pt, MEJOR ajuste hallado (640, .05)    35/69  (51 %)
+
+    acuerdo de clase con la etiqueta actual:
+      aruba.pt por defecto  15 %   |   aruba.pt en su mejor ajuste  29 %
+
+Se barrio imgsz x conf (640/960/1280/1600 por 0,05..0,30): **subir la
+resolucion lo EMPEORA** (a 1280 cae al 3 % de acuerdo), lo que descarta que
+sea cuestion de ajuste.
+
+**El "acuerdo de clase" esta SESGADO a favor del sistema actual** (la
+etiqueta de referencia la puso el, con su heuristica). Por eso se rompio la
+circularidad MIRANDO los desacuerdos: un sedan verde nitido etiquetado
+`camioneta` con 0,63 de confianza, y un hatchback como `camioneta` con 0,25.
+El dato NO sesgado es el de "encuentra el vehiculo": la alerta existe porque
+habia uno, y aruba.pt se pierde la mitad.
+
+**Causa.** Brecha de dominio: UA-DETRAC son camaras de trafico diurnas a
+distancia; estas son capturas de 960x600 de la ventana del DVR, angulo alto,
+corta distancia y muchas nocturnas en IR.
+
+**Decision.** El refinador (`estacionamiento_vehiculos.RefinadorAruba`) queda
+integrado y probado, pero **APAGADO por defecto**. Se enciende con
+`ESTACIONAMIENTO_MODELO_VEHICULOS_ACTIVO=1`. Como solo REETIQUETA cajas que
+el detector principal ya encontro, encenderlo no puede perder vehiculos: como
+mucho cambia su clase.
+
+**Cuando SI encenderlo:** si el modelo se entreno pensando en OTRO sitio
+(camaras de calle tipo trafico), alli deberia rendir como en su validacion.
+Cerrar esto del todo sigue pidiendo reentrenar con recortes de ESTAS camaras,
+nocturnas incluidas.
