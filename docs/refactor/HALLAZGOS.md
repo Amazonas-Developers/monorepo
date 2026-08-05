@@ -981,3 +981,35 @@ mucho cambia su clase.
 (camaras de calle tipo trafico), alli deberia rendir como en su validacion.
 Cerrar esto del todo sigue pidiendo reentrenar con recortes de ESTAS camaras,
 nocturnas incluidas.
+
+### Ampliacion (5-ago-2026): medido contra la camara REAL del hotel
+
+La primera medicion uso las capturas nocturnas del iVMS-4200 — **camara
+equivocada**. El operador aporto la vista real
+(`Desktop\aru`, "FRONT HOTEL VIEW MOLINO"): estacionamiento de hotel, de
+dia, gran angular, camara alta. Ese SI es el dominio de UA-DETRAC, asi que
+se repitio la medicion. 5 fotos, 704x480 y 1920x1080:
+
+    vehiculos encontrados (suma de las 5 fotos)
+      produccion (yolo26m + compuerta por clase)   136
+      aruba.pt  imgsz 640  conf 0,10 (su mejor)     40
+      aruba.pt  imgsz 640  conf 0,25                31
+      aruba.pt  imgsz 1280 conf 0,10                31
+      aruba.pt  imgsz 1920 conf 0,10                23
+
+**Confirmado a ojo** con las imagenes anotadas: en la foto de 1920x1080,
+produccion marca 27 vehiculos —practicamente cada coche del
+estacionamiento, incluidos los lejanos— y aruba.pt marca 8: solo los
+grandes y cercanos. Se pierde entero el estacionamiento de la izquierda.
+
+**Matiz justo**: lo que SI encuentra lo encuentra con mucha confianza
+(0,93-0,96) y sus clases ahi parecen correctas. Es un modelo PRECISO pero
+de recall bajo en objetos pequenos/lejanos — coherente con entrenar a 640
+sobre trafico cercano. Subir la resolucion no ayuda (empeora), lo que
+indica que no generaliza a escalas que no vio.
+
+**Conclusion (sin cambios, ahora mejor fundada):** como DETECTOR es peor
+que el de produccion en su propio dominio. Como REFINADOR de clase —que es
+como esta integrado, sin sustituir la deteccion— es inocuo pero aporta
+poco: en este estacionamiento casi todo es `carro` y produccion ya lo
+etiqueta asi.
